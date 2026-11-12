@@ -7,6 +7,7 @@ using SmartTaskManager.Infrastructure.Auth;
 using SmartTaskManager.Infrastructure.Persistence;
 using SmartTaskManager.Infrastructure.Persistence.Interceptors;
 using SmartTaskManager.Infrastructure.Persistence.Seed;
+using SmartTaskManager.Infrastructure.Repositories;
 
 namespace SmartTaskManager.Infrastructure;
 
@@ -39,7 +40,12 @@ public static class DependencyInjection
                 sp.GetRequiredService<SoftDeleteInterceptor>(),
                 sp.GetRequiredService<AuditableEntityInterceptor>()));
 
+        services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<AppDbContext>());
+        services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+
         services.AddSingleton<IPasswordHasher, PasswordHasher>();
+        services.AddSingleton<ITokenService, JwtTokenService>();
         services.AddScoped<AdminSeeder>();
 
         return services;

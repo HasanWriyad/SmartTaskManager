@@ -4,7 +4,8 @@ namespace SmartTaskManager.Domain.Entities;
 
 /// <summary>
 /// A refresh token issued to a user. Only the SHA-256 hash of the token value is stored.
-/// Tokens are rotated: each refresh revokes the current token and records its replacement.
+/// Tokens are rotated: each refresh revokes the current token and issues a replacement in the same
+/// <see cref="FamilyId"/>. A family is one login session, so reuse of a revoked token revokes the family.
 /// </summary>
 public sealed class RefreshToken : BaseEntity
 {
@@ -18,6 +19,9 @@ public sealed class RefreshToken : BaseEntity
 
     public User User { get; private set; } = null!;
 
+    /// <summary>Shared by every token produced by rotation from one login.</summary>
+    public Guid FamilyId { get; private set; }
+
     public string TokenHash { get; private set; } = null!;
 
     public DateTimeOffset CreatedAt { get; private set; }
@@ -28,9 +32,15 @@ public sealed class RefreshToken : BaseEntity
 
     public Guid? ReplacedByTokenId { get; private set; }
 
-    public static RefreshToken Create(Guid userId, string tokenHash, DateTimeOffset createdAt, DateTimeOffset expiresAt) => new()
+    public static RefreshToken Create(
+        Guid userId,
+        Guid familyId,
+        string tokenHash,
+        DateTimeOffset createdAt,
+        DateTimeOffset expiresAt) => new()
     {
         UserId = userId,
+        FamilyId = familyId,
         TokenHash = tokenHash,
         CreatedAt = createdAt,
         ExpiresAt = expiresAt,
@@ -38,16 +48,5 @@ public sealed class RefreshToken : BaseEntity
 
     public bool IsRevoked => RevokedAt is not null;
 
-    public bool IsActive(DateTimeOffset now) => !IsRevoked && now < ExpiresAt;
-
-    public void Revoke(DateTimeOffset at, Guid? replacedByTokenId = null)
-    {
-        if (IsRevoked)
-        {
-            return;
-        }
-
-        RevokedAt = at;
-        ReplacedByTokenId = replacedByTokenId;
-    }
+    public bool IsExpired(DateTimeOffset now) => now >= ExpiresAt;
 }

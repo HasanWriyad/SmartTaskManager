@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Mvc;
 using SmartTaskManager.Api.ErrorHandling;
+using SmartTaskManager.Api.Filters;
 using SmartTaskManager.Api.Services;
 using SmartTaskManager.Application.Abstractions;
 using SmartTaskManager.Application.Common;
@@ -19,14 +20,26 @@ internal static class ApiExtensions
         services.AddExceptionHandler<GlobalExceptionHandler>();
 
         services
-            .AddControllers()
+            .AddControllers(o =>
+            {
+                o.Filters.Add<ValidationFilter>();
+                // FluentValidation is the single source of input rules; don't let non-nullable
+                // properties add their own implicit "field is required" errors.
+                o.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true;
+            })
             .AddJsonOptions(o =>
             {
                 o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
                 // Don't echo System.Text.Json parser internals back to clients.
                 o.AllowInputFormatterExceptionMessages = false;
             })
-            .ConfigureApiBehaviorOptions(o => o.InvalidModelStateResponseFactory = InvalidModelStateResponse);
+            .ConfigureApiBehaviorOptions(o =>
+            {
+                o.InvalidModelStateResponseFactory = InvalidModelStateResponse;
+                // Leave bodiless 4xx results (e.g. 415) empty so UseStatusCodePages writes them as
+                // ApiResponse, instead of [ApiController] turning them into ProblemDetails.
+                o.SuppressMapClientErrors = true;
+            });
 
         // Responses written outside MVC (error handler, status code pages) use the same enum format.
         services.ConfigureHttpJsonOptions(o => o.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
@@ -45,7 +58,8 @@ internal static class ApiExtensions
         var errors = context.ModelState
             .Where(e => e.Value is { Errors.Count: > 0 })
             .ToDictionary(
-                e => e.Key,
+                // An empty key means the body as a whole (e.g. missing body).
+                e => string.IsNullOrEmpty(e.Key) ? "body" : e.Key,
                 e => e.Value!.Errors
                     .Select(err => string.IsNullOrEmpty(err.ErrorMessage) ? "The value is invalid." : err.ErrorMessage)
                     .ToArray());

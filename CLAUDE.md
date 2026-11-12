@@ -45,7 +45,11 @@ Clean Architecture:
 - Seed one Admin at startup if none exists; credentials come from user-secrets / environment variables
 - Access token lasts 15 min, refresh token 7 days, rotated on every refresh, stored as a SHA-256 hash; reusing a revoked token revokes its chain
 - Logout revokes the refresh token; no access-token blacklist
+- Refresh tokens carry a FamilyId (one per login); revoking a chain means revoking the family
+- Register returns the created user (201) and no tokens; the client calls login afterwards
+- Deactivated users keep their current access token until it expires (max 15 min); login and refresh are blocked immediately
 - Frontend keeps the access token in memory (signal); the refresh token lives in an httpOnly, Secure, SameSite=Strict cookie with Path=/api/auth
+- The Angular app must share a single in-flight refresh request across the interceptor and session restore, because parallel refreshes count as token reuse
 - Development: Angular proxy (frontend/proxy.conf.json) forwards /api to the API, so calls are same-origin
 - Rate limits (built-in RateLimiting): global 100/min per IP; auth endpoints 5/min per IP; AI 10/min per user
 - Users can see only projects they own or are members of; return 404 (not 403) for resources the user cannot see

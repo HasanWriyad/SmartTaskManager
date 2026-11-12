@@ -17,6 +17,7 @@ internal sealed class RefreshTokenConfiguration : IEntityTypeConfiguration<Refre
             .IsUnicode(false)
             .IsRequired();
         builder.HasIndex(t => t.TokenHash).IsUnique();
+        builder.HasIndex(t => t.FamilyId);
 
         builder.Ignore(t => t.IsRevoked);
 

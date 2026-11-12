@@ -2,6 +2,7 @@ using System.Globalization;
 using Serilog;
 using SmartTaskManager.Api.ErrorHandling;
 using SmartTaskManager.Api.Extensions;
+using SmartTaskManager.Application;
 using SmartTaskManager.Infrastructure;
 using SmartTaskManager.Infrastructure.Persistence;
 
@@ -19,6 +20,7 @@ try
         .ReadFrom.Services(services)
         .Enrich.FromLogContext());
 
+    builder.Services.AddApplication();
     builder.Services.AddInfrastructure(builder.Configuration);
     builder.Services.AddApiServices(builder.Configuration);
     builder.Services.AddProblemDetails();
