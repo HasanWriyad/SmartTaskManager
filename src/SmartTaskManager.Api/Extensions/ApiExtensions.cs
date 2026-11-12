@@ -59,11 +59,7 @@ internal static class ApiExtensions
         var errors = context.ModelState
             .Where(e => e.Value is { Errors.Count: > 0 })
             .ToDictionary(
-                // An empty key means the body as a whole (e.g. missing body). Other keys are camelCased
-                // to match FluentValidation errors and the JSON property names.
-                e => string.IsNullOrEmpty(e.Key)
-                    ? "body"
-                    : string.Join('.', e.Key.Split('.').Select(JsonNamingPolicy.CamelCase.ConvertName)),
+                e => ToErrorKey(e.Key),
                 e => e.Value!.Errors
                     .Select(err => string.IsNullOrEmpty(err.ErrorMessage) ? "The value is invalid." : err.ErrorMessage)
                     .ToArray());
@@ -74,6 +70,23 @@ internal static class ApiExtensions
             ErrorResponseWriter.GetTraceId(context.HttpContext));
 
         return new BadRequestObjectResult(body);
+    }
+
+    /// <summary>
+    /// Normalizes model-state keys to the camelCase field names FluentValidation errors use:
+    /// "" or "$" (the body as a whole) -> "body"; JSON paths like "$.priority" -> "priority";
+    /// query/route keys like "SortDirection" -> "sortDirection".
+    /// </summary>
+    private static string ToErrorKey(string key)
+    {
+        if (key.StartsWith("$.", StringComparison.Ordinal))
+        {
+            key = key[2..];
+        }
+
+        return key is "" or "$"
+            ? "body"
+            : string.Join('.', key.Split('.').Select(JsonNamingPolicy.CamelCase.ConvertName));
     }
 
     /// <summary>

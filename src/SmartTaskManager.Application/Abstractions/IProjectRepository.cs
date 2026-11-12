@@ -7,8 +7,8 @@ namespace SmartTaskManager.Application.Abstractions;
 /// <summary>Soft-deleted projects are invisible to every method here.</summary>
 public interface IProjectRepository
 {
-    /// <summary>Tracked load, for updates. Does not apply visibility rules.</summary>
-    Task<Project?> GetByIdAsync(Guid id, CancellationToken cancellationToken);
+    /// <summary>Tracked load, for updates; null when the project does not exist or the viewer cannot see it.</summary>
+    Task<Project?> GetVisibleAsync(Guid id, Viewer viewer, CancellationToken cancellationToken);
 
     Task<IReadOnlyList<ProjectListItemDto>> ListVisibleAsync(Viewer viewer, CancellationToken cancellationToken);
 

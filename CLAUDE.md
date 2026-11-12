@@ -32,6 +32,7 @@ Clean Architecture:
 - Single role per user: `Role` enum column on User, emitted as the JWT `role` claim
 - Entities: User, RefreshToken, Project, ProjectMember, TaskItem
 - ProjectMember (ProjectId, UserId) with simple add/remove member endpoints; a task's assignee must be a project member
+- Creating a project adds the owner as a member in the same save; removing the owner from the members returns 409
 - Removing a member unassigns their tasks in that project (same save); adding an inactive user or an existing member returns 409
 - Soft delete for Project and TaskItem (IsDeleted, DeletedAt, DeletedById) via EF Core 10 named query filters plus a SaveChanges interceptor; deleting a project soft-deletes its tasks in the same transaction
 - No soft delete for RefreshToken (revoke and purge), ProjectMember (hard delete) or User (deactivate with IsActive)
@@ -57,8 +58,9 @@ Clean Architecture:
 
 ### Role permissions
 - Admin: everything, including user management (list users, change roles, deactivate)
-- ProjectManager: can create projects; on projects they own, can update, delete, manage members, and create/edit/assign/delete tasks and update task status. On projects where they are only a member, they have read access. They get read-only user lookup for assigning tasks
+- ProjectManager: can create projects; on projects they own, can update, delete, manage members, and create/edit/assign/delete tasks and update task status. On projects where they are only a member, they have read access, except updating the status of tasks assigned to them. They get read-only user lookup for assigning tasks
 - TeamMember: read access to projects they are a member of; can update status only on tasks assigned to them
+- Any active assignee, whatever their role, can update the status of their own task; reopening a cancelled task stays limited to the project owner or an Admin
 - AI improve-description endpoint: Admin and ProjectManager only
 - Dashboard is scoped to the projects the user can see (Admin sees global stats)
 

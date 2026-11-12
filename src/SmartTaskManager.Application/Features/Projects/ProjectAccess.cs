@@ -15,6 +15,8 @@ namespace SmartTaskManager.Application.Features.Projects;
 /// </summary>
 public static class ProjectAccess
 {
+    public const string ManageForbiddenMessage = "Only the project owner or an Admin can modify this project.";
+
     public static bool CanCreate(Viewer viewer) => viewer.IsAdmin || viewer.IsProjectManager;
 
     public static bool CanManage(Viewer viewer, Guid ownerId) =>

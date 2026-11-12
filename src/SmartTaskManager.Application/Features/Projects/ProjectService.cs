@@ -15,8 +15,6 @@ internal sealed partial class ProjectService(
     TimeProvider timeProvider,
     ILogger<ProjectService> logger) : IProjectService
 {
-    private const string ManageForbidden = "Only the project owner or an Admin can modify this project.";
-
     public Task<IReadOnlyList<ProjectListItemDto>> ListAsync(CancellationToken cancellationToken) =>
         projects.ListVisibleAsync(currentUser.RequireViewer(), cancellationToken);
 
@@ -35,7 +33,9 @@ internal sealed partial class ProjectService(
         var project = Project.Create(request.Name, request.Description, viewer.UserId);
         await EnsureNameAvailableAsync(project.OwnerId, project.Name, excludingProjectId: null, cancellationToken);
 
-        projects.Add(project);
+        projects.Add(project); // the key is generated on Add, so the membership can reference it
+        // The owner is a member too, so they can be assigned tasks; both rows go in one save.
+        projects.AddMember(ProjectMember.Create(project.Id, project.OwnerId, timeProvider.GetUtcNow()));
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         LogProjectCreated(logger, viewer.UserId, project.Id);
@@ -95,6 +95,10 @@ internal sealed partial class ProjectService(
 
         var member = await projects.GetMemberAsync(project.Id, userId, cancellationToken)
             ?? throw new NotFoundException("Project member", userId);
+        if (member.UserId == project.OwnerId)
+        {
+            throw new ConflictException("The project owner cannot be removed from the members.");
+        }
 
         // Assignees must be members, so the removed user's tasks in this project become unassigned.
         var assigned = await tasks.GetAssignedInProjectAsync(project.Id, userId, cancellationToken);
@@ -114,24 +118,15 @@ internal sealed partial class ProjectService(
     private async Task<(Project Project, Viewer Viewer)> LoadForManageAsync(Guid id, CancellationToken cancellationToken)
     {
         var viewer = currentUser.RequireViewer();
-        var project = await projects.GetByIdAsync(id, cancellationToken);
-        if (project is null || !await CanSeeAsync(project, viewer, cancellationToken))
-        {
-            throw ProjectNotFound(id);
-        }
+        var project = await projects.GetVisibleAsync(id, viewer, cancellationToken) ?? throw ProjectNotFound(id);
 
         if (!ProjectAccess.CanManage(viewer, project.OwnerId))
         {
-            throw new ForbiddenException(ManageForbidden);
+            throw new ForbiddenException(ProjectAccess.ManageForbiddenMessage);
         }
 
         return (project, viewer);
     }
-
-    private async Task<bool> CanSeeAsync(Project project, Viewer viewer, CancellationToken cancellationToken) =>
-        viewer.IsAdmin
-        || project.OwnerId == viewer.UserId
-        || await projects.IsMemberAsync(project.Id, viewer.UserId, cancellationToken);
 
     private async Task EnsureNameAvailableAsync(Guid ownerId, string name, Guid? excludingProjectId, CancellationToken cancellationToken)
     {

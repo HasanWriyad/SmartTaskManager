@@ -11,7 +11,7 @@ public interface IProjectService
 
     Task<ProjectDetailsDto> GetAsync(Guid id, CancellationToken cancellationToken);
 
-    /// <summary>Admin or ProjectManager; the caller becomes the owner.</summary>
+    /// <summary>Admin or ProjectManager; the caller becomes the owner and its first member.</summary>
     Task<ProjectDetailsDto> CreateAsync(CreateProjectRequest request, CancellationToken cancellationToken);
 
     Task<ProjectDetailsDto> UpdateAsync(Guid id, UpdateProjectRequest request, CancellationToken cancellationToken);
@@ -22,6 +22,9 @@ public interface IProjectService
     /// <summary>Adds an active user as a member.</summary>
     Task<ProjectDetailsDto> AddMemberAsync(Guid id, AddProjectMemberRequest request, CancellationToken cancellationToken);
 
-    /// <summary>Removes a member and unassigns their tasks in this project, in one transaction.</summary>
+    /// <summary>
+    /// Removes a member and unassigns their tasks in this project, in one transaction.
+    /// The owner cannot be removed (409).
+    /// </summary>
     Task<ProjectDetailsDto> RemoveMemberAsync(Guid id, Guid userId, CancellationToken cancellationToken);
 }

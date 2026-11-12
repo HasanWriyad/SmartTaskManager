@@ -10,8 +10,11 @@ namespace SmartTaskManager.Infrastructure.Repositories;
 // The soft-delete query filter hides deleted projects (and members/tasks of deleted projects) everywhere.
 internal sealed class ProjectRepository(AppDbContext db) : IProjectRepository
 {
-    public Task<Project?> GetByIdAsync(Guid id, CancellationToken cancellationToken) =>
-        db.Projects.SingleOrDefaultAsync(p => p.Id == id, cancellationToken);
+    public Task<Project?> GetVisibleAsync(Guid id, Viewer viewer, CancellationToken cancellationToken) =>
+        db.Projects
+            .Where(p => p.Id == id)
+            .Where(ProjectAccess.VisibleTo(viewer))
+            .SingleOrDefaultAsync(cancellationToken);
 
     public async Task<IReadOnlyList<ProjectListItemDto>> ListVisibleAsync(Viewer viewer, CancellationToken cancellationToken) =>
         await db.Projects
