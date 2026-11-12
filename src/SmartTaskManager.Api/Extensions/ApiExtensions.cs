@@ -1,3 +1,4 @@
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Mvc;
 using SmartTaskManager.Api.ErrorHandling;
@@ -58,8 +59,11 @@ internal static class ApiExtensions
         var errors = context.ModelState
             .Where(e => e.Value is { Errors.Count: > 0 })
             .ToDictionary(
-                // An empty key means the body as a whole (e.g. missing body).
-                e => string.IsNullOrEmpty(e.Key) ? "body" : e.Key,
+                // An empty key means the body as a whole (e.g. missing body). Other keys are camelCased
+                // to match FluentValidation errors and the JSON property names.
+                e => string.IsNullOrEmpty(e.Key)
+                    ? "body"
+                    : string.Join('.', e.Key.Split('.').Select(JsonNamingPolicy.CamelCase.ConvertName)),
                 e => e.Value!.Errors
                     .Select(err => string.IsNullOrEmpty(err.ErrorMessage) ? "The value is invalid." : err.ErrorMessage)
                     .ToArray());

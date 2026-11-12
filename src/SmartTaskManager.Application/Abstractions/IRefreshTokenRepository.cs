@@ -19,6 +19,9 @@ public interface IRefreshTokenRepository
     /// <summary>Revokes every still-active token in the family (executes immediately).</summary>
     Task RevokeFamilyAsync(Guid familyId, DateTimeOffset revokedAt, CancellationToken cancellationToken);
 
+    /// <summary>Revokes every still-active token of the user, ending all their sessions (executes immediately).</summary>
+    Task RevokeAllForUserAsync(Guid userId, DateTimeOffset revokedAt, CancellationToken cancellationToken);
+
     /// <summary>
     /// Deletes the user's expired tokens (executes immediately). Revoked but unexpired tokens are kept,
     /// because they are what makes reuse detectable.

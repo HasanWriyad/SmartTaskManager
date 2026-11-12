@@ -1,5 +1,6 @@
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using SmartTaskManager.Application.Abstractions;
 using SmartTaskManager.Application.Common.Exceptions;
 using SmartTaskManager.Domain.Entities;
@@ -35,6 +36,16 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
         }
     }
 
+    async Task<IUnitOfWorkTransaction> IUnitOfWork.BeginTransactionAsync(CancellationToken cancellationToken) =>
+        new EfTransaction(await Database.BeginTransactionAsync(cancellationToken));
+
     protected override void OnModelCreating(ModelBuilder modelBuilder) =>
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
+
+    private sealed class EfTransaction(IDbContextTransaction inner) : IUnitOfWorkTransaction
+    {
+        public Task CommitAsync(CancellationToken cancellationToken) => inner.CommitAsync(cancellationToken);
+
+        public ValueTask DisposeAsync() => inner.DisposeAsync();
+    }
 }

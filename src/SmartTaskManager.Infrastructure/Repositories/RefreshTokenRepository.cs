@@ -38,6 +38,11 @@ internal sealed class RefreshTokenRepository(AppDbContext db) : IRefreshTokenRep
             .Where(t => t.FamilyId == familyId && t.RevokedAt == null)
             .ExecuteUpdateAsync(s => s.SetProperty(t => t.RevokedAt, revokedAt), cancellationToken);
 
+    public Task RevokeAllForUserAsync(Guid userId, DateTimeOffset revokedAt, CancellationToken cancellationToken) =>
+        db.RefreshTokens
+            .Where(t => t.UserId == userId && t.RevokedAt == null)
+            .ExecuteUpdateAsync(s => s.SetProperty(t => t.RevokedAt, revokedAt), cancellationToken);
+
     public Task DeleteExpiredAsync(Guid userId, DateTimeOffset now, CancellationToken cancellationToken) =>
         db.RefreshTokens
             .Where(t => t.UserId == userId && t.ExpiresAt <= now)
