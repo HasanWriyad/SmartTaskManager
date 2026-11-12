@@ -170,4 +170,35 @@ paging components (PagedQuery, PagedResult, sort whitelist validator).
   (at most 15 minutes), consistent with decision D6.
 
 
+  ---
+
+### Step 3.1 — Project Module
+**Prompt:**
+Implement the Projects feature: create, update, soft delete (also soft-deletes
+its tasks in the same transaction), get details, and list. Enforce the
+role-permission matrix in the service layer using ICurrentUser, and return 404
+for projects the user cannot see. Add endpoints to add and remove project
+members. Keep the list endpoint simple for now; search, sorting, and pagination
+come in a later step. Test the soft delete interceptor and the cascade to tasks.
+
+**Result:** Project CRUD and member management. Permission rules centralised
+in ProjectAccess, used both for SQL filtering and the canManage flag.
+404 for projects a user cannot see, 403 for projects they can see but not
+change. Soft delete cascades to live tasks in a single transaction.
+
+**My review/changes:**
+- Added the soft delete test to the prompt, since it could not be verified
+  in step 2.1.
+- Verified the cascade, the single transaction and a forced rollback.
+- Accepted the fix that limits soft delete updates to the delete columns, so a
+  concurrent edit is not overwritten.
+- Accepted that removing a member unassigns their tasks in that project,
+  which keeps the "assignee must be a member" rule true without blocking
+  the removal.
+- Added global.json to pin the .NET 10 SDK after a newer SDK appeared on the
+  machine, so builds stay reproducible for reviewers.
+- Added a workflow rule after Claude Code stopped my running API instance:
+  only stop processes it started itself.
+
+
   
