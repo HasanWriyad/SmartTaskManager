@@ -91,3 +91,83 @@ Accepted the change from Cascade to Restrict on ProjectMember, because a
 database cascade would hard-delete member rows before the soft delete
 interceptor runs. Confirmed docs/assignment.pdf stays gitignored after the
 .gitignore rewrite.
+
+---
+
+### Step 2.2 — Cross-cutting Infrastructure
+**Prompt:**
+Add ApiResponse<T>, the global exception handler mapping exceptions to
+consistent responses, Serilog (console and rolling file), Swagger UI with
+Swashbuckle and JWT bearer support, CORS, HTTPS redirection, ICurrentUser,
+and the authorization policies from the plan.
+
+**Result:** Consistent ApiResponse body with traceId for every error,
+including framework 401/403/405 responses. Exception mapping to 400/404/409/
+422/500, Serilog to console and rolling file, Swagger with Bearer support
+(Development only), CORS for the Angular origin with credentials, JWT bearer
+validation, and a fallback policy requiring authentication by default.
+
+**My review/changes:** Verified each behaviour with real requests: 401 for
+missing or invalid tokens, 403 for wrong roles, correct status codes per
+exception type, no internal details in responses, and CORS limited to the
+Angular origin. Accepted pinning Swashbuckle to 10.3.1 instead of a release
+published two days earlier. Noted that the health endpoint must be marked
+anonymous later because of the default authentication policy.
+
+---
+
+### Step 2.3 — Authentication
+**Prompt:**
+Implement register (always creates a TeamMember), login, refresh, and logout.
+Return the access token in the response body and set the refresh token in an
+httpOnly, Secure, SameSite=Strict cookie scoped to /api/auth. Store refresh
+tokens hashed, rotate on every refresh, revoke the whole chain if a revoked
+token is reused, and block inactive users. Add FluentValidation for all inputs.
+Test the full flow in Swagger.
+
+**Result:** Register, login, refresh and logout endpoints. Access token
+(15 min) in the body, refresh token in a secure httpOnly cookie scoped to
+/api/auth, SHA-256 hashed storage, rotation on every refresh, and reuse
+detection that revokes the whole token family. 34 automated flow checks passed.
+
+**My review/changes:**
+- Verified that register ignores a role sent by the client, that login
+  errors do not reveal whether an email exists or an account is inactive,
+  and that no tokens or passwords appear in logs.
+- Accepted a FamilyId column so a token family can be revoked in one update.
+- Kept register and login separate, and accepted that inactive users keep
+  their access token until it expires (no blacklist, per decision D6).
+- Recorded in CLAUDE.md that the Angular app must share one in-flight
+  refresh request, because parallel refreshes are treated as token reuse.
+- Tested the flow manually in Swagger UI and checked the cookie attributes
+  in browser DevTools.
+
+
+
+  ---
+
+### Step 2.4 — User Management
+**Prompt:**
+Add Admin-only endpoints to list users, change a user's role, and activate or
+deactivate a user. An Admin cannot deactivate themselves or change their own
+role, and the last active Admin cannot be demoted or deactivated. Add a
+read-only user lookup endpoint that Admin and ProjectManager can use when
+adding project members or assigning tasks. Never return password hashes.
+
+**Result:** Admin endpoints for listing users (search, filter, sort, paging),
+changing roles and activating or deactivating users, plus a lookup endpoint
+for Admin and ProjectManager that returns only id, name and email. Reusable
+paging components (PagedQuery, PagedResult, sort whitelist validator).
+
+**My review/changes:**
+- Added the self-protection and last-Admin rules to the prompt myself, so the
+  system can never be left without an active Admin.
+- Verified that concurrent demotions are serialised with a SQL Server
+  application lock, so one Admin always remains.
+- Verified that deactivation revokes all refresh tokens immediately and that
+  password hashes are never read or returned.
+- Accepted that a role change applies on the user's next token refresh
+  (at most 15 minutes), consistent with decision D6.
+
+
+  
