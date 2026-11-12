@@ -32,6 +32,7 @@ Clean Architecture:
 - Single role per user: `Role` enum column on User, emitted as the JWT `role` claim
 - Entities: User, RefreshToken, Project, ProjectMember, TaskItem
 - ProjectMember (ProjectId, UserId) with simple add/remove member endpoints; a task's assignee must be a project member
+- Removing a member unassigns their tasks in that project (same save); adding an inactive user or an existing member returns 409
 - Soft delete for Project and TaskItem (IsDeleted, DeletedAt, DeletedById) via EF Core 10 named query filters plus a SaveChanges interceptor; deleting a project soft-deletes its tasks in the same transaction
 - No soft delete for RefreshToken (revoke and purge), ProjectMember (hard delete) or User (deactivate with IsActive)
 - No restore or trash endpoints in v1
@@ -84,3 +85,4 @@ Clean Architecture:
 ## Workflow
 - Explain the plan before large changes
 - Keep commits small and focused
+- Only stop processes you started yourself, by PID.

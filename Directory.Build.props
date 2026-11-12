@@ -8,8 +8,9 @@
     <AnalysisLevel>latest-recommended</AnalysisLevel>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <!-- Missing XML doc comments are not treated as warnings. -->
-    <NoWarn>$(NoWarn);CS1591</NoWarn>
+    <!-- XML docs are optional: neither missing comments (CS1591) nor documenting only some
+         parameters (CS1573) is a warning. -->
+    <NoWarn>$(NoWarn);CS1591;CS1573</NoWarn>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
