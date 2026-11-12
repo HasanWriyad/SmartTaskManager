@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using SmartTaskManager.Application.Abstractions;
 using SmartTaskManager.Domain.Enums;
+using SmartTaskManager.Infrastructure.Auth;
 
 namespace SmartTaskManager.Api.Services;
 
@@ -12,12 +13,13 @@ internal sealed class CurrentUser(IHttpContextAccessor httpContextAccessor) : IC
     public bool IsAuthenticated => Principal?.Identity?.IsAuthenticated == true;
 
     public Guid? UserId =>
-        Guid.TryParse(Principal?.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? Principal?.FindFirst("sub")?.Value, out var id)
+        IsAuthenticated && Guid.TryParse(Principal!.FindFirst(AppClaimTypes.UserId)?.Value, out var id)
             ? id
             : null;
 
     public UserRole? Role =>
-        Enum.TryParse<UserRole>(Principal?.FindFirst(ClaimTypes.Role)?.Value, ignoreCase: false, out var role)
+        IsAuthenticated
+        && Enum.TryParse<UserRole>(Principal!.FindFirst(AppClaimTypes.Role)?.Value, ignoreCase: false, out var role)
         && Enum.IsDefined(role)
             ? role
             : null;

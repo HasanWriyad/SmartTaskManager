@@ -488,3 +488,6 @@ docs/assignment.pdf
 frontend/node_modules/
 frontend/.angular/
 frontend/dist/
+
+# Serilog rolling files
+logs/
