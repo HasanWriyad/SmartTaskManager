@@ -27,6 +27,7 @@ internal static class ErrorResponseWriter
         StatusCodes.Status403Forbidden => "You do not have permission to perform this action.",
         StatusCodes.Status404NotFound => "The requested resource was not found.",
         StatusCodes.Status405MethodNotAllowed => "The HTTP method is not allowed for this resource.",
+        StatusCodes.Status413PayloadTooLarge => "The request body is too large.",
         StatusCodes.Status415UnsupportedMediaType => "The request content type is not supported.",
         StatusCodes.Status429TooManyRequests => "Too many requests. Please try again later.",
         _ => "The request could not be processed.",

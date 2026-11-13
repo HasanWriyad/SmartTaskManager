@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using SmartTaskManager.Api.Auth;
+using SmartTaskManager.Api.RateLimiting;
 using SmartTaskManager.Application.Common;
 using SmartTaskManager.Application.Features.Auth;
 using SmartTaskManager.Application.Features.Users;
@@ -17,8 +19,10 @@ namespace SmartTaskManager.Api.Controllers;
 [Produces("application/json")]
 public sealed class AuthController(IAuthService authService) : ControllerBase
 {
-    /// <summary>Creates a new account with the TeamMember role.</summary>
+    /// <summary>Creates a new account with the TeamMember role. Rate limited per IP.</summary>
     [HttpPost("register")]
+    [EnableRateLimiting(RateLimitPolicies.Auth)]
+    [ProducesResponseType<ApiResponse<object>>(StatusCodes.Status429TooManyRequests)]
     [ProducesResponseType<ApiResponse<UserDto>>(StatusCodes.Status201Created)]
     [ProducesResponseType<ApiResponse<object>>(StatusCodes.Status400BadRequest)]
     [ProducesResponseType<ApiResponse<object>>(StatusCodes.Status409Conflict)]
@@ -28,8 +32,10 @@ public sealed class AuthController(IAuthService authService) : ControllerBase
         return StatusCode(StatusCodes.Status201Created, ApiResponse.Ok(user, "Registration successful."));
     }
 
-    /// <summary>Signs in and starts a session. Sets the refresh token cookie.</summary>
+    /// <summary>Signs in and starts a session. Sets the refresh token cookie. Rate limited per IP.</summary>
     [HttpPost("login")]
+    [EnableRateLimiting(RateLimitPolicies.Auth)]
+    [ProducesResponseType<ApiResponse<object>>(StatusCodes.Status429TooManyRequests)]
     [ProducesResponseType<ApiResponse<AuthResponse>>(StatusCodes.Status200OK)]
     [ProducesResponseType<ApiResponse<object>>(StatusCodes.Status400BadRequest)]
     [ProducesResponseType<ApiResponse<object>>(StatusCodes.Status401Unauthorized)]

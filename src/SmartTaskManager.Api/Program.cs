@@ -2,6 +2,8 @@ using System.Globalization;
 using Serilog;
 using SmartTaskManager.Api.ErrorHandling;
 using SmartTaskManager.Api.Extensions;
+using SmartTaskManager.Api.Health;
+using SmartTaskManager.Api.RateLimiting;
 using SmartTaskManager.Application;
 using SmartTaskManager.Application.Abstractions;
 using SmartTaskManager.Infrastructure;
@@ -16,6 +18,11 @@ try
 {
     var builder = WebApplication.CreateBuilder(args);
 
+    // The largest legitimate request is a few KB; the 30 MB default only invites abuse. Exceeding the
+    // limit returns 413 (as ApiResponse via the exception handler).
+    var maxRequestBodyBytes = builder.Configuration.GetValue<long?>("RequestLimits:MaxRequestBodyBytes") ?? 1_048_576;
+    builder.WebHost.ConfigureKestrel(kestrel => kestrel.Limits.MaxRequestBodySize = maxRequestBodyBytes);
+
     builder.Services.AddSerilog((services, logger) => logger
         .ReadFrom.Configuration(builder.Configuration)
         .ReadFrom.Services(services)
@@ -28,6 +35,8 @@ try
     builder.Services.AddJwtAuthentication(builder.Configuration);
     builder.Services.AddAuthorizationPolicies();
     builder.Services.AddSwaggerDocumentation();
+    builder.Services.AddApiRateLimiting(builder.Configuration);
+    builder.Services.AddApiHealthChecks();
 
     var app = builder.Build();
 
@@ -59,9 +68,13 @@ try
 
     app.UseCors(ApiExtensions.FrontendCorsPolicy);
     app.UseAuthentication();
+    // After authentication so the AI policy can partition by user id; before authorization so
+    // floods are rejected cheaply.
+    app.UseRateLimiter();
     app.UseAuthorization();
 
     app.MapControllers();
+    app.MapApiHealthChecks();
 
     await app.RunAsync();
 }

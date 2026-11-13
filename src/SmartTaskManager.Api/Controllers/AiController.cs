@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using SmartTaskManager.Api.Authorization;
+using SmartTaskManager.Api.RateLimiting;
 using SmartTaskManager.Application.Common;
 using SmartTaskManager.Application.Features.Ai;
 
@@ -10,6 +12,7 @@ namespace SmartTaskManager.Api.Controllers;
 [ApiController]
 [Route("api/ai")]
 [Authorize(Policy = Policies.AdminOrProjectManager)]
+[EnableRateLimiting(RateLimitPolicies.Ai)]
 [Produces("application/json")]
 public sealed class AiController(IAiAssistantService aiAssistantService) : ControllerBase
 {
