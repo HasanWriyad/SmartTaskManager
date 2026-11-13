@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using SmartTaskManager.Application.Abstractions;
+using SmartTaskManager.Infrastructure.Ai;
 using SmartTaskManager.Infrastructure.Auth;
 using SmartTaskManager.Infrastructure.Persistence;
 using SmartTaskManager.Infrastructure.Persistence.Interceptors;
@@ -46,6 +47,20 @@ public static class DependencyInjection
         services.AddScoped<IProjectRepository, ProjectRepository>();
         services.AddScoped<ITaskRepository, TaskRepository>();
         services.AddScoped<IDashboardRepository, DashboardRepository>();
+
+        services.AddOptions<AiSettings>()
+            .Bind(configuration.GetSection(AiSettings.SectionName))
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+        var aiSettings = configuration.GetSection(AiSettings.SectionName).Get<AiSettings>() ?? new AiSettings();
+        if (aiSettings.HasApiKey)
+        {
+            services.AddSingleton<IAiDescriptionService, OpenAiCompatibleDescriptionService>();
+        }
+        else
+        {
+            services.AddSingleton<IAiDescriptionService, FallbackDescriptionService>();
+        }
 
         services.AddSingleton<IPasswordHasher, PasswordHasher>();
         services.AddSingleton<ITokenService, JwtTokenService>();

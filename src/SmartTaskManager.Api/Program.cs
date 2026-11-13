@@ -3,6 +3,7 @@ using Serilog;
 using SmartTaskManager.Api.ErrorHandling;
 using SmartTaskManager.Api.Extensions;
 using SmartTaskManager.Application;
+using SmartTaskManager.Application.Abstractions;
 using SmartTaskManager.Infrastructure;
 using SmartTaskManager.Infrastructure.Persistence;
 
@@ -31,6 +32,9 @@ try
     var app = builder.Build();
 
     await app.Services.InitializeDatabaseAsync(app.Lifetime.ApplicationStopping);
+
+    // Resolve once so the startup log states which AI implementation is active (provider or fallback).
+    _ = app.Services.GetRequiredService<IAiDescriptionService>();
 
     // Outermost, so the logged status code is the one the client actually receives.
     app.UseSerilogRequestLogging();

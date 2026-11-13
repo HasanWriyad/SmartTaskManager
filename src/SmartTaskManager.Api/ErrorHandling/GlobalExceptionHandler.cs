@@ -29,11 +29,21 @@ internal sealed partial class GlobalExceptionHandler(ILogger<GlobalExceptionHand
             NotFoundException e => (StatusCodes.Status404NotFound, e.Message, null),
             ConflictException e => (StatusCodes.Status409Conflict, e.Message, null),
             DomainException e => (StatusCodes.Status422UnprocessableEntity, e.Message, null),
+            // 429/502/503/504 from a dependency; the service that threw it already logged the details.
+            ExternalServiceException e => (e.StatusCode, e.Message, null),
             BadHttpRequestException e => (e.StatusCode, ErrorResponseWriter.MessageFor(e.StatusCode), null),
             _ => (StatusCodes.Status500InternalServerError, UnexpectedErrorMessage, (IReadOnlyDictionary<string, string[]>?)null),
         };
 
-        if (statusCode >= StatusCodes.Status500InternalServerError)
+        if (exception is ExternalServiceException { RetryAfter: { } retryAfter })
+        {
+            httpContext.Response.Headers.RetryAfter =
+                ((int)Math.Ceiling(retryAfter.TotalSeconds)).ToString(System.Globalization.CultureInfo.InvariantCulture);
+        }
+
+        // Expected errors (our own exception types) are logged briefly; anything else in full.
+        var isExpected = exception is AppException or DomainException or BadHttpRequestException;
+        if (!isExpected)
         {
             LogUnhandledException(logger, exception, httpContext.Request.Method, httpContext.Request.Path);
         }
