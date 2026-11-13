@@ -261,4 +261,150 @@ sizes outside 1–100, invalid enums or dates, and an inverted due date range.
 - Accepted that a page past the end returns an empty list with real totals
   rather than 404.
 
+---
+
+### Step 6.1 — Dashboard
+**Prompt:**
+Add a dashboard endpoint returning total projects, total tasks, tasks by
+status, tasks by priority, completed vs pending, upcoming due tasks (next 7
+days), and overdue count, using the definitions in the decisions. Scope the
+data by role as in the matrix. Use efficient grouped queries instead of
+loading entities into memory.
+
+**Result:** GET /api/dashboard with totals, counts by status and priority
+(including zeros), completed/pending/cancelled, overdue and upcoming counts,
+and the 10 soonest upcoming tasks. Scoped through the same visibility rule
+as the project list. Three SQL commands per request, with no full task rows
+loaded.
+**My review/changes:**
+- Verified the query count in the SQL log and that Admin figures match an
+  independent SQL query.
+- Found that the "my tasks" view for team members from the original plan was
+  missing (see step 6.2).
+- Accepted UTC as the definition of "today", consistent with due date
+  validation, and noted it for the README.
+
+  ---
+
+### Step 6.2 — Dashboard: My Tasks
+**Prompt:**
+Add a small "my tasks" section for the caller: counts of their own pending
+and overdue tasks (assigned to them, within visible projects). Keep it
+within the existing grouped query if possible. Then rerun the dashboard
+suite and commit this step.
+
+**Result:** myTasks { pending, overdue } added to the dashboard response,
+computed as an extra key in the existing GROUP BY. Still three SQL commands
+per request.
+
+**My review/changes:**
+- Asked for this to keep the team member's dashboard useful, since project-wide
+  totals do not show their own workload.
+- Verified that the per-role counts exclude completed and soft-deleted tasks.
   
+
+  ---
+
+### Step 7.1 — AI Description Improvement
+**Prompt:**
+Implement IAiDescriptionService with GitHub Models through the OpenAI .NET SDK
+(endpoint https://models.github.ai/inference, model from configuration, token
+from user-secrets AiSettings:GitHubToken). Add POST /api/ai/improve-description
+for Admin and ProjectManager only. The system prompt must correct grammar,
+improve clarity, make it professional, expand short text, and produce
+actionable steps. Cap input at about 2,000 characters, treat user text as data
+not instructions, set a timeout, validate the output, handle 429 and other
+failures with a clear message, and use the fallback stub when no token is set.
+Do not save anything; return a suggestion only.
+
+**Result:** Provider-neutral service using the OpenAI chat API against a
+configurable endpoint. User text wrapped in delimiter tags, with embedded tags
+stripped first. Output validation (empty, truncated, oversized, filtered or
+containing delimiters). Distinct errors for rate limits (429), provider
+failures (503), unusable output (502) and timeouts (504). Offline fallback
+stub when no key is configured.
+
+**My review/changes:**
+- Reviewed the system prompt against the five requirements in the assignment
+  and the prompt injection rules.
+- Asked for a live test with three cases (vague, messy, injection attempt)
+  so the real outputs could be used in PROMPTS.md.
+- The live test showed that GitHub Models was retired on 30 July 2026, so the
+  provider had to change (see step 7.2).
+
+---
+
+### Step 7.2 — Switch Provider to Google Gemini
+**Prompt:**
+Switch the AI provider to Google Gemini through its OpenAI-compatible
+endpoint, with model gemini-2.5-flash. Rename AiSettings:GitHubToken to
+AiSettings:ApiKey. Keep the system prompt, validation, error handling and
+fallback stub unchanged. Update decision D10 in CLAUDE.md and note that
+GitHub Models was retired on 30 July 2026. Then run the three live requests
+again.
+
+Follow-up prompt:
+Set the default model to gemini-3.5-flash. Raise AiSettings:TimeoutSeconds
+to 30. Retry once on a 503 from the provider, after a short delay. Do not
+retry on timeouts or other errors.
+
+**Result:** Provider switched by configuration only, thanks to the
+provider-neutral design. gemini-2.5-flash was not available to new keys.
+Newer models were overloaded or slow during testing.
+
+**My review/changes:**
+- Chose the assignment's "any free AI provider" option after confirming the
+  GitHub Models retirement in GitHub's changelog.
+- Chose gemini-3.5-flash over the newest responding model, prioritising
+  reliability over recency.
+- Limited the retry to provider 503 errors only, so a timeout never doubles
+  the user's wait.
+
+---
+
+### Step 7.3 — Fix Truncated AI Answers
+**Prompt:**
+Add AiSettings:ReasoningEffort (default "none"; empty means do not send the
+parameter) and pass it as ReasoningEffortLevel. Raise
+AiSettings:MaxOutputTokens to 1500. First make one direct call to check that
+gemini-3.5-flash accepts "none". Record the setting and the reason in D10.
+Rerun the tests and the three live requests, and write docs/ai-examples.md
+from the real outputs.
+
+**Result:** Complete answers for all three live requests. The prompt
+injection attempt was ignored. docs/ai-examples.md written from the saved
+API responses.
+
+**My review/changes:**
+- Root cause found by Claude Code: about 574 of the 600 output tokens were
+  spent on hidden reasoning, so answers were cut off. The output validation
+  correctly rejected them with 502.
+- Chose to disable reasoning, since rewriting a description does not need it,
+  and kept the setting configurable for providers that do not support it.
+- Noted a limitation for PROMPTS.md: for very short input the model adds
+  generic steps that the input did not state.
+- Response times of 20–28 seconds were too slow for a good user experience,
+  so I asked for a comparison with the lite model (see step 7.4).
+
+---
+
+### Step 7.4 — Faster Model
+**Prompt:**
+Run the same three live requests on gemini-3.5-flash-lite with the same
+settings. If the quality is comparable and responses come back in under about
+10 seconds, make it the default model, update D10 in CLAUDE.md and
+docs/ai-examples.md, and commit. Otherwise keep gemini-3.5-flash, raise
+AiSettings:TimeoutSeconds to 45, record the reason in D10, and commit.
+
+**Result:** gemini-3.5-flash-lite answered in 1.5–2.9 seconds instead of
+20–28 seconds, with the same output format and comparable quality. The prompt
+injection attempt was ignored again. flash-lite rejects reasoning effort
+"none", so the default is "minimal", which also uses no hidden reasoning.
+
+**My review/changes:**
+- Defined measurable acceptance criteria (comparable quality, under about 10
+  seconds) before switching, with a fallback plan if they were not met.
+- Compared the outputs side by side: grammar fixed, separate concerns kept as
+  separate steps, and no prompt leak.
+- Chose the faster model because a response time of 20+ seconds is too slow
+  for a button in the task form.
