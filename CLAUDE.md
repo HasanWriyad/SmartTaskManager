@@ -54,6 +54,8 @@ Clean Architecture:
 - The Angular app must share a single in-flight refresh request across the interceptor and session restore, because parallel refreshes count as token reuse
 - Development: Angular proxy (frontend/proxy.conf.json) forwards /api to the API, so calls are same-origin
 - Rate limits (built-in RateLimiting): global 100/min per IP; auth endpoints 5/min per IP; AI 10/min per user
+- D15: the strict 5/min "auth" policy applies to login and register only (the brute-force targets). Refresh and logout stay under the global limit, because session restore calls refresh on every page load and a user reloading a few times a minute would otherwise lock themselves out
+- Rate limits partition by the connection's IP: the README must tell deployments behind a reverse proxy or load balancer to configure ForwardedHeaders, otherwise all clients share the proxy's IP and one budget
 - Users can see only projects they own or are members of; return 404 (not 403) for resources the user cannot see
 
 ### Role permissions
