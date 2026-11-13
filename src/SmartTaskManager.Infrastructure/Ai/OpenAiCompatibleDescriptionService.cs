@@ -62,7 +62,7 @@ internal sealed partial class OpenAiCompatibleDescriptionService : IAiDescriptio
         };
         if (!string.IsNullOrWhiteSpace(_settings.ReasoningEffort))
         {
-            // Hidden reasoning tokens count against MaxOutputTokens; "none" keeps the whole budget for the answer.
+            // Hidden reasoning tokens count against MaxOutputTokens; a low effort keeps the budget for the answer.
             // The SDK marks reasoning_effort as experimental (OPENAI001); suppressed here only. If the API
             // changes in a future SDK version, this is the single place to adjust.
 #pragma warning disable OPENAI001

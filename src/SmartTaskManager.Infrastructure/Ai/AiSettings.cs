@@ -16,9 +16,9 @@ public sealed class AiSettings
     [Url]
     public string Endpoint { get; init; } = "https://generativelanguage.googleapis.com/v1beta/openai/";
 
-    /// <summary>Model id as the endpoint expects it, e.g. "gemini-3.5-flash".</summary>
+    /// <summary>Model id as the endpoint expects it, e.g. "gemini-3.5-flash-lite".</summary>
     [Required]
-    public string Model { get; init; } = "gemini-3.5-flash";
+    public string Model { get; init; } = "gemini-3.5-flash-lite";
 
     /// <summary>Provider API key. Never logged.</summary>
     public string? ApiKey { get; init; }
@@ -35,13 +35,13 @@ public sealed class AiSettings
     public int MaxOutputTokens { get; init; } = 1500;
 
     /// <summary>
-    /// Sent as <c>reasoning_effort</c>: none, minimal, low, medium or high. Default "none": rewriting a
-    /// description needs no hidden reasoning, which otherwise consumed the output budget. Empty means
-    /// the parameter is not sent (the model's own default applies).
+    /// Sent as <c>reasoning_effort</c>: none, minimal, low, medium or high (models differ: gemini-3.5-flash-lite
+    /// rejects "none"). Default "minimal": rewriting a description needs little hidden reasoning, which otherwise
+    /// consumes the output budget and adds latency. Empty means the parameter is not sent (the model's default applies).
     /// </summary>
     // Whitespace around (or instead of) the value is allowed, matching how the value is trimmed when used.
     [RegularExpression(@"^\s*(none|minimal|low|medium|high)?\s*$")]
-    public string? ReasoningEffort { get; init; } = "none";
+    public string? ReasoningEffort { get; init; } = "minimal";
 
     public bool HasApiKey => !string.IsNullOrWhiteSpace(ApiKey);
 }
