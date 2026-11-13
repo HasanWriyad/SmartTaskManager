@@ -27,6 +27,8 @@ internal static class SwaggerExtensions
                 Description = "Paste the access token returned by /api/auth/login (without the 'Bearer ' prefix).",
             });
             options.OperationFilter<AuthorizeOperationFilter>();
+            // Query parameters bind case-insensitively; document them in camelCase like the JSON bodies.
+            options.DescribeAllParametersInCamelCase();
 
             var xmlFile = Path.Combine(AppContext.BaseDirectory, $"{typeof(Program).Assembly.GetName().Name}.xml");
             if (File.Exists(xmlFile))

@@ -1,0 +1,1147 @@
+{
+    "info":  {
+                 "name":  "Smart Task Manager API",
+                 "description":  "Generated from docs/swagger.json by tools/export-api-docs.ps1.\n\nSign in with \u0027POST /api/auth/login\u0027 first: it stores the access token in {{accessToken}}, which every request sends as a Bearer token. Create requests store new ids in {{userId}}, {{projectId}} and {{taskId}}. The refresh token is an httpOnly cookie that Postman keeps automatically. Requests marked \u0027No Auth\u0027 are anonymous.",
+                 "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+             },
+    "auth":  {
+                 "type":  "bearer",
+                 "bearer":  [
+                                {
+                                    "key":  "token",
+                                    "value":  "{{accessToken}}",
+                                    "type":  "string"
+                                }
+                            ]
+             },
+    "variable":  [
+                     {
+                         "key":  "baseUrl",
+                         "value":  "https://localhost:7122"
+                     },
+                     {
+                         "key":  "accessToken",
+                         "value":  ""
+                     },
+                     {
+                         "key":  "userId",
+                         "value":  ""
+                     },
+                     {
+                         "key":  "projectId",
+                         "value":  ""
+                     },
+                     {
+                         "key":  "taskId",
+                         "value":  ""
+                     }
+                 ],
+    "item":  [
+                 {
+                     "name":  "Auth",
+                     "item":  [
+                                  {
+                                      "name":  "POST /api/auth/register - Creates a new account with the TeamMember role",
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/auth/register",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "auth",
+                                                                               "register"
+                                                                           ]
+                                                              },
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{\r\n    \"email\":  \"user@example.com\",\r\n    \"fullName\":  \"Jane Doe\",\r\n    \"password\":  \"Str0ng!Passw0rd\"\r\n}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               }
+                                                               },
+                                                      "auth":  {
+                                                                   "type":  "noauth"
+                                                               },
+                                                      "description":  "Creates a new account with the TeamMember role. Rate limited per IP."
+                                                  },
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "type":  "text/javascript",
+                                                                       "exec":  [
+                                                                                    "if (pm.response.code \u003e= 200 \u0026\u0026 pm.response.code \u003c 300) {",
+                                                                                    "    pm.collectionVariables.set(\"userId\", pm.response.json().data.id);",
+                                                                                    "}"
+                                                                                ]
+                                                                   }
+                                                    }
+                                                ]
+                                  },
+                                  {
+                                      "name":  "POST /api/auth/login - Signs in and starts a session",
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/auth/login",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "auth",
+                                                                               "login"
+                                                                           ]
+                                                              },
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{\r\n    \"email\":  \"user@example.com\",\r\n    \"password\":  \"Str0ng!Passw0rd\"\r\n}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               }
+                                                               },
+                                                      "auth":  {
+                                                                   "type":  "noauth"
+                                                               },
+                                                      "description":  "Signs in and starts a session. Sets the refresh token cookie. Rate limited per IP."
+                                                  },
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "type":  "text/javascript",
+                                                                       "exec":  [
+                                                                                    "if (pm.response.code \u003e= 200 \u0026\u0026 pm.response.code \u003c 300) {",
+                                                                                    "    pm.collectionVariables.set(\"accessToken\", pm.response.json().data.accessToken);",
+                                                                                    "}"
+                                                                                ]
+                                                                   }
+                                                    }
+                                                ]
+                                  },
+                                  {
+                                      "name":  "POST /api/auth/refresh - Exchanges the refresh token cookie for a new access token and a rotated refresh token",
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/auth/refresh",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "auth",
+                                                                               "refresh"
+                                                                           ]
+                                                              },
+                                                      "auth":  {
+                                                                   "type":  "noauth"
+                                                               },
+                                                      "description":  "Exchanges the refresh token cookie for a new access token and a rotated refresh token.\r\nPresenting an already-rotated token revokes the whole session."
+                                                  },
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "type":  "text/javascript",
+                                                                       "exec":  [
+                                                                                    "if (pm.response.code \u003e= 200 \u0026\u0026 pm.response.code \u003c 300) {",
+                                                                                    "    pm.collectionVariables.set(\"accessToken\", pm.response.json().data.accessToken);",
+                                                                                    "}"
+                                                                                ]
+                                                                   }
+                                                    }
+                                                ]
+                                  },
+                                  {
+                                      "name":  "POST /api/auth/logout - Ends the session: revokes the refresh token family and clears the cookie",
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/auth/logout",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "auth",
+                                                                               "logout"
+                                                                           ]
+                                                              },
+                                                      "auth":  {
+                                                                   "type":  "noauth"
+                                                               },
+                                                      "description":  "Ends the session: revokes the refresh token family and clears the cookie. Always succeeds."
+                                                  }
+                                  }
+                              ]
+                 },
+                 {
+                     "name":  "Users",
+                     "item":  [
+                                  {
+                                      "name":  "GET /api/users - Lists users",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/users",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "users"
+                                                                           ],
+                                                                  "query":  [
+                                                                                {
+                                                                                    "key":  "role",
+                                                                                    "value":  "Admin",
+                                                                                    "disabled":  true,
+                                                                                    "description":  ""
+                                                                                },
+                                                                                {
+                                                                                    "key":  "isActive",
+                                                                                    "value":  "true",
+                                                                                    "disabled":  true,
+                                                                                    "description":  ""
+                                                                                },
+                                                                                {
+                                                                                    "key":  "search",
+                                                                                    "value":  "",
+                                                                                    "disabled":  true,
+                                                                                    "description":  ""
+                                                                                },
+                                                                                {
+                                                                                    "key":  "sortBy",
+                                                                                    "value":  "",
+                                                                                    "disabled":  true,
+                                                                                    "description":  ""
+                                                                                },
+                                                                                {
+                                                                                    "key":  "sortDirection",
+                                                                                    "value":  "Asc",
+                                                                                    "disabled":  true,
+                                                                                    "description":  ""
+                                                                                },
+                                                                                {
+                                                                                    "key":  "page",
+                                                                                    "value":  "1",
+                                                                                    "disabled":  true,
+                                                                                    "description":  ""
+                                                                                },
+                                                                                {
+                                                                                    "key":  "pageSize",
+                                                                                    "value":  "20",
+                                                                                    "disabled":  true,
+                                                                                    "description":  ""
+                                                                                }
+                                                                            ]
+                                                              },
+                                                      "description":  "Lists users. Search matches name or email; sortBy: name, email, role, createdAt."
+                                                  }
+                                  },
+                                  {
+                                      "name":  "GET /api/users/lookup - Active users for adding project members or assigning tasks",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/users/lookup",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "users",
+                                                                               "lookup"
+                                                                           ],
+                                                                  "query":  [
+                                                                                {
+                                                                                    "key":  "search",
+                                                                                    "value":  "",
+                                                                                    "disabled":  true,
+                                                                                    "description":  ""
+                                                                                },
+                                                                                {
+                                                                                    "key":  "sortBy",
+                                                                                    "value":  "",
+                                                                                    "disabled":  true,
+                                                                                    "description":  ""
+                                                                                },
+                                                                                {
+                                                                                    "key":  "sortDirection",
+                                                                                    "value":  "Asc",
+                                                                                    "disabled":  true,
+                                                                                    "description":  ""
+                                                                                },
+                                                                                {
+                                                                                    "key":  "page",
+                                                                                    "value":  "1",
+                                                                                    "disabled":  true,
+                                                                                    "description":  ""
+                                                                                },
+                                                                                {
+                                                                                    "key":  "pageSize",
+                                                                                    "value":  "20",
+                                                                                    "disabled":  true,
+                                                                                    "description":  ""
+                                                                                }
+                                                                            ]
+                                                              },
+                                                      "description":  "Active users for adding project members or assigning tasks. Search matches name or email;\r\nsortBy: name, email; pageSize up to 50."
+                                                  }
+                                  },
+                                  {
+                                      "name":  "PUT /api/users/{id}/role - Changes another user\u0027s role",
+                                      "request":  {
+                                                      "method":  "PUT",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/users/:id/role",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "users",
+                                                                               ":id",
+                                                                               "role"
+                                                                           ],
+                                                                  "variable":  [
+                                                                                   {
+                                                                                       "key":  "id",
+                                                                                       "value":  "{{userId}}"
+                                                                                   }
+                                                                               ]
+                                                              },
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{\r\n    \"role\":  \"Admin\"\r\n}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               }
+                                                               },
+                                                      "description":  "Changes another user\u0027s role. You cannot change your own role or demote the last active Admin."
+                                                  }
+                                  },
+                                  {
+                                      "name":  "PUT /api/users/{id}/status - Activates or deactivates another user",
+                                      "request":  {
+                                                      "method":  "PUT",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/users/:id/status",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "users",
+                                                                               ":id",
+                                                                               "status"
+                                                                           ],
+                                                                  "variable":  [
+                                                                                   {
+                                                                                       "key":  "id",
+                                                                                       "value":  "{{userId}}"
+                                                                                   }
+                                                                               ]
+                                                              },
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{\r\n    \"isActive\":  true\r\n}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               }
+                                                               },
+                                                      "description":  "Activates or deactivates another user. Deactivation ends their sessions. You cannot deactivate\r\nyourself or the last active Admin."
+                                                  }
+                                  }
+                              ]
+                 },
+                 {
+                     "name":  "Projects",
+                     "item":  [
+                                  {
+                                      "name":  "GET /api/projects - Lists the projects the caller can see",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/projects",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "projects"
+                                                                           ],
+                                                                  "query":  [
+                                                                                {
+                                                                                    "key":  "search",
+                                                                                    "value":  "",
+                                                                                    "disabled":  true,
+                                                                                    "description":  ""
+                                                                                },
+                                                                                {
+                                                                                    "key":  "sortBy",
+                                                                                    "value":  "",
+                                                                                    "disabled":  true,
+                                                                                    "description":  ""
+                                                                                },
+                                                                                {
+                                                                                    "key":  "sortDirection",
+                                                                                    "value":  "Asc",
+                                                                                    "disabled":  true,
+                                                                                    "description":  ""
+                                                                                },
+                                                                                {
+                                                                                    "key":  "page",
+                                                                                    "value":  "1",
+                                                                                    "disabled":  true,
+                                                                                    "description":  ""
+                                                                                },
+                                                                                {
+                                                                                    "key":  "pageSize",
+                                                                                    "value":  "20",
+                                                                                    "disabled":  true,
+                                                                                    "description":  ""
+                                                                                }
+                                                                            ]
+                                                              },
+                                                      "description":  "Lists the projects the caller can see. Search matches name and description;\r\nsortBy: name (default), createdAt, taskCount."
+                                                  }
+                                  },
+                                  {
+                                      "name":  "POST /api/projects - Creates a project owned by the caller",
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/projects",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "projects"
+                                                                           ]
+                                                              },
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{\r\n    \"name\":  \"Website redesign\",\r\n    \"description\":  \"Summarize the changes in this release for customers.\"\r\n}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               }
+                                                               },
+                                                      "description":  "Creates a project owned by the caller."
+                                                  },
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "type":  "text/javascript",
+                                                                       "exec":  [
+                                                                                    "if (pm.response.code \u003e= 200 \u0026\u0026 pm.response.code \u003c 300) {",
+                                                                                    "    pm.collectionVariables.set(\"projectId\", pm.response.json().data.id);",
+                                                                                    "}"
+                                                                                ]
+                                                                   }
+                                                    }
+                                                ]
+                                  },
+                                  {
+                                      "name":  "GET /api/projects/{id} - Project details, including members",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/projects/:id",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "projects",
+                                                                               ":id"
+                                                                           ],
+                                                                  "variable":  [
+                                                                                   {
+                                                                                       "key":  "id",
+                                                                                       "value":  "{{projectId}}"
+                                                                                   }
+                                                                               ]
+                                                              },
+                                                      "description":  "Project details, including members."
+                                                  }
+                                  },
+                                  {
+                                      "name":  "PUT /api/projects/{id}",
+                                      "request":  {
+                                                      "method":  "PUT",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/projects/:id",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "projects",
+                                                                               ":id"
+                                                                           ],
+                                                                  "variable":  [
+                                                                                   {
+                                                                                       "key":  "id",
+                                                                                       "value":  "{{projectId}}"
+                                                                                   }
+                                                                               ]
+                                                              },
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{\r\n    \"name\":  \"Website redesign\",\r\n    \"description\":  \"Summarize the changes in this release for customers.\"\r\n}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               }
+                                                               }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "DELETE /api/projects/{id} - Soft-deletes the project and its tasks",
+                                      "request":  {
+                                                      "method":  "DELETE",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/projects/:id",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "projects",
+                                                                               ":id"
+                                                                           ],
+                                                                  "variable":  [
+                                                                                   {
+                                                                                       "key":  "id",
+                                                                                       "value":  "{{projectId}}"
+                                                                                   }
+                                                                               ]
+                                                              },
+                                                      "description":  "Soft-deletes the project and its tasks."
+                                                  }
+                                  },
+                                  {
+                                      "name":  "POST /api/projects/{id}/members - Adds an active user to the project",
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/projects/:id/members",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "projects",
+                                                                               ":id",
+                                                                               "members"
+                                                                           ],
+                                                                  "variable":  [
+                                                                                   {
+                                                                                       "key":  "id",
+                                                                                       "value":  "{{projectId}}"
+                                                                                   }
+                                                                               ]
+                                                              },
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{\r\n    \"userId\":  \"{{userId}}\"\r\n}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               }
+                                                               },
+                                                      "description":  "Adds an active user to the project."
+                                                  }
+                                  },
+                                  {
+                                      "name":  "DELETE /api/projects/{id}/members/{userId} - Removes a member; their tasks in this project become unassigned",
+                                      "request":  {
+                                                      "method":  "DELETE",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/projects/:id/members/:userId",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "projects",
+                                                                               ":id",
+                                                                               "members",
+                                                                               ":userId"
+                                                                           ],
+                                                                  "variable":  [
+                                                                                   {
+                                                                                       "key":  "id",
+                                                                                       "value":  "{{projectId}}"
+                                                                                   },
+                                                                                   {
+                                                                                       "key":  "userId",
+                                                                                       "value":  "{{userId}}"
+                                                                                   }
+                                                                               ]
+                                                              },
+                                                      "description":  "Removes a member; their tasks in this project become unassigned."
+                                                  }
+                                  }
+                              ]
+                 },
+                 {
+                     "name":  "Tasks",
+                     "item":  [
+                                  {
+                                      "name":  "GET /api/projects/{projectId}/tasks - Lists the project\u0027s tasks",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/projects/:projectId/tasks",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "projects",
+                                                                               ":projectId",
+                                                                               "tasks"
+                                                                           ],
+                                                                  "variable":  [
+                                                                                   {
+                                                                                       "key":  "projectId",
+                                                                                       "value":  "{{projectId}}"
+                                                                                   }
+                                                                               ],
+                                                                  "query":  [
+                                                                                {
+                                                                                    "key":  "status",
+                                                                                    "value":  "ToDo",
+                                                                                    "disabled":  true,
+                                                                                    "description":  ""
+                                                                                },
+                                                                                {
+                                                                                    "key":  "priority",
+                                                                                    "value":  "Low",
+                                                                                    "disabled":  true,
+                                                                                    "description":  ""
+                                                                                },
+                                                                                {
+                                                                                    "key":  "assigneeId",
+                                                                                    "value":  "{{userId}}",
+                                                                                    "disabled":  true,
+                                                                                    "description":  ""
+                                                                                },
+                                                                                {
+                                                                                    "key":  "dueFrom",
+                                                                                    "value":  "2026-12-01",
+                                                                                    "disabled":  true,
+                                                                                    "description":  ""
+                                                                                },
+                                                                                {
+                                                                                    "key":  "dueTo",
+                                                                                    "value":  "2026-12-31",
+                                                                                    "disabled":  true,
+                                                                                    "description":  ""
+                                                                                },
+                                                                                {
+                                                                                    "key":  "search",
+                                                                                    "value":  "",
+                                                                                    "disabled":  true,
+                                                                                    "description":  ""
+                                                                                },
+                                                                                {
+                                                                                    "key":  "sortBy",
+                                                                                    "value":  "",
+                                                                                    "disabled":  true,
+                                                                                    "description":  ""
+                                                                                },
+                                                                                {
+                                                                                    "key":  "sortDirection",
+                                                                                    "value":  "Asc",
+                                                                                    "disabled":  true,
+                                                                                    "description":  ""
+                                                                                },
+                                                                                {
+                                                                                    "key":  "page",
+                                                                                    "value":  "1",
+                                                                                    "disabled":  true,
+                                                                                    "description":  ""
+                                                                                },
+                                                                                {
+                                                                                    "key":  "pageSize",
+                                                                                    "value":  "20",
+                                                                                    "disabled":  true,
+                                                                                    "description":  ""
+                                                                                }
+                                                                            ]
+                                                              },
+                                                      "description":  "Lists the project\u0027s tasks. Search matches title and description; filters: status, priority,\r\nassigneeId, dueFrom/dueTo (inclusive; undated tasks excluded). sortBy: title, priority, status,\r\ndueDate (undated last), createdAt. Without sortBy: highest priority, then earliest due date."
+                                                  }
+                                  },
+                                  {
+                                      "name":  "POST /api/projects/{projectId}/tasks - Creates a task (status To Do)",
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/projects/:projectId/tasks",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "projects",
+                                                                               ":projectId",
+                                                                               "tasks"
+                                                                           ],
+                                                                  "variable":  [
+                                                                                   {
+                                                                                       "key":  "projectId",
+                                                                                       "value":  "{{projectId}}"
+                                                                                   }
+                                                                               ]
+                                                              },
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{\r\n    \"title\":  \"Write the release notes\",\r\n    \"description\":  \"Summarize the changes in this release for customers.\",\r\n    \"priority\":  \"Low\",\r\n    \"dueDate\":  \"2026-12-31\",\r\n    \"assigneeId\":  \"{{userId}}\"\r\n}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               }
+                                                               },
+                                                      "description":  "Creates a task (status To Do). Priority defaults to Medium; the assignee must be an active project member."
+                                                  },
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "type":  "text/javascript",
+                                                                       "exec":  [
+                                                                                    "if (pm.response.code \u003e= 200 \u0026\u0026 pm.response.code \u003c 300) {",
+                                                                                    "    pm.collectionVariables.set(\"taskId\", pm.response.json().data.id);",
+                                                                                    "}"
+                                                                                ]
+                                                                   }
+                                                    }
+                                                ]
+                                  },
+                                  {
+                                      "name":  "GET /api/projects/{projectId}/tasks/{taskId}",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/projects/:projectId/tasks/:taskId",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "projects",
+                                                                               ":projectId",
+                                                                               "tasks",
+                                                                               ":taskId"
+                                                                           ],
+                                                                  "variable":  [
+                                                                                   {
+                                                                                       "key":  "projectId",
+                                                                                       "value":  "{{projectId}}"
+                                                                                   },
+                                                                                   {
+                                                                                       "key":  "taskId",
+                                                                                       "value":  "{{taskId}}"
+                                                                                   }
+                                                                               ]
+                                                              }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "PUT /api/projects/{projectId}/tasks/{taskId} - Updates title, description, priority and due date (null clears the due date)",
+                                      "request":  {
+                                                      "method":  "PUT",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/projects/:projectId/tasks/:taskId",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "projects",
+                                                                               ":projectId",
+                                                                               "tasks",
+                                                                               ":taskId"
+                                                                           ],
+                                                                  "variable":  [
+                                                                                   {
+                                                                                       "key":  "projectId",
+                                                                                       "value":  "{{projectId}}"
+                                                                                   },
+                                                                                   {
+                                                                                       "key":  "taskId",
+                                                                                       "value":  "{{taskId}}"
+                                                                                   }
+                                                                               ]
+                                                              },
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{\r\n    \"title\":  \"Write the release notes\",\r\n    \"description\":  \"Summarize the changes in this release for customers.\",\r\n    \"priority\":  \"Low\",\r\n    \"dueDate\":  \"2026-12-31\"\r\n}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               }
+                                                               },
+                                                      "description":  "Updates title, description, priority and due date (null clears the due date)."
+                                                  }
+                                  },
+                                  {
+                                      "name":  "DELETE /api/projects/{projectId}/tasks/{taskId} - Soft-deletes the task",
+                                      "request":  {
+                                                      "method":  "DELETE",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/projects/:projectId/tasks/:taskId",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "projects",
+                                                                               ":projectId",
+                                                                               "tasks",
+                                                                               ":taskId"
+                                                                           ],
+                                                                  "variable":  [
+                                                                                   {
+                                                                                       "key":  "projectId",
+                                                                                       "value":  "{{projectId}}"
+                                                                                   },
+                                                                                   {
+                                                                                       "key":  "taskId",
+                                                                                       "value":  "{{taskId}}"
+                                                                                   }
+                                                                               ]
+                                                              },
+                                                      "description":  "Soft-deletes the task."
+                                                  }
+                                  },
+                                  {
+                                      "name":  "PUT /api/projects/{projectId}/tasks/{taskId}/assignee - Assigns or reassigns the task to an active project member",
+                                      "request":  {
+                                                      "method":  "PUT",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/projects/:projectId/tasks/:taskId/assignee",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "projects",
+                                                                               ":projectId",
+                                                                               "tasks",
+                                                                               ":taskId",
+                                                                               "assignee"
+                                                                           ],
+                                                                  "variable":  [
+                                                                                   {
+                                                                                       "key":  "projectId",
+                                                                                       "value":  "{{projectId}}"
+                                                                                   },
+                                                                                   {
+                                                                                       "key":  "taskId",
+                                                                                       "value":  "{{taskId}}"
+                                                                                   }
+                                                                               ]
+                                                              },
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{\r\n    \"assigneeId\":  \"{{userId}}\"\r\n}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               }
+                                                               },
+                                                      "description":  "Assigns or reassigns the task to an active project member."
+                                                  }
+                                  },
+                                  {
+                                      "name":  "DELETE /api/projects/{projectId}/tasks/{taskId}/assignee",
+                                      "request":  {
+                                                      "method":  "DELETE",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/projects/:projectId/tasks/:taskId/assignee",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "projects",
+                                                                               ":projectId",
+                                                                               "tasks",
+                                                                               ":taskId",
+                                                                               "assignee"
+                                                                           ],
+                                                                  "variable":  [
+                                                                                   {
+                                                                                       "key":  "projectId",
+                                                                                       "value":  "{{projectId}}"
+                                                                                   },
+                                                                                   {
+                                                                                       "key":  "taskId",
+                                                                                       "value":  "{{taskId}}"
+                                                                                   }
+                                                                               ]
+                                                              }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "PUT /api/projects/{projectId}/tasks/{taskId}/status - Changes the status",
+                                      "request":  {
+                                                      "method":  "PUT",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/projects/:projectId/tasks/:taskId/status",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "projects",
+                                                                               ":projectId",
+                                                                               "tasks",
+                                                                               ":taskId",
+                                                                               "status"
+                                                                           ],
+                                                                  "variable":  [
+                                                                                   {
+                                                                                       "key":  "projectId",
+                                                                                       "value":  "{{projectId}}"
+                                                                                   },
+                                                                                   {
+                                                                                       "key":  "taskId",
+                                                                                       "value":  "{{taskId}}"
+                                                                                   }
+                                                                               ]
+                                                              },
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{\r\n    \"status\":  \"ToDo\"\r\n}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               }
+                                                               },
+                                                      "description":  "Changes the status. A cancelled task can only be reopened to ToDo, and only by the owner or an\r\nAdmin. Completing sets completedAt; any other status clears it."
+                                                  }
+                                  }
+                              ]
+                 },
+                 {
+                     "name":  "Dashboard",
+                     "item":  [
+                                  {
+                                      "name":  "GET /api/dashboard - Totals, tasks by status and priority, completed vs pending (pending = ToDo + InProgress;\r\ncancelled counts as neither), overdue count, and pending tasks due in the next 7 days (UTC)",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/dashboard",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "dashboard"
+                                                                           ]
+                                                              },
+                                                      "description":  "Totals, tasks by status and priority, completed vs pending (pending = ToDo + InProgress;\r\ncancelled counts as neither), overdue count, and pending tasks due in the next 7 days (UTC)."
+                                                  }
+                                  }
+                              ]
+                 },
+                 {
+                     "name":  "Ai",
+                     "item":  [
+                                  {
+                                      "name":  "POST /api/ai/improve-description - Suggests an improved task description: corrected grammar, clearer and more professional wording,\r\nexpanded short text, and actionable steps",
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/ai/improve-description",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "ai",
+                                                                               "improve-description"
+                                                                           ]
+                                                              },
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{\r\n    \"description\":  \"Summarize the changes in this release for customers.\",\r\n    \"title\":  \"Write the release notes\"\r\n}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               }
+                                                               },
+                                                      "description":  "Suggests an improved task description: corrected grammar, clearer and more professional wording,\r\nexpanded short text, and actionable steps. Input up to 2,000 characters. The result is not saved;\r\napply it with a normal task update. \"source\" is \"fallback\" when no AI provider is configured."
+                                                  }
+                                  }
+                              ]
+                 },
+                 {
+                     "name":  "Health",
+                     "item":  [
+                                  {
+                                      "name":  "GET /health - Health check (database)",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "auth":  {
+                                                                   "type":  "noauth"
+                                                               },
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/health",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "health"
+                                                                           ]
+                                                              },
+                                                      "description":  "Anonymous and not rate limited. 200 when healthy, 503 when a check (database) fails."
+                                                  }
+                                  }
+                              ]
+                 }
+             ]
+}
