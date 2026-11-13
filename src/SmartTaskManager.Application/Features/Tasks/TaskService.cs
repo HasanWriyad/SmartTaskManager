@@ -2,6 +2,7 @@ using Microsoft.Extensions.Logging;
 using SmartTaskManager.Application.Abstractions;
 using SmartTaskManager.Application.Common;
 using SmartTaskManager.Application.Common.Exceptions;
+using SmartTaskManager.Application.Common.Paging;
 using SmartTaskManager.Domain.Entities;
 using SmartTaskManager.Domain.Enums;
 
@@ -18,10 +19,10 @@ internal sealed partial class TaskService(
 {
     private const string AssigneeNotMember = "The assignee must be an active member of the project.";
 
-    public async Task<IReadOnlyList<TaskListItemDto>> ListAsync(Guid projectId, CancellationToken cancellationToken)
+    public async Task<PagedResult<TaskListItemDto>> ListAsync(Guid projectId, TaskListQuery query, CancellationToken cancellationToken)
     {
         await LoadProjectAsync(projectId, currentUser.RequireViewer(), cancellationToken);
-        return await tasks.ListByProjectAsync(projectId, cancellationToken);
+        return await tasks.ListByProjectAsync(projectId, query, cancellationToken);
     }
 
     public async Task<TaskDetailsDto> GetAsync(Guid projectId, Guid taskId, CancellationToken cancellationToken)

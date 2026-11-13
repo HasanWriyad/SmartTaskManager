@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SmartTaskManager.Api.Authorization;
 using SmartTaskManager.Application.Common;
+using SmartTaskManager.Application.Common.Paging;
 using SmartTaskManager.Application.Features.Tasks;
 
 namespace SmartTaskManager.Api.Controllers;
@@ -16,12 +17,17 @@ namespace SmartTaskManager.Api.Controllers;
 [Produces("application/json")]
 public sealed class TasksController(ITaskService taskService) : ControllerBase
 {
-    /// <summary>Lists the project's tasks: highest priority first, then earliest due date.</summary>
+    /// <summary>
+    /// Lists the project's tasks. Search matches title and description; filters: status, priority,
+    /// assigneeId, dueFrom/dueTo (inclusive; undated tasks excluded). sortBy: title, priority, status,
+    /// dueDate (undated last), createdAt. Without sortBy: highest priority, then earliest due date.
+    /// </summary>
     [HttpGet]
-    [ProducesResponseType<ApiResponse<IReadOnlyList<TaskListItemDto>>>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ApiResponse<PagedResult<TaskListItemDto>>>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ApiResponse<object>>(StatusCodes.Status400BadRequest)]
     [ProducesResponseType<ApiResponse<object>>(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> List(Guid projectId, CancellationToken cancellationToken) =>
-        Ok(ApiResponse.Ok(await taskService.ListAsync(projectId, cancellationToken)));
+    public async Task<IActionResult> List(Guid projectId, [FromQuery] TaskListQuery query, CancellationToken cancellationToken) =>
+        Ok(ApiResponse.Ok(await taskService.ListAsync(projectId, query, cancellationToken)));
 
     [HttpGet("{taskId:guid}")]
     [ProducesResponseType<ApiResponse<TaskDetailsDto>>(StatusCodes.Status200OK)]

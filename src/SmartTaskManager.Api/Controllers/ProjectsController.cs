@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SmartTaskManager.Api.Authorization;
 using SmartTaskManager.Application.Common;
+using SmartTaskManager.Application.Common.Paging;
 using SmartTaskManager.Application.Features.Projects;
 
 namespace SmartTaskManager.Api.Controllers;
@@ -15,11 +16,15 @@ namespace SmartTaskManager.Api.Controllers;
 [Produces("application/json")]
 public sealed class ProjectsController(IProjectService projectService) : ControllerBase
 {
-    /// <summary>Lists the projects the caller can see, ordered by name.</summary>
+    /// <summary>
+    /// Lists the projects the caller can see. Search matches name and description;
+    /// sortBy: name (default), createdAt, taskCount.
+    /// </summary>
     [HttpGet]
-    [ProducesResponseType<ApiResponse<IReadOnlyList<ProjectListItemDto>>>(StatusCodes.Status200OK)]
-    public async Task<IActionResult> List(CancellationToken cancellationToken) =>
-        Ok(ApiResponse.Ok(await projectService.ListAsync(cancellationToken)));
+    [ProducesResponseType<ApiResponse<PagedResult<ProjectListItemDto>>>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ApiResponse<object>>(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> List([FromQuery] ProjectListQuery query, CancellationToken cancellationToken) =>
+        Ok(ApiResponse.Ok(await projectService.ListAsync(query, cancellationToken)));
 
     /// <summary>Project details, including members.</summary>
     [HttpGet("{id:guid}")]

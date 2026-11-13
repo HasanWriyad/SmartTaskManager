@@ -1,4 +1,5 @@
 using SmartTaskManager.Application.Common;
+using SmartTaskManager.Application.Common.Paging;
 using SmartTaskManager.Application.Features.Tasks;
 using SmartTaskManager.Domain.Entities;
 
@@ -15,8 +16,7 @@ public interface ITaskRepository
 
     Task<TaskDetailsDto?> GetDetailsAsync(Guid projectId, Guid taskId, Viewer viewer, CancellationToken cancellationToken);
 
-    /// <summary>Tasks of the project: highest priority first, then earliest due date (none last).</summary>
-    Task<IReadOnlyList<TaskListItemDto>> ListByProjectAsync(Guid projectId, CancellationToken cancellationToken);
+    Task<PagedResult<TaskListItemDto>> ListByProjectAsync(Guid projectId, TaskListQuery query, CancellationToken cancellationToken);
 
     /// <summary>Tracked load of the project's tasks assigned to the user.</summary>
     Task<List<TaskItem>> GetAssignedInProjectAsync(Guid projectId, Guid userId, CancellationToken cancellationToken);

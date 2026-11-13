@@ -1,3 +1,5 @@
+using SmartTaskManager.Application.Common.Paging;
+
 namespace SmartTaskManager.Application.Features.Tasks;
 
 /// <summary>
@@ -6,7 +8,7 @@ namespace SmartTaskManager.Application.Features.Tasks;
 /// </summary>
 public interface ITaskService
 {
-    Task<IReadOnlyList<TaskListItemDto>> ListAsync(Guid projectId, CancellationToken cancellationToken);
+    Task<PagedResult<TaskListItemDto>> ListAsync(Guid projectId, TaskListQuery query, CancellationToken cancellationToken);
 
     Task<TaskDetailsDto> GetAsync(Guid projectId, Guid taskId, CancellationToken cancellationToken);
 

@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using SmartTaskManager.Application.Abstractions;
 using SmartTaskManager.Application.Common;
+using SmartTaskManager.Application.Common.Paging;
 using SmartTaskManager.Application.Features.Projects;
 using SmartTaskManager.Domain.Entities;
 using SmartTaskManager.Infrastructure.Persistence;
@@ -16,14 +17,35 @@ internal sealed class ProjectRepository(AppDbContext db) : IProjectRepository
             .Where(ProjectAccess.VisibleTo(viewer))
             .SingleOrDefaultAsync(cancellationToken);
 
-    public async Task<IReadOnlyList<ProjectListItemDto>> ListVisibleAsync(Viewer viewer, CancellationToken cancellationToken) =>
-        await db.Projects
-            .AsNoTracking()
-            .Where(ProjectAccess.VisibleTo(viewer))
-            .OrderBy(p => p.Name)
+    public Task<PagedResult<ProjectListItemDto>> ListVisibleAsync(
+        Viewer viewer,
+        ProjectListQuery query,
+        CancellationToken cancellationToken)
+    {
+        var projects = db.Projects.AsNoTracking().Where(ProjectAccess.VisibleTo(viewer));
+
+        if (!string.IsNullOrWhiteSpace(query.Search))
+        {
+            var term = query.Search.Trim();
+            projects = projects.Where(p =>
+                p.Name.Contains(term) || (p.Description != null && p.Description.Contains(term)));
+        }
+
+        var direction = query.SortDirection;
+        var ordered = query switch
+        {
+            _ when query.IsSortField(ProjectSortFields.CreatedAt) => projects.OrderByDirection(p => p.CreatedAt, direction),
+            _ when query.IsSortField(ProjectSortFields.TaskCount) => projects
+                .OrderByDirection(p => p.Tasks.Count(), direction) // live tasks only (query filter)
+                .ThenBy(p => p.Name),
+            _ => projects.OrderByDirection(p => p.Name, direction), // default
+        };
+
+        return ordered
             .ThenBy(p => p.Id)
             .Select(ProjectAccess.ToListItem(viewer))
-            .ToListAsync(cancellationToken);
+            .ToPagedResultAsync(query, cancellationToken);
+    }
 
     public Task<ProjectDetailsDto?> GetDetailsAsync(Guid id, Viewer viewer, CancellationToken cancellationToken) =>
         db.Projects

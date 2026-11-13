@@ -2,6 +2,7 @@ using Microsoft.Extensions.Logging;
 using SmartTaskManager.Application.Abstractions;
 using SmartTaskManager.Application.Common;
 using SmartTaskManager.Application.Common.Exceptions;
+using SmartTaskManager.Application.Common.Paging;
 using SmartTaskManager.Domain.Entities;
 
 namespace SmartTaskManager.Application.Features.Projects;
@@ -15,8 +16,8 @@ internal sealed partial class ProjectService(
     TimeProvider timeProvider,
     ILogger<ProjectService> logger) : IProjectService
 {
-    public Task<IReadOnlyList<ProjectListItemDto>> ListAsync(CancellationToken cancellationToken) =>
-        projects.ListVisibleAsync(currentUser.RequireViewer(), cancellationToken);
+    public Task<PagedResult<ProjectListItemDto>> ListAsync(ProjectListQuery query, CancellationToken cancellationToken) =>
+        projects.ListVisibleAsync(currentUser.RequireViewer(), query, cancellationToken);
 
     public async Task<ProjectDetailsDto> GetAsync(Guid id, CancellationToken cancellationToken) =>
         await projects.GetDetailsAsync(id, currentUser.RequireViewer(), cancellationToken)

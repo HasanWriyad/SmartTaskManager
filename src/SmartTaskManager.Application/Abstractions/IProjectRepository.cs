@@ -1,4 +1,5 @@
 using SmartTaskManager.Application.Common;
+using SmartTaskManager.Application.Common.Paging;
 using SmartTaskManager.Application.Features.Projects;
 using SmartTaskManager.Domain.Entities;
 
@@ -10,7 +11,7 @@ public interface IProjectRepository
     /// <summary>Tracked load, for updates; null when the project does not exist or the viewer cannot see it.</summary>
     Task<Project?> GetVisibleAsync(Guid id, Viewer viewer, CancellationToken cancellationToken);
 
-    Task<IReadOnlyList<ProjectListItemDto>> ListVisibleAsync(Viewer viewer, CancellationToken cancellationToken);
+    Task<PagedResult<ProjectListItemDto>> ListVisibleAsync(Viewer viewer, ProjectListQuery query, CancellationToken cancellationToken);
 
     /// <summary>Null when the project does not exist or the viewer cannot see it.</summary>
     Task<ProjectDetailsDto?> GetDetailsAsync(Guid id, Viewer viewer, CancellationToken cancellationToken);

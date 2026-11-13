@@ -1,3 +1,5 @@
+using SmartTaskManager.Application.Common.Paging;
+
 namespace SmartTaskManager.Application.Features.Projects;
 
 /// <summary>
@@ -6,8 +8,8 @@ namespace SmartTaskManager.Application.Features.Projects;
 /// </summary>
 public interface IProjectService
 {
-    /// <summary>Projects the caller can see, ordered by name.</summary>
-    Task<IReadOnlyList<ProjectListItemDto>> ListAsync(CancellationToken cancellationToken);
+    /// <summary>Projects the caller can see, with search, sorting and paging.</summary>
+    Task<PagedResult<ProjectListItemDto>> ListAsync(ProjectListQuery query, CancellationToken cancellationToken);
 
     Task<ProjectDetailsDto> GetAsync(Guid id, CancellationToken cancellationToken);
 

@@ -12,6 +12,12 @@ internal static class QueryableExtensions
         SortDirection direction) =>
         direction == SortDirection.Desc ? query.OrderByDescending(key) : query.OrderBy(key);
 
+    public static IOrderedQueryable<T> ThenByDirection<T, TKey>(
+        this IOrderedQueryable<T> query,
+        Expression<Func<T, TKey>> key,
+        SortDirection direction) =>
+        direction == SortDirection.Desc ? query.ThenByDescending(key) : query.ThenBy(key);
+
     /// <summary>True when the requested sort field equals <paramref name="field"/> (case-insensitive).</summary>
     public static bool IsSortField(this PagedQuery query, string field) =>
         string.Equals(query.SortBy, field, StringComparison.OrdinalIgnoreCase);
