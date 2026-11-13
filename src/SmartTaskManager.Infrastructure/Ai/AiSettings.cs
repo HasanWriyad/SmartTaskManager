@@ -27,9 +27,21 @@ public sealed class AiSettings
     [Range(1, 120)]
     public int TimeoutSeconds { get; init; } = 30;
 
-    /// <summary>Caps the response length (about 4 characters per token).</summary>
+    /// <summary>
+    /// Caps the response length (about 4 characters per token). For models that "think", hidden
+    /// reasoning tokens count against this cap too; see <see cref="ReasoningEffort"/>.
+    /// </summary>
     [Range(100, 2000)]
-    public int MaxOutputTokens { get; init; } = 600;
+    public int MaxOutputTokens { get; init; } = 1500;
+
+    /// <summary>
+    /// Sent as <c>reasoning_effort</c>: none, minimal, low, medium or high. Default "none": rewriting a
+    /// description needs no hidden reasoning, which otherwise consumed the output budget. Empty means
+    /// the parameter is not sent (the model's own default applies).
+    /// </summary>
+    // Whitespace around (or instead of) the value is allowed, matching how the value is trimmed when used.
+    [RegularExpression(@"^\s*(none|minimal|low|medium|high)?\s*$")]
+    public string? ReasoningEffort { get; init; } = "none";
 
     public bool HasApiKey => !string.IsNullOrWhiteSpace(ApiKey);
 }

@@ -73,6 +73,7 @@ Clean Architecture:
 - D10: Google Gemini via its OpenAI-compatible endpoint (https://generativelanguage.googleapis.com/v1beta/openai/), called with the OpenAI .NET SDK; API key in user-secrets as AiSettings:ApiKey
 - Model: gemini-3.5-flash (AiSettings:Model). Older models (gemini-2.5-flash, gemini-2.5-flash-lite) are not available to new API keys, and the newest ones (gemini-3.7-flash, gemini-3.8-flash) were overloaded or slow during testing in November 2026
 - Timeout 30 s per request (AiSettings:TimeoutSeconds); one retry after ~1 s on a provider 503 only, within that timeout; no retry on timeouts, 429 or other errors
+- AiSettings:ReasoningEffort = "none" (sent as reasoning_effort; empty means not sent) and AiSettings:MaxOutputTokens = 1500. Reason: gemini-3.5-flash thinks by default, and its hidden thinking tokens (~574 of 600) consumed the output budget, so answers were cut off (finish_reason "length"); with "none" no thinking tokens are used
 - GitHub Models (the original choice) was retired on 30 July 2026, so it is no longer an option
 - When no key is configured, a stub implementation is used instead
 - The endpoint returns a suggestion only and does not save it; the user applies it through a normal task update

@@ -60,6 +60,15 @@ internal sealed partial class OpenAiCompatibleDescriptionService : IAiDescriptio
             Temperature = Temperature,
             MaxOutputTokenCount = _settings.MaxOutputTokens,
         };
+        if (!string.IsNullOrWhiteSpace(_settings.ReasoningEffort))
+        {
+            // Hidden reasoning tokens count against MaxOutputTokens; "none" keeps the whole budget for the answer.
+            // The SDK marks reasoning_effort as experimental (OPENAI001); suppressed here only. If the API
+            // changes in a future SDK version, this is the single place to adjust.
+#pragma warning disable OPENAI001
+            options.ReasoningEffortLevel = new ChatReasoningEffortLevel(_settings.ReasoningEffort.Trim());
+#pragma warning restore OPENAI001
+        }
 
         var stopwatch = Stopwatch.StartNew();
         try
