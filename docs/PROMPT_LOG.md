@@ -408,3 +408,33 @@ injection attempt was ignored again. flash-lite rejects reasoning effort
   separate steps, and no prompt leak.
 - Chose the faster model because a response time of 20+ seconds is too slow
   for a button in the task form.
+
+
+  ---
+
+### Step 7.5 — Rate Limiting, Health Checks and API Docs
+**Prompt:**
+Add rate limiting as decided in D15 (global per IP, stricter on auth
+endpoints, and 10 per minute per user on the AI endpoint) with 429 responses
+in the ApiResponse format. Add health checks including the database; the
+/health endpoint must allow anonymous access. Review every endpoint for
+missing authorization or validation. Generate docs/database.sql with an
+idempotent migration script, and export the swagger.json and a Postman
+collection to docs/.
+
+**Result:** Three rate limiting policies (global per IP, auth per IP, AI per
+user) returning 429 with Retry-After. Anonymous /health endpoint exempt from
+rate limiting, returning 503 when the database is down. Endpoint review of all
+25 actions, which found and closed one gap: request bodies are now capped at
+1 MB. Idempotent SQL script, OpenAPI document and a Postman collection that
+stores the access token and created ids automatically.
+
+**My review/changes:**
+- Added the requirement that /health is anonymous, since the default policy
+  requires authentication on every endpoint.
+- Agreed that refresh and logout use the global limit instead of the strict
+  auth limit, so reloading the page cannot lock a user out of their session.
+- Verified the AI limit is per user rather than per IP, and that the SQL
+  script runs twice on an empty database without errors.
+- Noted for the README that deployments behind a proxy need ForwardedHeaders,
+  otherwise all clients share one rate limit budget.
