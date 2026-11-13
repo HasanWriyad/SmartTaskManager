@@ -18,6 +18,9 @@ public interface ITaskRepository
 
     Task<PagedResult<TaskListItemDto>> ListByProjectAsync(Guid projectId, TaskListQuery query, CancellationToken cancellationToken);
 
+    /// <summary>Tracked load of all live tasks of the project, for deleting them with the project.</summary>
+    Task<List<TaskItem>> GetAllInProjectAsync(Guid projectId, CancellationToken cancellationToken);
+
     /// <summary>Tracked load of the project's tasks assigned to the user.</summary>
     Task<List<TaskItem>> GetAssignedInProjectAsync(Guid projectId, Guid userId, CancellationToken cancellationToken);
 

@@ -26,7 +26,7 @@ public interface IProjectRepository
 
     void Add(Project project);
 
-    /// <summary>Marks for deletion; the soft-delete interceptor turns it into a soft delete of the project and its tasks.</summary>
+    /// <summary>Marks for deletion; the soft-delete interceptor turns it into a soft delete. Does not touch the tasks.</summary>
     void Remove(Project project);
 
     void AddMember(ProjectMember member);

@@ -59,12 +59,19 @@ internal sealed partial class ProjectService(
     {
         var (project, viewer) = await LoadForManageAsync(id, cancellationToken);
 
-        // The soft-delete interceptor converts this into IsDeleted on the project and all its
-        // live tasks, written by this single SaveChanges (one transaction).
+        // Rule: deleting a project deletes all its live tasks too. Both are soft deletes (the
+        // interceptor sets IsDeleted instead of removing rows), written by one SaveChanges, so they
+        // succeed or fail together. Tasks deleted earlier keep their own DeletedAt.
+        var projectTasks = await tasks.GetAllInProjectAsync(project.Id, cancellationToken);
+        foreach (var task in projectTasks)
+        {
+            tasks.Remove(task);
+        }
+
         projects.Remove(project);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        LogProjectDeleted(logger, viewer.UserId, project.Id);
+        LogProjectDeleted(logger, viewer.UserId, project.Id, projectTasks.Count);
     }
 
     public async Task<ProjectDetailsDto> AddMemberAsync(Guid id, AddProjectMemberRequest request, CancellationToken cancellationToken)
@@ -145,8 +152,8 @@ internal sealed partial class ProjectService(
     [LoggerMessage(Level = LogLevel.Information, Message = "User {ActorId} updated project {ProjectId}")]
     private static partial void LogProjectUpdated(ILogger logger, Guid actorId, Guid projectId);
 
-    [LoggerMessage(Level = LogLevel.Information, Message = "User {ActorId} deleted project {ProjectId}")]
-    private static partial void LogProjectDeleted(ILogger logger, Guid actorId, Guid projectId);
+    [LoggerMessage(Level = LogLevel.Information, Message = "User {ActorId} deleted project {ProjectId} and its {TaskCount} task(s)")]
+    private static partial void LogProjectDeleted(ILogger logger, Guid actorId, Guid projectId, int taskCount);
 
     [LoggerMessage(Level = LogLevel.Information, Message = "User {ActorId} added member {UserId} to project {ProjectId}")]
     private static partial void LogMemberAdded(ILogger logger, Guid actorId, Guid userId, Guid projectId);
