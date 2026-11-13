@@ -29,8 +29,8 @@ internal sealed partial class GlobalExceptionHandler(ILogger<GlobalExceptionHand
             NotFoundException e => (StatusCodes.Status404NotFound, e.Message, null),
             ConflictException e => (StatusCodes.Status409Conflict, e.Message, null),
             DomainException e => (StatusCodes.Status422UnprocessableEntity, e.Message, null),
-            // 429/502/503/504 from a dependency; the service that threw it already logged the details.
-            ExternalServiceException e => (e.StatusCode, e.Message, null),
+            // A dependency failed; the service that threw it already logged the details.
+            ExternalServiceException e => (StatusCodeFor(e.Failure), e.Message, null),
             BadHttpRequestException e => (e.StatusCode, ErrorResponseWriter.MessageFor(e.StatusCode), null),
             _ => (StatusCodes.Status500InternalServerError, UnexpectedErrorMessage, (IReadOnlyDictionary<string, string[]>?)null),
         };
@@ -56,6 +56,15 @@ internal sealed partial class GlobalExceptionHandler(ILogger<GlobalExceptionHand
         await ErrorResponseWriter.WriteAsync(httpContext, statusCode, message, errors);
         return true;
     }
+
+    /// <summary>HTTP mapping for dependency failures; the only place these status codes are chosen.</summary>
+    private static int StatusCodeFor(ExternalServiceFailure failure) => failure switch
+    {
+        ExternalServiceFailure.RateLimited => StatusCodes.Status429TooManyRequests,
+        ExternalServiceFailure.Timeout => StatusCodes.Status504GatewayTimeout,
+        ExternalServiceFailure.InvalidResponse => StatusCodes.Status502BadGateway,
+        _ => StatusCodes.Status503ServiceUnavailable,
+    };
 
     [LoggerMessage(Level = LogLevel.Error, Message = "Unhandled exception for {Method} {Path}")]
     private static partial void LogUnhandledException(ILogger logger, Exception exception, string method, PathString path);

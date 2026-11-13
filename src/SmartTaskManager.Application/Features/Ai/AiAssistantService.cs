@@ -20,7 +20,6 @@ internal sealed partial class AiAssistantService(
     ILogger<AiAssistantService> logger) : IAiAssistantService
 {
     private const string UnusableOutput = "The AI service returned an unusable suggestion. Please try again.";
-    private const int BadGateway = 502;
 
     public async Task<ImproveDescriptionResponse> ImproveDescriptionAsync(
         ImproveDescriptionRequest request,
@@ -36,7 +35,7 @@ internal sealed partial class AiAssistantService(
         if (problem is not null)
         {
             LogRejected(logger, result.Source, problem, result.Text.Length);
-            throw new ExternalServiceException(BadGateway, UnusableOutput);
+            throw new ExternalServiceException(ExternalServiceFailure.InvalidResponse, UnusableOutput);
         }
 
         LogImproved(logger, result.Source, request.Description.Length, text.Length);

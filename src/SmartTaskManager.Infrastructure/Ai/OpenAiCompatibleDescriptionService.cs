@@ -78,12 +78,12 @@ internal sealed partial class OpenAiCompatibleDescriptionService : IAiDescriptio
 
             if (completion.FinishReason == ChatFinishReason.ContentFilter)
             {
-                throw new ExternalServiceException(502, "The AI service declined to process this text.");
+                throw new ExternalServiceException(ExternalServiceFailure.InvalidResponse, "The AI service declined to process this text.");
             }
 
             if (completion.FinishReason == ChatFinishReason.Length)
             {
-                throw new ExternalServiceException(502, "The AI service returned an incomplete suggestion. Please try again.");
+                throw new ExternalServiceException(ExternalServiceFailure.InvalidResponse, "The AI service returned an incomplete suggestion. Please try again.");
             }
 
             var text = string.Concat(completion.Content
@@ -99,7 +99,7 @@ internal sealed partial class OpenAiCompatibleDescriptionService : IAiDescriptio
                 ? $"in {Math.Ceiling(r.TotalSeconds).ToString(CultureInfo.InvariantCulture)} seconds"
                 : "in a moment";
             throw new ExternalServiceException(
-                429,
+                ExternalServiceFailure.RateLimited,
                 $"The AI service is receiving too many requests. Please try again {wait}.",
                 retryAfter);
         }
@@ -119,7 +119,7 @@ internal sealed partial class OpenAiCompatibleDescriptionService : IAiDescriptio
         catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
         {
             LogTimedOut(_logger, _settings.TimeoutSeconds);
-            throw new ExternalServiceException(504, "The AI service took too long to respond. Please try again.");
+            throw new ExternalServiceException(ExternalServiceFailure.Timeout, "The AI service took too long to respond. Please try again.");
         }
         catch (HttpRequestException ex)
         {
@@ -157,7 +157,7 @@ internal sealed partial class OpenAiCompatibleDescriptionService : IAiDescriptio
     }
 
     private static ExternalServiceException Unavailable() =>
-        new(503, "The AI service is currently unavailable. Please try again later.");
+        new(ExternalServiceFailure.Unavailable, "The AI service is currently unavailable. Please try again later.");
 
     /// <summary>Reads Retry-After as seconds or an HTTP date; null when absent or unreadable.</summary>
     private static TimeSpan? ReadRetryAfter(ClientResultException ex)
