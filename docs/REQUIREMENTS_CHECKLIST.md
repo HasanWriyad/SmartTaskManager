@@ -25,7 +25,7 @@ Paths are relative to `src/` unless they start with `docs/` or `tools/`. Endpoin
 | Logout | ✅ | `POST /auth/logout` — revokes the session's refresh token family and clears the cookie |
 | JWT authentication | ✅ | 15-minute access token in the response body |
 | Refresh tokens | ✅ | `POST /auth/refresh` — httpOnly/Secure/SameSite=Strict cookie, stored as SHA-256 hash, rotated on every use, reuse revokes the whole family (`Infrastructure/Repositories/RefreshTokenRepository.cs`) |
-| Role-based authorization | ✅ | Policies `AdminOnly`, `AdminOrProjectManager`, fallback `AnyUser` (`Api/Authorization/Policies.cs`); ownership and membership rules in `Application/Features/Projects/ProjectAccess.cs` and `Tasks/TaskAccess.cs` |
+| Role-based authorization | ✅ | Policies `AdminOnly`, `AdminOrProjectManager`, fallback `AnyUser` (`Api/Authorization/Policies.cs`); ownership and membership rules in `Application/Features/Projects/ProjectAccess.cs` and `Tasks/TaskAccess.cs`; every token is checked against the user's current role and active flag, so changes apply immediately (`Api/Auth/AccessTokenStateValidator.cs`) |
 | Roles Admin, Project Manager, Team Member | ✅ | `Domain/Enums/UserRole.cs`; user and role management in `GET /users`, `PUT /users/{id}/role`, `PUT /users/{id}/status` |
 | Each role has appropriate permissions | ✅ | Role-permission matrix in `CLAUDE.md` (Decisions → Role permissions), enforced in the services |
 

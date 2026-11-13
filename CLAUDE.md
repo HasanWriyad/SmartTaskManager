@@ -49,7 +49,7 @@ Clean Architecture:
 - Logout revokes the refresh token; no access-token blacklist
 - Refresh tokens carry a FamilyId (one per login); revoking a chain means revoking the family
 - Register returns the created user (201) and no tokens; the client calls login afterwards
-- Deactivated users keep their current access token until it expires (max 15 min); login and refresh are blocked immediately
+- D6: role changes and deactivation take effect immediately. Every authenticated request checks the token against the user's current IsActive and Role (one primary-key lookup in the JWT OnTokenValidated event, Api/Auth/AccessTokenStateValidator.cs); a deleted, inactive or role-mismatched user gets 401, so the client refreshes and receives a token with the current role (refresh fails for inactive users). Still no access-token blacklist; logout revokes the refresh token
 - Frontend keeps the access token in memory (signal); the refresh token lives in an httpOnly, Secure, SameSite=Strict cookie with Path=/api/auth
 - The Angular app must share a single in-flight refresh request across the interceptor and session restore, because parallel refreshes count as token reuse
 - Development: Angular proxy (frontend/proxy.conf.json) forwards /api to the API, so calls are same-origin

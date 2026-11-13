@@ -33,6 +33,13 @@ internal sealed class UserRepository(AppDbContext db) : IUserRepository
     public Task<bool> EmailExistsAsync(string normalizedEmail, CancellationToken cancellationToken) =>
         db.Users.AnyAsync(u => u.Email == normalizedEmail, cancellationToken);
 
+    public Task<UserAuthState?> GetAuthStateAsync(Guid userId, CancellationToken cancellationToken) =>
+        db.Users
+            .AsNoTracking()
+            .Where(u => u.Id == userId)
+            .Select(u => new UserAuthState(u.IsActive, u.Role))
+            .SingleOrDefaultAsync(cancellationToken);
+
     public Task<int> CountOtherActiveAdminsAsync(Guid excludingUserId, CancellationToken cancellationToken) =>
         db.Users.CountAsync(
             u => u.Role == UserRole.Admin && u.IsActive && u.Id != excludingUserId,

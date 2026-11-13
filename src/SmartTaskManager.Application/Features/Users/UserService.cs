@@ -46,8 +46,8 @@ internal sealed partial class UserService(
         await unitOfWork.SaveChangesAsync(cancellationToken);
         await transaction.CommitAsync(cancellationToken);
 
-        // The user's current access token keeps the old role until it expires (max 15 min);
-        // the next refresh issues a token with the new role.
+        // The user's current access token is rejected from the next request on (role mismatch, see
+        // AccessTokenStateValidator); their refresh then issues a token with the new role.
         LogRoleChanged(logger, actorId, user.Id, previousRole, user.Role);
         return user.ToAdminDto();
     }

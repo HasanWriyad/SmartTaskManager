@@ -17,7 +17,7 @@ public static class TaskAccess
     /// <summary>Same as managing the project.</summary>
     public static bool CanManage(Viewer viewer, Guid projectOwnerId) => ProjectAccess.CanManage(viewer, projectOwnerId);
 
-    /// <summary>The caller is the task's assignee. The service also checks that the account is still active.</summary>
+    /// <summary>The caller is the task's assignee (inactive users are already rejected at authentication).</summary>
     public static bool IsAssignee(Viewer viewer, Guid? assigneeId) => assigneeId == viewer.UserId;
 
     public static readonly Expression<Func<TaskItem, TaskListItemDto>> ToListItem = t => new TaskListItemDto(

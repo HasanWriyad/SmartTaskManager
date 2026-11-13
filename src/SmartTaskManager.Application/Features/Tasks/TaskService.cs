@@ -121,10 +121,9 @@ internal sealed partial class TaskService(
 
         if (!TaskAccess.CanManage(viewer, project.OwnerId))
         {
-            // Any role may move its own task, but only while the account is active: a deactivated
-            // user's access token stays valid for up to 15 minutes.
-            if (!TaskAccess.IsAssignee(viewer, task.AssigneeId)
-                || await users.GetByIdAsync(viewer.UserId, cancellationToken) is not { IsActive: true })
+            // Any role may move its own task. Inactive users never get here: every access token is
+            // checked against the database during authentication.
+            if (!TaskAccess.IsAssignee(viewer, task.AssigneeId))
             {
                 throw new ForbiddenException("You can only update the status of tasks assigned to you.");
             }

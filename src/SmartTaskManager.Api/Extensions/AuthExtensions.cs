@@ -2,6 +2,7 @@ using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
+using SmartTaskManager.Api.Auth;
 using SmartTaskManager.Api.Authorization;
 using SmartTaskManager.Domain.Enums;
 using SmartTaskManager.Infrastructure.Auth;
@@ -36,6 +37,8 @@ internal static class AuthExtensions
                     NameClaimType = AppClaimTypes.UserId,
                     RoleClaimType = AppClaimTypes.Role,
                 };
+                // Role changes and deactivation take effect immediately (see AccessTokenStateValidator).
+                options.Events = new JwtBearerEvents { OnTokenValidated = AccessTokenStateValidator.ValidateAsync };
             });
 
         return services;
