@@ -424,6 +424,30 @@
                                                                            ],
                                                                   "query":  [
                                                                                 {
+                                                                                    "key":  "ownerId",
+                                                                                    "value":  "00000000-0000-0000-0000-000000000000",
+                                                                                    "disabled":  true,
+                                                                                    "description":  ""
+                                                                                },
+                                                                                {
+                                                                                    "key":  "ownedByMe",
+                                                                                    "value":  "true",
+                                                                                    "disabled":  true,
+                                                                                    "description":  ""
+                                                                                },
+                                                                                {
+                                                                                    "key":  "createdFrom",
+                                                                                    "value":  "2026-12-31",
+                                                                                    "disabled":  true,
+                                                                                    "description":  ""
+                                                                                },
+                                                                                {
+                                                                                    "key":  "createdTo",
+                                                                                    "value":  "2026-12-31",
+                                                                                    "disabled":  true,
+                                                                                    "description":  ""
+                                                                                },
+                                                                                {
                                                                                     "key":  "search",
                                                                                     "value":  "",
                                                                                     "disabled":  true,
@@ -455,7 +479,7 @@
                                                                                 }
                                                                             ]
                                                               },
-                                                      "description":  "Lists the projects the caller can see. Search matches name and description;\r\nsortBy: name (default), createdAt, taskCount."
+                                                      "description":  "Lists the projects the caller can see. Search matches name and description; filters: ownerId,\r\nownedByMe (true = mine, false = others\u0027), createdFrom/createdTo (inclusive, UTC dates);\r\nsortBy: name (default), createdAt, taskCount."
                                                   }
                                   },
                                   {

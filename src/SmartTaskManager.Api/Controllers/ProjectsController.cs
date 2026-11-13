@@ -17,7 +17,8 @@ namespace SmartTaskManager.Api.Controllers;
 public sealed class ProjectsController(IProjectService projectService) : ControllerBase
 {
     /// <summary>
-    /// Lists the projects the caller can see. Search matches name and description;
+    /// Lists the projects the caller can see. Search matches name and description; filters: ownerId,
+    /// ownedByMe (true = mine, false = others'), createdFrom/createdTo (inclusive, UTC dates);
     /// sortBy: name (default), createdAt, taskCount.
     /// </summary>
     [HttpGet]

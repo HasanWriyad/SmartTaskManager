@@ -38,7 +38,7 @@ Paths are relative to `src/` unless they start with `docs/` or `tools/`. Endpoin
 | Delete project | ✅ | `DELETE /projects/{id}` — soft delete, cascades to tasks in the same transaction |
 | View project details | ✅ | `GET /projects/{id}` — includes members; 404 when not visible |
 | List projects | ✅ | `GET /projects` — only projects the caller can see |
-| Search projects | ✅ | `search` on name and description |
+| Search projects | ✅ | `search` on name and description; filters `ownerId`, `ownedByMe`, `createdFrom`/`createdTo` |
 | Sort and paginate results | ✅ | `sortBy` = name, createdAt, taskCount; `page`, `pageSize` → `PagedResult<T>` |
 
 Also implemented: project members (`POST /projects/{id}/members`, `DELETE /projects/{id}/members/{userId}`).
@@ -78,7 +78,7 @@ Also implemented: overdue count and a "my tasks" summary. Data is scoped to the 
 | Requirement | Status | Where |
 |---|---|---|
 | Keyword search | ✅ | Projects, tasks, users, user lookup |
-| Filtering | ⚠️ Partial | Tasks: status, priority, assigneeId, dueFrom/dueTo. Users: role, isActive. **Projects: no filters** (search only). |
+| Filtering | ✅ | Projects: ownerId, ownedByMe, createdFrom/createdTo. Tasks: status, priority, assigneeId, dueFrom/dueTo. Users: role, isActive |
 | Sorting | ✅ | Whitelisted `sortBy` per list (`Application/Common/Paging/PagedQueryValidator.cs`) |
 | Pagination | ✅ | `PagedQuery` / `PagedResult<T>` with totals and next/previous flags |
 
@@ -144,5 +144,4 @@ Also implemented: overdue count and a "my tasks" summary. Data is scoped to the 
 
 ## Gaps
 
-1. **Project list filters** (partial "Filtering"): projects only support search. Possible filters: owner, "owned by me", member user, created date range.
-2. **README.md and PROMPTS.md** are missing (documentation deliverables).
+1. **README.md and PROMPTS.md** are missing (documentation deliverables).

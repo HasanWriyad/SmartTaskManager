@@ -24,12 +24,7 @@ internal sealed class ProjectRepository(AppDbContext db) : IProjectRepository
     {
         var projects = db.Projects.AsNoTracking().Where(ProjectAccess.VisibleTo(viewer));
 
-        if (!string.IsNullOrWhiteSpace(query.Search))
-        {
-            var term = query.Search.Trim();
-            projects = projects.Where(p =>
-                p.Name.Contains(term) || (p.Description != null && p.Description.Contains(term)));
-        }
+        projects = Filter(projects, query, viewer.UserId);
 
         var direction = query.SortDirection;
         var ordered = query switch
@@ -45,6 +40,43 @@ internal sealed class ProjectRepository(AppDbContext db) : IProjectRepository
             .ThenBy(p => p.Id)
             .Select(ProjectAccess.ToListItem(viewer))
             .ToPagedResultAsync(query, cancellationToken);
+    }
+
+    private static IQueryable<Project> Filter(IQueryable<Project> projects, ProjectListQuery query, Guid viewerId)
+    {
+        if (!string.IsNullOrWhiteSpace(query.Search))
+        {
+            var term = query.Search.Trim();
+            projects = projects.Where(p =>
+                p.Name.Contains(term) || (p.Description != null && p.Description.Contains(term)));
+        }
+
+        if (query.OwnerId is { } ownerId)
+        {
+            projects = projects.Where(p => p.OwnerId == ownerId);
+        }
+
+        if (query.OwnedByMe is { } ownedByMe)
+        {
+            projects = ownedByMe
+                ? projects.Where(p => p.OwnerId == viewerId)
+                : projects.Where(p => p.OwnerId != viewerId);
+        }
+
+        // Dates are whole UTC days: [from 00:00, to + 1 day 00:00).
+        if (query.CreatedFrom is { } from)
+        {
+            var start = new DateTimeOffset(from.ToDateTime(TimeOnly.MinValue), TimeSpan.Zero);
+            projects = projects.Where(p => p.CreatedAt >= start);
+        }
+
+        if (query.CreatedTo is { } to)
+        {
+            var endExclusive = new DateTimeOffset(to.AddDays(1).ToDateTime(TimeOnly.MinValue), TimeSpan.Zero);
+            projects = projects.Where(p => p.CreatedAt < endExclusive);
+        }
+
+        return projects;
     }
 
     public Task<ProjectDetailsDto?> GetDetailsAsync(Guid id, Viewer viewer, CancellationToken cancellationToken) =>

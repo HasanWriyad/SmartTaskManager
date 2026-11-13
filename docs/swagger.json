@@ -327,8 +327,39 @@
         "tags": [
           "Projects"
         ],
-        "summary": "Lists the projects the caller can see. Search matches name and description;\r\nsortBy: name (default), createdAt, taskCount.",
+        "summary": "Lists the projects the caller can see. Search matches name and description; filters: ownerId,\r\nownedByMe (true = mine, false = others'), createdFrom/createdTo (inclusive, UTC dates);\r\nsortBy: name (default), createdAt, taskCount.",
         "parameters": [
+          {
+            "name": "ownerId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "ownedByMe",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "createdFrom",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "createdTo",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
           {
             "name": "search",
             "in": "query",
