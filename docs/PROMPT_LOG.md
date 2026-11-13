@@ -200,5 +200,65 @@ change. Soft delete cascades to live tasks in a single transaction.
 - Added a workflow rule after Claude Code stopped my running API instance:
   only stop processes it started itself.
 
+  ---
+
+### Step 4.1 — Task Module
+**Prompt:**
+Implement the Tasks feature inside projects: create, update fields, soft
+delete, get details, list, assign or reassign (assignee must be a project
+member), update status, set priority, and due date. Apply the status transition
+rules and CompletedAt handling from the decisions. TeamMember can only update
+the status of tasks assigned to them. Keep the list endpoint simple for now.
+
+Decisions:
+1. Change it: any active assignee can update the status of their own task,
+   whatever their role. Reopening a cancelled task stays limited to the owner
+   or an Admin.
+2. Change it: when a project is created, add the owner as a member in the same
+   save. Removing the owner from the members returns 409. Update existing
+   projects in the dev database if needed.
+3. Keep priority and due date on the main PUT.
+
+
+
+**Result:** Task CRUD under projects, assignment limited to active project
+members, status workflow with CompletedAt handling and cancelled-task rules,
+due date validation, and canManage/canUpdateStatus flags for the UI. Project
+visibility check refactored into a single shared query.
+
+**My review/changes:**
+- Changed the status rule to be based on the assignee rather than the role:
+  following the matrix literally meant a ProjectManager assigned to a task
+  in someone else's project could not complete it.
+- Made the project owner a member automatically on creation and blocked
+  removing the owner, so a manager can assign tasks to themselves.
+- Kept priority and due date on the main update endpoint.
+- Verified that omitted fields cannot silently reset values (priority on
+  update, assignee on an empty body).
+  - Verified that a user deactivated mid-session cannot change task status even
+  with a still-valid token, because the active check reads the database.
+
+---
+
+### Step 5.1 — Search, Sorting and Pagination
+**Prompt:**
+Apply PagedQuery and PagedResult<T> to the project and task list endpoints.
+Projects: search by name and description, sort by name, createdAt, and task
+count. Tasks: search by title and description, filter by status, priority,
+assignee, and due date range, sort by title, priority, status, dueDate, and
+createdAt. Keep the current default orders. Use the existing sort whitelist
+validator.
+
+**Result:** Both lists return PagedResult with search, filters and
+whitelisted sorting. Validation returns 400 for unknown sort fields, page
+sizes outside 1–100, invalid enums or dates, and an inverted due date range.
+
+**My review/changes:**
+- Reused the paging components built in step 2.4 instead of new ones.
+- Verified that unknown sort fields and oversized page sizes are rejected.
+- Accepted stable tie-breaking (creation time, then id) so paging does not
+  repeat or skip items between requests.
+- Accepted that a page past the end returns an empty list with real totals
+  rather than 404.
 
   
