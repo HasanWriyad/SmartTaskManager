@@ -19,7 +19,7 @@ Clean Architecture:
 - Passwords hashed with ASP.NET Core Identity PasswordHasher
 - Roles: Admin, ProjectManager, TeamMember (policy-based authorization)
 - Log with Serilog; never log tokens or passwords
-- No test project
+- No test project. End-to-end API check scripts live in tools/api-checks/ (run tools/api-checks/Run-ApiChecks.ps1; they use a throwaway database)
 
 ## Frontend (frontend/)
 - Angular 22, standalone components only, lazy-loaded routes
