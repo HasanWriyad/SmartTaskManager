@@ -1,12 +1,15 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { Observable, catchError, finalize, firstValueFrom, map, of, shareReplay, switchMap } from 'rxjs';
+import { Observable, catchError, finalize, firstValueFrom, map, of, shareReplay, switchMap, timeout } from 'rxjs';
 import { ApiResponse } from '../api/api.models';
 import { silentErrors } from '../api/http-context';
 import { AuthResponse, CurrentUser, LoginRequest, RegisterRequest, Role } from './auth.models';
 
 const authUrl = '/api/auth';
+
+/** Longest the app waits at startup for the session-restoring refresh before starting signed out. */
+const sessionRestoreTimeoutMs = 5000;
 
 /**
  * Session state in signals. The access token lives only in memory; the refresh token is an httpOnly
@@ -77,9 +80,20 @@ export class AuthService {
     return this.refreshInFlight$;
   }
 
-  /** Called once at startup: a valid refresh cookie signs the user back in after a reload. */
+  /**
+   * Called once at startup: a valid refresh cookie signs the user back in after a reload. The app
+   * waits for this before its first navigation, so it must always settle quickly: if the API does
+   * not answer within a few seconds (down, hung, paused in a debugger) or anything else goes wrong,
+   * the app starts signed out. A refresh that completes later still signs the user in.
+   */
   restoreSession(): Promise<boolean> {
-    return firstValueFrom(this.refresh());
+    return firstValueFrom(
+      this.refresh().pipe(
+        timeout({ first: sessionRestoreTimeoutMs }),
+        catchError(() => of(false)),
+      ),
+      { defaultValue: false },
+    );
   }
 
   /** Revokes the session on the server (best effort) and clears it locally. */

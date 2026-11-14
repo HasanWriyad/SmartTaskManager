@@ -26,7 +26,8 @@ export const appConfig: ApplicationConfig = {
       // index.html loads the Material Symbols font; make <mat-icon> use it.
       inject(MatIconRegistry).setDefaultFontSetClass('material-symbols-outlined');
       // Restore the session from the refresh cookie before the first navigation, so the guards
-      // already know whether the user is signed in. Never fails: no cookie simply means signed out.
+      // already know whether the user is signed in. Settles within ~5 s and never rejects, so the
+      // app always boots (signed out if the API is slow, down or failing).
       return inject(AuthService).restoreSession();
     }),
   ],
