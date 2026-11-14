@@ -10,6 +10,6 @@ public interface IAiDescriptionService
 }
 
 /// <param name="Text">Raw suggestion; the application layer cleans and validates it.</param>
-/// <param name="Source">"ai" for a model response, "fallback" for the offline stub.</param>
-/// <param name="Model">Model that produced the text, when <paramref name="Source"/> is "ai".</param>
+/// <param name="Source"><see cref="AiSources.Ai"/> for a model response, <see cref="AiSources.Fallback"/> for the offline stub.</param>
+/// <param name="Model">Model that produced the text, when <paramref name="Source"/> is <see cref="AiSources.Ai"/>.</param>
 public sealed record AiDescriptionResult(string Text, string Source, string? Model);

@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Logging;
 using SmartTaskManager.Application.Abstractions;
+using SmartTaskManager.Application.Common;
 using SmartTaskManager.Application.Common.Exceptions;
 using SmartTaskManager.Application.Common.Paging;
 using SmartTaskManager.Domain.Entities;
@@ -23,7 +24,7 @@ internal sealed partial class UserService(
 
     public async Task<UserAdminDto> ChangeRoleAsync(Guid userId, ChangeUserRoleRequest request, CancellationToken cancellationToken)
     {
-        var actorId = RequireActorId();
+        var actorId = currentUser.RequireViewer().UserId;
         if (userId == actorId)
         {
             throw new ForbiddenException("You cannot change your own role.");
@@ -54,7 +55,7 @@ internal sealed partial class UserService(
 
     public async Task<UserAdminDto> ChangeStatusAsync(Guid userId, ChangeUserStatusRequest request, CancellationToken cancellationToken)
     {
-        var actorId = RequireActorId();
+        var actorId = currentUser.RequireViewer().UserId;
         var activate = request.IsActive!.Value; // non-null guaranteed by the validator
         if (userId == actorId && !activate)
         {
@@ -108,8 +109,6 @@ internal sealed partial class UserService(
     }
 
     private static bool IsActiveAdmin(User user) => user.IsActive && user.Role == UserRole.Admin;
-
-    private Guid RequireActorId() => currentUser.UserId ?? throw new UnauthorizedException("Authentication is required.");
 
     [LoggerMessage(Level = LogLevel.Information, Message = "Admin {ActorId} changed role of user {UserId} from {PreviousRole} to {NewRole}")]
     private static partial void LogRoleChanged(ILogger logger, Guid actorId, Guid userId, UserRole previousRole, UserRole newRole);

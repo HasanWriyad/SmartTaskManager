@@ -29,11 +29,6 @@ public sealed class UserLookupQuery : PagedQuery
     public const int MaxLookupPageSize = 50;
 }
 
-public sealed record ChangeUserRoleRequest(UserRole Role);
-
-/// <summary>Nullable so an omitted field is a validation error instead of silently meaning "deactivate".</summary>
-public sealed record ChangeUserStatusRequest(bool? IsActive);
-
 internal sealed class UserListQueryValidator : PagedQueryValidator<UserListQuery>
 {
     public UserListQueryValidator()
@@ -48,21 +43,5 @@ internal sealed class UserLookupQueryValidator : PagedQueryValidator<UserLookupQ
     public UserLookupQueryValidator()
         : base(UserSortFields.ForLookup, UserLookupQuery.MaxLookupPageSize)
     {
-    }
-}
-
-internal sealed class ChangeUserRoleRequestValidator : AbstractValidator<ChangeUserRoleRequest>
-{
-    public ChangeUserRoleRequestValidator()
-    {
-        RuleFor(x => x.Role).IsInEnum();
-    }
-}
-
-internal sealed class ChangeUserStatusRequestValidator : AbstractValidator<ChangeUserStatusRequest>
-{
-    public ChangeUserStatusRequestValidator()
-    {
-        RuleFor(x => x.IsActive).NotNull();
     }
 }

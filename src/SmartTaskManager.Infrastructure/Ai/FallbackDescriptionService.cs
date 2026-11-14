@@ -34,7 +34,7 @@ internal sealed partial class FallbackDescriptionService : IAiDescriptionService
             }
         }
 
-        return Task.FromResult(new AiDescriptionResult($"{text}\n\n{Steps}", "fallback", null));
+        return Task.FromResult(new AiDescriptionResult($"{text}\n\n{Steps}", AiSources.Fallback, null));
     }
 
     [GeneratedRegex(@"\s+")]

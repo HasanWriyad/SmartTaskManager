@@ -10,7 +10,7 @@ internal sealed class CurrentUser(IHttpContextAccessor httpContextAccessor) : IC
 {
     private ClaimsPrincipal? Principal => httpContextAccessor.HttpContext?.User;
 
-    public bool IsAuthenticated => Principal?.Identity?.IsAuthenticated == true;
+    private bool IsAuthenticated => Principal?.Identity?.IsAuthenticated == true;
 
     public Guid? UserId =>
         IsAuthenticated && Guid.TryParse(Principal!.FindFirst(AppClaimTypes.UserId)?.Value, out var id)

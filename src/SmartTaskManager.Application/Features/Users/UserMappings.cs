@@ -1,26 +1,7 @@
 using System.Linq.Expressions;
 using SmartTaskManager.Domain.Entities;
-using SmartTaskManager.Domain.Enums;
 
 namespace SmartTaskManager.Application.Features.Users;
-
-// None of these DTOs carries the password hash; projections below never read it.
-
-/// <summary>The signed-in user, returned by auth endpoints.</summary>
-public sealed record UserDto(Guid Id, string Email, string FullName, UserRole Role);
-
-/// <summary>Full user view for Admin user management.</summary>
-public sealed record UserAdminDto(
-    Guid Id,
-    string Email,
-    string FullName,
-    UserRole Role,
-    bool IsActive,
-    DateTimeOffset CreatedAt,
-    DateTimeOffset? UpdatedAt);
-
-/// <summary>Minimal view for picking a user when adding project members or assigning tasks.</summary>
-public sealed record UserLookupDto(Guid Id, string FullName, string Email);
 
 public static class UserMappings
 {

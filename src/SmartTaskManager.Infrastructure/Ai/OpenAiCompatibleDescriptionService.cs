@@ -18,7 +18,6 @@ namespace SmartTaskManager.Infrastructure.Ai;
 /// </summary>
 internal sealed partial class OpenAiCompatibleDescriptionService : IAiDescriptionService
 {
-    private const string Source = "ai";
     private const float Temperature = 0.3f; // low: rewriting, not brainstorming
     private static readonly TimeSpan RetryDelay = TimeSpan.FromSeconds(1);
 
@@ -89,7 +88,7 @@ internal sealed partial class OpenAiCompatibleDescriptionService : IAiDescriptio
             var text = string.Concat(completion.Content
                 .Where(part => part.Kind == ChatMessageContentPartKind.Text)
                 .Select(part => part.Text));
-            return new AiDescriptionResult(text, Source, string.IsNullOrEmpty(completion.Model) ? _settings.Model : completion.Model);
+            return new AiDescriptionResult(text, AiSources.Ai, string.IsNullOrEmpty(completion.Model) ? _settings.Model : completion.Model);
         }
         catch (ClientResultException ex) when (ex.Status == 429)
         {

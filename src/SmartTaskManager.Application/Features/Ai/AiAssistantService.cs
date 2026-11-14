@@ -5,12 +5,6 @@ using SmartTaskManager.Application.Common.Exceptions;
 
 namespace SmartTaskManager.Application.Features.Ai;
 
-public interface IAiAssistantService
-{
-    /// <summary>Returns an improved description as a suggestion. Nothing is persisted.</summary>
-    Task<ImproveDescriptionResponse> ImproveDescriptionAsync(ImproveDescriptionRequest request, CancellationToken cancellationToken);
-}
-
 /// <summary>
 /// Calls the configured <see cref="IAiDescriptionService"/> and validates what comes back, whichever
 /// implementation produced it. User text and suggestions are never logged, only their lengths.

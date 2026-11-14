@@ -39,8 +39,6 @@ public sealed class User : AuditableEntity
         PasswordHash = passwordHash;
     }
 
-    public void UpdateProfile(string fullName) => FullName = fullName.Trim();
-
     public void ChangeRole(UserRole role) => Role = role;
 
     public void Activate() => IsActive = true;

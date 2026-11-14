@@ -4,11 +4,6 @@ using SmartTaskManager.Domain.Enums;
 
 namespace SmartTaskManager.Application.Features.Dashboard;
 
-public interface IDashboardService
-{
-    Task<DashboardDto> GetAsync(CancellationToken cancellationToken);
-}
-
 internal sealed class DashboardService(
     IDashboardRepository dashboard,
     ICurrentUser currentUser,

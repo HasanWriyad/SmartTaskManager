@@ -39,8 +39,6 @@ public sealed class Project : SoftDeletableEntity
         Description = NormalizeDescription(description);
     }
 
-    public bool IsOwnedBy(Guid userId) => OwnerId == userId;
-
     private static string? NormalizeDescription(string? description) =>
         string.IsNullOrWhiteSpace(description) ? null : description.Trim();
 }

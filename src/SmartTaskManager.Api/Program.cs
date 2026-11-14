@@ -1,5 +1,6 @@
 using System.Globalization;
 using Serilog;
+using SmartTaskManager.Api.Configuration;
 using SmartTaskManager.Api.ErrorHandling;
 using SmartTaskManager.Api.Extensions;
 using SmartTaskManager.Api.Health;
@@ -18,10 +19,11 @@ try
 {
     var builder = WebApplication.CreateBuilder(args);
 
-    // The largest legitimate request is a few KB; the 30 MB default only invites abuse. Exceeding the
-    // limit returns 413 (as ApiResponse via the exception handler).
-    var maxRequestBodyBytes = builder.Configuration.GetValue<long?>("RequestLimits:MaxRequestBodyBytes") ?? 1_048_576;
-    builder.WebHost.ConfigureKestrel(kestrel => kestrel.Limits.MaxRequestBodySize = maxRequestBodyBytes);
+    // Exceeding the limit returns 413 (as ApiResponse via the exception handler). Kestrel is configured
+    // before the container is built, so the options are bound here as well as registered (ApiExtensions).
+    var requestLimits = builder.Configuration.GetSection(RequestLimitsOptions.SectionName).Get<RequestLimitsOptions>()
+        ?? new RequestLimitsOptions();
+    builder.WebHost.ConfigureKestrel(kestrel => kestrel.Limits.MaxRequestBodySize = requestLimits.MaxRequestBodyBytes);
 
     builder.Services.AddSerilog((services, logger) => logger
         .ReadFrom.Configuration(builder.Configuration)

@@ -1,8 +1,10 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Mvc;
+using SmartTaskManager.Api.Configuration;
 using SmartTaskManager.Api.ErrorHandling;
 using SmartTaskManager.Api.Filters;
+using SmartTaskManager.Api.ModelBinding;
 using SmartTaskManager.Api.Services;
 using SmartTaskManager.Application.Abstractions;
 using SmartTaskManager.Application.Common;
@@ -24,13 +26,15 @@ internal static class ApiExtensions
             .AddControllers(o =>
             {
                 o.Filters.Add<ValidationFilter>();
+                // Enum query parameters by name only (no numbers or comma lists), like the JSON bodies.
+                o.ModelBinderProviders.Insert(0, new StrictEnumModelBinderProvider());
                 // FluentValidation is the single source of input rules; don't let non-nullable
                 // properties add their own implicit "field is required" errors.
                 o.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true;
             })
             .AddJsonOptions(o =>
             {
-                o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+                o.JsonSerializerOptions.Converters.Add(StrictEnumConverter());
                 // Don't echo System.Text.Json parser internals back to clients.
                 o.AllowInputFormatterExceptionMessages = false;
             })
@@ -43,12 +47,20 @@ internal static class ApiExtensions
             });
 
         // Responses written outside MVC (error handler, status code pages) use the same enum format.
-        services.ConfigureHttpJsonOptions(o => o.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+        services.ConfigureHttpJsonOptions(o => o.SerializerOptions.Converters.Add(StrictEnumConverter()));
 
+        services.AddOptions<RequestLimitsOptions>()
+            .Bind(configuration.GetSection(RequestLimitsOptions.SectionName))
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+        services.AddOptions<FrontendCorsOptions>().Bind(configuration.GetSection(FrontendCorsOptions.SectionName));
         services.AddFrontendCors(configuration);
 
         return services;
     }
+
+    /// <summary>Enums travel as names; integers such as "status": 2 are rejected.</summary>
+    private static JsonStringEnumConverter StrictEnumConverter() => new(namingPolicy: null, allowIntegerValues: false);
 
     /// <summary>
     /// Model-binding failures (malformed JSON, wrong types) return the same ApiResponse shape as
@@ -96,7 +108,7 @@ internal static class ApiExtensions
     /// </summary>
     private static void AddFrontendCors(this IServiceCollection services, IConfiguration configuration)
     {
-        var origins = configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
+        var origins = configuration.GetSection(FrontendCorsOptions.SectionName).Get<FrontendCorsOptions>()?.AllowedOrigins ?? [];
 
         services.AddCors(options => options.AddPolicy(FrontendCorsPolicy, policy => policy
             .WithOrigins(origins)
