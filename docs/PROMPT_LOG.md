@@ -438,3 +438,94 @@ stores the access token and created ids automatically.
   script runs twice on an empty database without errors.
 - Noted for the README that deployments behind a proxy need ForwardedHeaders,
   otherwise all clients share one rate limit budget.
+
+  ---
+
+### Step 7.6 — Backend Audit
+**Prompt:**
+Do a full backend audit before we start the frontend. Do not change any code
+yet; report findings first.
+
+1. Requirements: read docs/assignment.pdf and check every backend requirement
+   against the actual code. Write docs/REQUIREMENTS_CHECKLIST.md as a table:
+   requirement, status, and where it is implemented (file or endpoint). Flag
+   anything missing or partial. I already know project lists have no filters.
+
+2. Code quality: review the whole backend for SOLID violations, dead code,
+   TODOs, magic strings, inconsistent naming, missing CancellationToken,
+   sync-over-async, business logic in controllers, and anything a senior
+   reviewer would criticise. List findings by severity.
+
+3. Design patterns: list each pattern actually used, with the file where it
+   lives, for the README.
+
+4. Fresh setup: from a clean clone, list every manual step a reviewer needs
+   before the API runs. Propose a single tools/setup-dev.ps1 that sets all
+   user-secrets with generated values (JWT key, admin password) and leaves the
+   AI key optional, since the fallback stub works without it.
+
+5. Test scripts: tell me whether your PowerShell API check scripts can be
+   cleaned up and committed to tools/api-checks/ with a README, and run the
+   full regression one more time.
+
+**Result:** All backend requirements met except project list filtering.
+No high-severity findings; three medium and several low findings. 20 design
+patterns identified with their locations. 393 API checks passed.
+
+**My review/changes:**
+- Ran the audit as a report first, so I could decide what to fix with the
+  deadline in mind.
+- Prioritised the missing filter and a one-command setup script, so reviewers
+  can run the project easily.
+- Chose to fix all three medium findings: immediate effect of role changes
+  and deactivation (security), HTTP codes in the Application layer
+  (architecture), and the hidden delete cascade (visibility of business rules).
+- Kept the register endpoint without a Location header, since there is no
+  user details endpoint.
+- Decided to commit the API check scripts as evidence of testing, with an
+  isolated database so a run never touches real data.
+
+  ---
+
+### Step 7.7 — Audit Fixes
+**Prompt:**
+Proceed in this order, with a separate commit for each item:
+
+1. Commit docs/REQUIREMENTS_CHECKLIST.md.
+2. Project filters: add ownerId, ownedByMe (bool), and createdFrom/createdTo
+   to GET /api/projects, using the existing query and validator patterns.
+3. Medium 1: make role changes and deactivation take effect immediately.
+   On each authenticated request, check the user's current IsActive and role
+   against the database. If the user is inactive or the role differs from the
+   token, reject with 401 so the client refreshes and gets a token with the
+   current role. Keep it to one indexed query. Update D6 in CLAUDE.md.
+4. Medium 2: replace the HTTP status codes in ExternalServiceException with a
+   failure kind and map it to HTTP in the API layer.
+5. Medium 3: move the project-to-task delete cascade into
+   ProjectService.DeleteAsync so the rule is visible there.
+6. Low findings: dead code, shared constants, options classes for
+   configuration, consistent current-user handling and file layout, and
+   reject integer enum values.
+7. tools/setup-dev.ps1, tested from a fresh clone.
+8. API check scripts cleaned up and committed to tools/api-checks/.
+
+After step 6 and after step 8, run the full regression.
+
+**Result:** All eight steps committed separately. Project list filters
+(owner, ownedByMe, created date range). Role changes and deactivation now
+take effect on the next request through a single primary-key lookup.
+Application layer free of HTTP status codes. Delete cascade visible in
+ProjectService. Low findings fixed, including a hidden binding issue where
+comma-separated enum values were silently read as one value. One-command
+setup script and 397 API checks committed in tools/api-checks/, running
+against a throwaway database.
+
+**My review/changes:**
+- Required the setup script to be tested from a fresh clone; this found a
+  real bug (dotnet ef failing before package restore) that would have stopped
+  a reviewer from running the project.
+- Accepted one extra primary-key query per request as the cost of immediate
+  role and deactivation changes.
+- Required the API checks to use a throwaway database, so running them can
+  never affect real data.
+- Verified both regression runs and that no test data was left behind.
