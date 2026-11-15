@@ -165,7 +165,17 @@
             <ng-container matColumnDef="title">
               <th mat-header-cell *matHeaderCellDef mat-sort-header="title">Title</th>
               <td mat-cell *matCellDef="let task">
-                <button type="button" class="row-title" (click)="open(task); $event.stopPropagation()">{{ task.title }}</button>
+                <!-- 960-1259px: long titles end in an ellipsis; the tooltip and the button text keep the full title. -->
+                <button
+                  type="button"
+                  class="row-title"
+                  [matTooltip]="task.title"
+                  [matTooltipDisabled]="!isLaptop()"
+                  matTooltipShowDelay="400"
+                  (click)="open(task); $event.stopPropagation()"
+                >
+                  {{ task.title }}
+                </button>
                 <span class="row-meta">{{ task.projectName }}</span>
               </td>
             </ng-container>

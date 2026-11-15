@@ -46,6 +46,8 @@ import { TaskService } from './task.service';
 
 const phoneQuery = '(max-width: 719.98px)';
 const mediumQuery = '(min-width: 720px) and (max-width: 959.98px)';
+/** Beside the expanded or rail sidebar the table is narrower than the spec's 940px minimum. */
+const laptopQuery = '(min-width: 960px) and (max-width: 1259.98px)';
 
 /** What the current user may do with a row: manage (edit/assign/delete), status only, or view. */
 type RowAccess = 'manage' | 'status' | 'view';
@@ -158,6 +160,10 @@ export class Tasks {
   protected readonly sortFields = Object.keys(taskSortLabels) as TaskSortField[];
   protected readonly pageSizes = taskPageSizes;
   /** 720-959px (icon rail): no Assignee column, so Due date and the row actions stay on screen. */
+  /** 960-1259px: the table fits its card by truncating long titles (tooltip shows the full title). */
+  protected readonly isLaptop = toSignal(inject(BreakpointObserver).observe(laptopQuery).pipe(map((r) => r.matches)), {
+    initialValue: inject(BreakpointObserver).isMatched(laptopQuery),
+  });
   protected readonly isMedium = toSignal(inject(BreakpointObserver).observe(mediumQuery).pipe(map((r) => r.matches)), {
     initialValue: inject(BreakpointObserver).isMatched(mediumQuery),
   });

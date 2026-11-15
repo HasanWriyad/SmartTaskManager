@@ -123,6 +123,12 @@ td:first-child {
   font-weight: 600;
 }
 
+// The due date and the column headers never wrap.
+th,
+.due .tabular {
+  white-space: nowrap;
+}
+
 // ---------- Phone cards
 .cards {
   margin: 0;

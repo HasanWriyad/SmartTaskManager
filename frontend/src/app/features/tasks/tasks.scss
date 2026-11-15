@@ -55,7 +55,9 @@
   }
 }
 
-// ---------- Table (min 940px, scrolls inside the card)
+// ---------- Table. No minimum width (the spec's 940px is wider than the content area beside the
+// sidebar below ~1262px): the table always fits its card, so Due date and the row actions stay visible.
+// 720-959px (icon rail) leaves out Assignee (tasks.ts); 960-1259px truncates long titles.
 .list-card {
   position: relative;
   overflow: hidden;
@@ -73,7 +75,6 @@
 
 table {
   width: 100%;
-  min-width: 940px;
 }
 
 th.mat-mdc-header-cell {
@@ -275,10 +276,33 @@ td.mat-column-title {
   }
 }
 
-// 720-959px (icon rail): the Assignee column is left out (tasks.ts), so the table fits without
-// sideways scrolling and Due date and the row actions stay visible.
+// The due date and its header never wrap.
+th.mat-column-dueDate,
+.due .tabular {
+  white-space: nowrap;
+}
+
 @media (min-width: 720px) and (max-width: 959.98px) {
-  table {
-    min-width: 0;
+  .mat-column-status {
+    width: 116px;
+  }
+
+  .mat-column-priority {
+    width: 108px;
+  }
+}
+
+// 960-1259px: Title shrinks first, with long titles ending in an ellipsis (tooltip has the full title);
+// the assignee's name truncates too if space gets tight.
+@media (min-width: 960px) and (max-width: 1259.98px) {
+  .row-title {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  td.mat-column-assignee {
+    width: 20%;
+    max-width: 0;
   }
 }
