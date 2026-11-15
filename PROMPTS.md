@@ -193,7 +193,7 @@ The injected tags were removed before sending, so the attack stayed inside the d
 
 All three outputs follow the required format: a paragraph, a blank line, `Steps:` and five numbered steps that start with a verb, in plain text, under 250 words.
 
-## Validation
+## Validation Approach
 
 ### Input
 
@@ -243,7 +243,7 @@ A wrong or missing-permission API key (provider 401/403) is logged as a configur
 - Both attempts share the 30-second timeout, so a retry never makes the request longer than that.
 - The OpenAI SDK's own automatic retries are switched off, so these are the only rules.
 
-## Safety
+## Safety Considerations
 
 ### Prompt injection
 

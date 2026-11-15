@@ -21,6 +21,7 @@ SmartTask is a full-stack task management application. Teams organise their work
 - [Testing: API checks](#testing-api-checks)
 - [Deployment notes](#deployment-notes)
 - [Known limitations](#known-limitations)
+- [How this was built](#how-this-was-built)
 - [Further documentation](#further-documentation)
 
 ## Screenshots
@@ -91,9 +92,9 @@ Package versions are managed centrally in `Directory.Packages.props`.
 ## Prerequisites
 
 - **.NET 10 SDK**. `global.json` pins it (10.0.100, rolling forward to later feature bands).
-- **SQL Server 2019 LocalDB or newer**. LocalDB comes with Visual Studio or the SQL Server Express installer. The setup script creates and starts the `MSSQLLocalDB` instance if needed. Any SQL Server 2019+ instance also works if you set the connection string.
+- **SQL Server 2019 LocalDB or newer**. LocalDB comes with Visual Studio or the SQL Server Express installer. The setup script creates and starts the `MSSQLLocalDB` instance if needed. LocalDB is Windows-only; on macOS or Linux, use another SQL Server 2019+ instance (see [macOS and Linux](#macos-and-linux)).
 - **Node.js and npm**. Angular 22 needs Node `^22.22.3`, `^24.15.0` or `>=26.0.0`.
-- **PowerShell**. Windows PowerShell 5.1 or PowerShell 7, for the setup and check scripts.
+- **PowerShell**. Windows PowerShell 5.1 or PowerShell 7 for the setup script. PowerShell 7 (`pwsh`) also runs it on macOS and Linux.
 - Optional: a **Google Gemini API key** for the AI feature. Without one, an offline fallback is used.
 
 ## Quick start
@@ -142,6 +143,26 @@ The Angular dev server forwards `/api` and `/health` to the API (`frontend/proxy
 **Sign in** at http://localhost:4200 with the Admin email and the password the setup script printed. If you missed it, run `dotnet user-secrets list --project src/SmartTaskManager.Api`. Create more accounts with "Create an account" (they start as Team Members), then promote them on the Users page.
 
 **AI key is optional.** Without `AiSettings:ApiKey`, "Improve with AI" uses an offline fallback that tidies the text and adds generic steps. The task dialog labels these results **Offline suggestion** ("No AI key is configured, so this is a basic rewrite"), so they are never mistaken for an AI result. The API logs which implementation is active at startup.
+
+### macOS and Linux
+
+LocalDB only exists on Windows. Use any other SQL Server 2019+ instance, for example in Docker, and point the API at it before running the setup script:
+
+```bash
+# SQL Server in Docker (choose a strong password)
+docker run -d --name smarttask-sql -e "ACCEPT_EULA=Y" -e "MSSQL_SA_PASSWORD=<strong-password>" \
+  -p 1433:1433 mcr.microsoft.com/mssql/server:2022-latest
+
+# Connection string in user-secrets (never in appsettings.json)
+dotnet user-secrets set ConnectionStrings:DefaultConnection \
+  "Server=localhost,1433;Database=SmartTaskManager;User Id=sa;Password=<strong-password>;TrustServerCertificate=True" \
+  --project src/SmartTaskManager.Api
+
+# Setup without the LocalDB check (PowerShell 7)
+pwsh ./tools/setup-dev.ps1 -SkipLocalDb -TrustDevCert
+```
+
+The connection string in user-secrets overrides the LocalDB one in `appsettings.Development.json`. The rest of the quick start is the same. `dotnet dev-certs https --trust` works on macOS; on Linux, trusting the certificate depends on the distribution (see the .NET documentation). The API checks in `tools/api-checks/` need Windows and LocalDB.
 
 ## Troubleshooting
 
@@ -197,12 +218,15 @@ SmartTaskManager/
 | Pattern | Where |
 |---|---|
 | Clean Architecture (dependency inversion between layers) | `src/` project references; interfaces in `Application/Abstractions/`, implementations in `Infrastructure/` |
+| Dependency Injection with a Composition Root (each layer registers its own services; only the API wires them together) | `Api/Program.cs`, `Application/DependencyInjection.cs`, `Infrastructure/DependencyInjection.cs`, `Api/Extensions/` |
 | Repository, one per aggregate (no generic repository) | `Application/Abstractions/I*Repository.cs`, `Infrastructure/Repositories/` |
 | Unit of Work (the DbContext, with explicit transactions where needed) | `Application/Abstractions/IUnitOfWork.cs`, `Infrastructure/Persistence/AppDbContext.cs` |
+| Pessimistic lock (`sp_getapplock`) so role and status changes cannot race past the "last active Admin" rule | `Infrastructure/Repositories/UserRepository.cs`, used by `Application/Features/Users/UserService.cs` |
 | Service layer (plain application services, no MediatR) | `Application/Features/*/…Service.cs` |
 | DTOs with manual mapping (no AutoMapper) | `Application/Features/*/…Dtos.cs`, `Users/UserMappings.cs`, projections in `ProjectAccess.cs` and `TaskAccess.cs` |
 | Specification-style access rules as LINQ expressions, applied in SQL | `Application/Features/Projects/ProjectAccess.cs`, `Tasks/TaskAccess.cs` |
 | Strategy, selected at startup (Gemini client or offline fallback) | `Application/Abstractions/IAiDescriptionService.cs`, `Infrastructure/Ai/`, `Infrastructure/DependencyInjection.cs` |
+| Retry and timeout for the external AI call (30 s overall, one retry on a provider 503, no SDK retries) | `Infrastructure/Ai/OpenAiCompatibleDescriptionService.cs` |
 | Options pattern with validation at startup | `Infrastructure/Auth/JwtOptions.cs`, `Ai/AiSettings.cs`, `Api/Configuration/`, `Api/RateLimiting/RateLimitingSetup.cs` |
 | Interceptors for cross-cutting persistence concerns (audit fields, soft delete) | `Infrastructure/Persistence/Interceptors/` |
 | Global query filters (named soft-delete filter) | `Infrastructure/Persistence/Configurations/SoftDeleteConfiguration.cs`, `QueryFilters.cs` |
@@ -210,6 +234,7 @@ SmartTaskManager/
 | Rich domain model (state transitions inside the entity) | `Domain/Entities/TaskItem.cs` (status changes, `CompletedAt`), `User.cs` |
 | Envelope for every response | `Application/Common/ApiResponse.cs` |
 | Paged query object with whitelisted sorting | `Application/Common/Paging/` |
+| Template Method (the base validator defines the paging rules; each list's validator adds its own filters and sort fields) | `Application/Common/Paging/PagedQueryValidator.cs`, derived in `Features/*/…ListQuery.cs` |
 | Validation as an action filter (FluentValidation) | `Api/Filters/ValidationFilter.cs` |
 | Central exception handler mapping exceptions to HTTP status codes | `Api/ErrorHandling/GlobalExceptionHandler.cs`, `Application/Common/Exceptions/` |
 | Policy-based authorization | `Api/Authorization/Policies.cs`, `Api/Extensions/AuthExtensions.cs` |
@@ -290,7 +315,7 @@ There is no unit-test project, by design (see `CLAUDE.md`). Instead, `tools/api-
 ./tools/api-checks/Run-ApiChecks.ps1 -Live               # also call the real AI provider (uses quota)
 ```
 
-The suites cover authentication, users, projects, tasks, lists, the dashboard, the AI endpoint (against a local fake provider and the offline fallback), rate limits and health. Run `setup-dev.ps1` first, because the checks sign in as the seeded Admin. Details are in [tools/api-checks/README.md](tools/api-checks/README.md).
+The suites cover authentication, users, projects, tasks, lists, the dashboard, the AI endpoint (against a local fake provider and the offline fallback), rate limits and health. They run on Windows with LocalDB, `sqlcmd` and `curl.exe`. Run `setup-dev.ps1` first, because the checks sign in as the seeded Admin. Details are in [tools/api-checks/README.md](tools/api-checks/README.md).
 
 ## Deployment notes
 
@@ -309,6 +334,15 @@ The suites cover authentication, users, projects, tasks, lists, the dashboard, t
 - **No user self-service**: users cannot change their own name, email or password, and Admins cannot create, rename or delete users (registration is public; Admins change roles and active status).
 - **Pickers load a bounded list**: the user lookup returns up to 50 people, and the task list's project filter loads the first 100 projects.
 - **AI**: suggestions depend on the provider's availability and quota. See [PROMPTS.md](PROMPTS.md#known-limitations).
+
+## How this was built
+
+SmartTask was built with [Claude Code](https://claude.com/claude-code), step by step, with a person directing and reviewing every step.
+
+- **Rules and decisions first.** [CLAUDE.md](CLAUDE.md) holds the project rules (architecture, stack, conventions) and every decision, such as how tokens are stored or how soft delete works. Each step was planned against it before any code was written.
+- **Small, reviewed steps.** Each step was reviewed, tested and committed separately. The backend is covered by the end-to-end API checks, and every frontend step by browser checks in light and dark mode at phone, tablet and desktop widths.
+- **UI designed first.** The look and feel was designed before the frontend was built, in [docs/design/](docs/design/) (design spec and screenshots). The frontend follows it, adapted where the backend's behaviour required.
+- **Every prompt is logged.** [docs/PROMPT_LOG.md](docs/PROMPT_LOG.md) records each prompt, what came back, and the review: what was accepted, changed or rejected, and why.
 
 ## Further documentation
 

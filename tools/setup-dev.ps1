@@ -5,7 +5,10 @@
 
 .DESCRIPTION
     1. Checks that a .NET SDK matching global.json is installed.
-    2. Checks SQL Server LocalDB and creates/starts the MSSQLLocalDB instance if needed.
+    2. Checks SQL Server LocalDB and creates/starts the MSSQLLocalDB instance if needed, unless
+       -SkipLocalDb (LocalDB is Windows-only; on macOS or Linux use another SQL Server 2019+ instance,
+       e.g. in Docker, set ConnectionStrings:DefaultConnection in user-secrets first, and pass
+       -SkipLocalDb).
     3. Restores the local dotnet tools (dotnet-ef, Swashbuckle CLI).
     4. Sets user-secrets for the API project:
          Jwt:SigningKey      64 random bytes (Base64)
@@ -17,11 +20,12 @@
        (dotnet ef database update), unless -SkipDatabase.
 
     Secret values are never printed, except a newly generated Admin password.
-    Works in Windows PowerShell 5.1 and PowerShell 7.
+    Works in Windows PowerShell 5.1 and PowerShell 7 (pwsh, also on macOS and Linux).
 
 .EXAMPLE
     ./tools/setup-dev.ps1
     ./tools/setup-dev.ps1 -TrustDevCert -AiApiKey <your Gemini API key>
+    pwsh ./tools/setup-dev.ps1 -SkipLocalDb    # macOS/Linux, with ConnectionStrings:DefaultConnection set
 #>
 [CmdletBinding()]
 param(
@@ -35,6 +39,10 @@ param(
 
     # Regenerate the JWT key and Admin credentials even if they are already set.
     [switch]$Force,
+
+    # Skip the LocalDB check (LocalDB is Windows-only). Use with another SQL Server 2019+ instance whose
+    # connection string is in user-secrets (ConnectionStrings:DefaultConnection) or the environment.
+    [switch]$SkipLocalDb,
 
     [switch]$SkipDatabase
 )
@@ -85,13 +93,18 @@ try {
 
     # --- 2. LocalDB -------------------------------------------------------------------------
     $customConnection = $env:ConnectionStrings__DefaultConnection
-    if ($customConnection -and $customConnection -notmatch '\(localdb\)') {
+    if ($SkipLocalDb) {
+        Write-Step 'Skipping the LocalDB check (-SkipLocalDb)'
+        $summary.Add('LocalDB               skipped (-SkipLocalDb); ConnectionStrings:DefaultConnection must point to SQL Server 2019+')
+    }
+    elseif ($customConnection -and $customConnection -notmatch '\(localdb\)') {
         Write-Step 'Skipping the LocalDB check (ConnectionStrings__DefaultConnection points elsewhere)'
     }
     else {
         Write-Step 'Checking SQL Server LocalDB (MSSQLLocalDB)'
         if (-not (Get-Command sqllocaldb -ErrorAction SilentlyContinue)) {
-            throw 'SqlLocalDB was not found. Install SQL Server Express LocalDB 2019 or newer (https://learn.microsoft.com/sql/database-engine/configure-windows/sql-server-express-localdb).'
+            throw ('SqlLocalDB was not found. Install SQL Server Express LocalDB 2019 or newer (https://learn.microsoft.com/sql/database-engine/configure-windows/sql-server-express-localdb), ' +
+                'or (for example on macOS or Linux) use another SQL Server 2019+ instance: set ConnectionStrings:DefaultConnection in user-secrets and run again with -SkipLocalDb.')
         }
         & sqllocaldb info MSSQLLocalDB *> $null
         if ($LASTEXITCODE -ne 0) {

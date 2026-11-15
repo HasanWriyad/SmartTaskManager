@@ -158,8 +158,8 @@ Also implemented: user management for Admins (`features/users/`: role changes, a
 | PROMPTS.md: AI prompt design | ✅ | `PROMPTS.md` → Prompt design (goals, full system prompt) |
 | PROMPTS.md: prompt structure | ✅ | `PROMPTS.md` → Prompt structure (system message, delimited user content, output format, request settings) |
 | PROMPTS.md: example inputs and outputs | ✅ | `PROMPTS.md` → Examples (three recorded live examples, including a prompt injection attempt) |
-| PROMPTS.md: validation approach | ✅ | `PROMPTS.md` → Validation (input limits, output checks, error mapping, retry) |
-| PROMPTS.md: safety considerations | ✅ | `PROMPTS.md` → Safety (prompt injection and its tests, data handling, key handling, rate limits) |
+| PROMPTS.md: validation approach | ✅ | [PROMPTS.md → Validation Approach](../PROMPTS.md#validation-approach) (input limits, output checks, error mapping, retry) |
+| PROMPTS.md: safety considerations | ✅ | [PROMPTS.md → Safety Considerations](../PROMPTS.md#safety-considerations) (prompt injection and its tests, data handling, key handling, rate limits) |
 
 ## Deliverables
 
