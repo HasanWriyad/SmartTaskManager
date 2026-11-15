@@ -167,3 +167,37 @@ a {
   --mat-snack-bar-supporting-text-color: var(--overdue-text);
   --mat-snack-bar-button-color: var(--overdue-text);
 }
+
+// Loading skeleton: a shimmering placeholder block; pages size it with their own classes.
+.skeleton {
+  display: block;
+  border-radius: var(--radius-badge);
+  background: linear-gradient(90deg, var(--surface-2) 25%, var(--hover) 50%, var(--surface-2) 75%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes skeleton-shimmer {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: -100% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    animation: none;
+  }
+}
+
+// Visually hidden but read by screen readers.
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
