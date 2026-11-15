@@ -141,7 +141,7 @@ The Angular dev server forwards `/api` and `/health` to the API (`frontend/proxy
 
 **Sign in** at http://localhost:4200 with the Admin email and the password the setup script printed. If you missed it, run `dotnet user-secrets list --project src/SmartTaskManager.Api`. Create more accounts with "Create an account" (they start as Team Members), then promote them on the Users page.
 
-**AI key is optional.** Without `AiSettings:ApiKey`, "Improve with AI" uses an offline fallback that tidies the text and adds generic steps. The API logs which implementation is active at startup.
+**AI key is optional.** Without `AiSettings:ApiKey`, "Improve with AI" uses an offline fallback that tidies the text and adds generic steps. The task dialog labels these results **Offline suggestion** ("No AI key is configured, so this is a basic rewrite"), so they are never mistaken for an AI result. The API logs which implementation is active at startup.
 
 ## Troubleshooting
 

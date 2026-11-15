@@ -168,6 +168,23 @@ textarea {
   }
 }
 
+// Offline fallback: neutral surface and muted heading, so it does not look like an AI result.
+.ai-panel.fallback {
+  border-color: var(--border);
+  background: var(--surface-2);
+
+  .ai-panel-title {
+    color: var(--text-muted);
+  }
+}
+
+.ai-fallback-note {
+  margin: 0 0 10px;
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 16px;
+}
+
 .ai-panel-note {
   color: var(--text-muted);
   font-size: 12px;

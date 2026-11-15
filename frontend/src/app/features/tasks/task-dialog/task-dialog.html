@@ -91,11 +91,26 @@
               <span class="skeleton line short" aria-hidden="true"></span>
             </div>
           } @else if (suggestion(); as text) {
-            <section class="ai-panel" aria-labelledby="ai-panel-title">
+            <section
+              class="ai-panel"
+              [class.fallback]="suggestionIsFallback()"
+              aria-labelledby="ai-panel-title"
+              [attr.aria-describedby]="suggestionIsFallback() ? 'ai-fallback-note' : null"
+            >
               <header class="ai-panel-head">
-                <h3 id="ai-panel-title" class="ai-panel-title"><mat-icon>auto_awesome</mat-icon>Improved description</h3>
+                @if (suggestionIsFallback()) {
+                  <!-- Offline fallback (no AI key): say so instead of presenting it as an AI result. -->
+                  <h3 id="ai-panel-title" class="ai-panel-title"><mat-icon>cloud_off</mat-icon>Offline suggestion</h3>
+                } @else {
+                  <h3 id="ai-panel-title" class="ai-panel-title"><mat-icon>auto_awesome</mat-icon>Improved description</h3>
+                }
                 <span class="ai-panel-note">Review before applying</span>
               </header>
+              @if (suggestionIsFallback()) {
+                <p id="ai-fallback-note" class="ai-fallback-note">
+                  No AI key is configured, so this is a basic rewrite: tidied text plus general steps.
+                </p>
+              }
               <p class="ai-text">{{ text }}</p>
               <div class="ai-actions">
                 <button mat-stroked-button type="button" (click)="discardSuggestion()">Discard</button>

@@ -22,7 +22,7 @@ Everything here describes the code as it is. The relevant files are:
 2. The frontend sends `POST /api/ai/improve-description` with `{ description, title }`.
 3. The API validates the input, builds the prompt and calls the model.
 4. The API cleans and checks the answer and returns `{ improvedDescription, source, model }`. `source` is `"ai"` when the model answered and `"fallback"` when the offline stand-in was used.
-5. The dialog shows the suggestion in a panel marked "Review before applying". Nothing changes until the user clicks **Apply suggestion**, and nothing is saved until they save the task through the normal update endpoint. **Discard** closes the panel.
+5. The dialog shows the suggestion in a panel marked "Review before applying". A model suggestion is headed **Improved description**; a fallback suggestion is headed **Offline suggestion** and says that no AI key is configured (see [Offline fallback](#offline-fallback)). Nothing changes until the user clicks **Apply suggestion**, and nothing is saved until they save the task through the normal update endpoint. **Discard** closes the panel.
 
 The endpoint only returns a suggestion. It never writes to the database.
 
@@ -297,7 +297,9 @@ No defence makes a language model completely immune to injection. The impact is 
 
 ### Offline fallback
 
-Without an API key, `FallbackDescriptionService` keeps the feature usable for development and demos. It tidies whitespace, capitalises the first letter, adds a full stop, and appends five generic steps. Its responses carry `source: "fallback"`. It is not AI and does not fix grammar.
+Without an API key, `FallbackDescriptionService` keeps the feature usable for development and demos. It tidies whitespace, capitalises the first letter, adds a full stop, and appends five generic steps. It is not AI and does not fix grammar.
+
+Its responses carry `source: "fallback"`, and the task dialog labels them so they are never mistaken for an AI result. The panel heading reads **Offline suggestion** (with a "cloud off" icon instead of the AI sparkle), the panel uses a neutral background instead of the AI accent tint, and a note explains: "No AI key is configured, so this is a basic rewrite: tidied text plus general steps." The note is linked to the panel with `aria-describedby`, so screen readers announce it too. Apply and Discard work the same way.
 
 ## Known limitations
 
@@ -308,5 +310,4 @@ Without an API key, `FallbackDescriptionService` keeps the feature usable for de
 - **No streaming.** The suggestion appears all at once, after about 1.5–3 seconds with the current model.
 - **Provider dependence.** Availability, quota and latency depend on Google. Errors are mapped to clear messages, and only a 503 is retried.
 - **Injection resistance is strong, not absolute.** The layers above contain it, and the output is never acted on without a human.
-- **The fallback is not labelled in the UI.** The API marks fallback responses with `source: "fallback"`, but the dialog shows them like model suggestions.
 - **Language.** The prompt asks for the input's language, but testing used English only.

@@ -10,7 +10,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { SELECT_IMPORTS } from '../../../shared/select/select-panel-fit';
-import { Observable, filter, firstValueFrom, map, startWith } from 'rxjs';
+import { Observable, filter, firstValueFrom, startWith } from 'rxjs';
 import { AiService } from '../../../core/ai/ai.service';
 import { ApiError, apiErrorMessage, apiErrorStatus } from '../../../core/api/api-error';
 import { AuthService } from '../../../core/auth/auth.service';
@@ -160,6 +160,8 @@ export class TaskDialog {
   // ---------- AI suggestion
   protected readonly aiLoading = signal(false);
   protected readonly suggestion = signal<string | null>(null);
+  /** The suggestion came from the offline fallback (no AI key configured), not a model: labelled as such. */
+  protected readonly suggestionIsFallback = signal(false);
   protected readonly aiError = signal<string | null>(null);
   protected readonly aiApplied = signal(false);
   private readonly descriptionValue = toSignal(this.form.controls.description.valueChanges, { initialValue: '' });
@@ -393,14 +395,12 @@ export class TaskDialog {
     this.aiLoading.set(true);
     this.ai
       .improveDescription(description, this.form.controls.title.value.trim() || null)
-      .pipe(
-        map((response) => response.improvedDescription),
-        takeUntilDestroyed(this.destroyRef),
-      )
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
-        next: (text) => {
+        next: (response) => {
           this.aiLoading.set(false);
-          this.suggestion.set(text);
+          this.suggestionIsFallback.set(response.source === 'fallback');
+          this.suggestion.set(response.improvedDescription);
         },
         error: (error: unknown) => {
           this.aiLoading.set(false);
