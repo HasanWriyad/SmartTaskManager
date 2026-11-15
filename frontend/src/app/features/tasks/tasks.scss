@@ -264,8 +264,10 @@ td.mat-column-title {
     overflow-x: auto;
   }
 
+  // Wide enough for the longest default option ("Any due date"), so a panel at the screen edge,
+  // which cannot grow past it, still shows its options in full.
   .select {
-    flex: 0 0 150px;
+    flex: 0 0 168px;
   }
 
   .clear {

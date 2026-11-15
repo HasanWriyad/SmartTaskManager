@@ -19,6 +19,7 @@ import { UserLookup, UserLookupService } from '../../../core/users/user-lookup.s
 import { Avatar } from '../../../shared/avatar/avatar';
 import { ConfirmService } from '../../../shared/confirm-dialog/confirm-dialog';
 import { ProjectActions } from '../project-actions';
+import { ProjectTasks } from './project-tasks';
 import { ProjectDetails as Project, ProjectMember } from '../project.models';
 import { ProjectService } from '../project.service';
 
@@ -40,6 +41,7 @@ import { ProjectService } from '../project.service';
     MatProgressBarModule,
     MatTooltipModule,
     Avatar,
+    ProjectTasks,
   ],
   templateUrl: './project-details.html',
   styleUrl: './project-details.scss',
@@ -189,6 +191,11 @@ export class ProjectDetailsPage {
 
   protected delete(project: Project): void {
     this.actions.delete(project).subscribe(() => void this.router.navigate(['/projects']));
+  }
+
+  /** A task was created, edited or deleted in the Tasks section: refresh the task count. */
+  protected tasksChanged(): void {
+    this.project.reload();
   }
 
   protected retry(): void {

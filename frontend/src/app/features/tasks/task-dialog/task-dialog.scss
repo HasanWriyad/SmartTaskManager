@@ -78,6 +78,21 @@ textarea {
   min-height: 96px;
 }
 
+// Due date: clear and calendar buttons in one row inside the 44px field.
+.due-suffix {
+  display: flex;
+  align-items: center;
+  margin-right: 2px;
+
+  .mat-mdc-icon-button,
+  ::ng-deep .mat-datepicker-toggle .mat-mdc-icon-button {
+    --mat-icon-button-state-layer-size: 40px;
+    width: 40px;
+    height: 40px;
+    padding: 8px;
+  }
+}
+
 .read-only {
   display: flex;
   align-items: center;

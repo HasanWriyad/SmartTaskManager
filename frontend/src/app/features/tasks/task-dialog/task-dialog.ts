@@ -10,6 +10,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { SelectPanelFit } from '../../../shared/select/select-panel-fit';
 import { Observable, filter, firstValueFrom, map, startWith } from 'rxjs';
 import { AiService } from '../../../core/ai/ai.service';
 import { ApiError, apiErrorMessage, apiErrorStatus } from '../../../core/api/api-error';
@@ -30,7 +31,11 @@ import {
 import { TaskService } from '../task.service';
 
 /** Create (optionally in a given project) or open an existing task. */
-export type TaskDialogData = { projectId?: string; taskId?: undefined } | { projectId: string; taskId: string };
+export type TaskDialogData =
+  | { projectId?: string; taskId?: undefined; fixedProject?: undefined }
+  /** Create in this project only (from its details page, where the caller has canManage): shown read-only. */
+  | { projectId: string; taskId?: undefined; fixedProject: { name: string } }
+  | { projectId: string; taskId: string; fixedProject?: undefined };
 /** 'saved' when anything was saved (even if a later step failed and the user then cancelled). */
 export type TaskDialogResult = 'saved' | 'deleted' | undefined;
 
@@ -58,6 +63,7 @@ const statuses: TaskStatus[] = ['ToDo', 'InProgress', 'Completed', 'Cancelled'];
     MatIconModule,
     MatInputModule,
     MatSelectModule,
+    SelectPanelFit,
   ],
   providers: [provideAppDateAdapter()],
   templateUrl: './task-dialog.html',
@@ -126,9 +132,16 @@ export class TaskDialog {
 
   // ---------- Projects (create) and members (assignee options)
   /** Projects the user can manage: the only ones a task can be created in. */
-  private readonly projectList = this.isCreate
-    ? this.projectsApi.list(() => ({ ...defaultProjectListState, pageSize: 100 }))
-    : null;
+  /** Create with the project fixed by the opener (no project list needed). */
+  protected readonly fixedProject = this.data.fixedProject ?? null;
+  private readonly projectList =
+    this.isCreate && !this.fixedProject
+      ? this.projectsApi.list(() => ({ ...defaultProjectListState, pageSize: 100 }))
+      : null;
+  /** Creating, but there is no project to create in (none managed and none fixed). */
+  protected readonly noProjectToCreateIn = computed(
+    () => this.isCreate && !this.fixedProject && this.projectsLoaded() && this.manageableProjects().length === 0,
+  );
   protected readonly manageableProjects = computed(() => {
     const list = this.projectList;
     return list?.hasValue() ? list.value().items.filter((p) => p.canManage) : [];

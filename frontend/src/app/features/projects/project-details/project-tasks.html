@@ -1,0 +1,129 @@
+<section class="surface-card tasks" aria-labelledby="tasks-title" [attr.aria-busy]="tasks.isLoading()">
+  @if (tasks.isLoading() && result()) {
+    <mat-progress-bar mode="indeterminate" class="loading-bar" aria-label="Loading tasks" />
+  }
+  <header class="tasks-head">
+    <div>
+      <h2 id="tasks-title" class="card-title">Tasks</h2>
+      <p class="card-subtitle">
+        @if (result(); as r) {
+          {{ r.totalCount }} {{ r.totalCount === 1 ? 'task' : 'tasks' }} · highest priority first
+        } @else {
+          Tasks in this project
+        }
+      </p>
+    </div>
+    @if (canManage()) {
+      <button mat-flat-button type="button" (click)="create()"><mat-icon>add</mat-icon>New task</button>
+    }
+  </header>
+
+  @if (errorMessage(); as message) {
+    <div class="state" role="alert">
+      <span class="state-tile error" aria-hidden="true"><mat-icon>cloud_off</mat-icon></span>
+      <h3 class="state-title">The tasks could not be loaded</h3>
+      <p class="state-text">{{ message }}</p>
+      <button mat-flat-button type="button" (click)="retry()"><mat-icon>refresh</mat-icon>Try again</button>
+    </div>
+  } @else if (result(); as r) {
+    @if (r.items.length === 0) {
+      <div class="state">
+        <span class="state-tile" aria-hidden="true"><mat-icon>check_box</mat-icon></span>
+        <h3 class="state-title">No tasks yet</h3>
+        <p class="state-text">
+          {{ canManage() ? 'Create the first task for this project.' : 'Tasks added to this project will appear here.' }}
+        </p>
+        @if (canManage()) {
+          <button mat-stroked-button type="button" (click)="create()"><mat-icon>add</mat-icon>New task</button>
+        }
+      </div>
+    } @else if (isPhone()) {
+      <ul class="cards" aria-label="Tasks in this project">
+        @for (task of r.items; track task.id) {
+          <li class="task-card">
+            <button type="button" class="card-open" (click)="open(task)">{{ task.title }}</button>
+            <div class="card-foot">
+              <app-status-badge [status]="task.status" />
+              <app-priority-badge [priority]="task.priority" />
+              <span class="card-meta tabular" [class.overdue]="overdue(task)">
+                @if (task.assigneeName; as name) {
+                  <app-avatar [name]="name" [size]="24" [self]="task.assigneeId === currentUserId()" />
+                  <span class="sr-only">{{ name }}</span>
+                }
+                @if (task.dueDate) {
+                  <span>{{ task.dueDate | date: 'd MMM' }}</span>
+                  @if (overdue(task)) {
+                    <span class="sr-only">, {{ caption(task) }}</span>
+                  }
+                }
+              </span>
+            </div>
+          </li>
+        }
+      </ul>
+    } @else {
+      <div class="table-scroll">
+        <table class="table">
+          <caption class="sr-only">Tasks in this project</caption>
+          <thead>
+            <tr>
+              <th scope="col">Title</th>
+              <th scope="col">Status</th>
+              <th scope="col">Priority</th>
+              <th scope="col">Assignee</th>
+              <th scope="col">Due date</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (task of r.items; track task.id) {
+              <tr class="row" (click)="open(task)">
+                <td class="title-cell">
+                  <button type="button" class="row-title" (click)="open(task); $event.stopPropagation()">{{ task.title }}</button>
+                </td>
+                <td><app-status-badge [status]="task.status" /></td>
+                <td><app-priority-badge [priority]="task.priority" /></td>
+                <td>
+                  @if (task.assigneeName; as name) {
+                    <span class="person">
+                      <app-avatar [name]="name" [size]="28" [self]="task.assigneeId === currentUserId()" />
+                      <span class="person-name">{{ name }}{{ task.assigneeId === currentUserId() ? ' (you)' : '' }}</span>
+                    </span>
+                  } @else {
+                    <span class="muted">Unassigned</span>
+                  }
+                </td>
+                <td class="due" [class.overdue]="overdue(task)">
+                  @if (task.dueDate) {
+                    <span class="tabular">{{ task.dueDate | date: 'd MMM y' }}</span>
+                    <span class="due-caption">{{ caption(task) }}</span>
+                  } @else {
+                    <span class="muted">No due date</span>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+
+    @if (r.totalCount > pageSizes[0]) {
+      <mat-paginator
+        [length]="r.totalCount"
+        [pageIndex]="page() - 1"
+        [pageSize]="pageSize()"
+        [pageSizeOptions]="pageSizes"
+        [hidePageSize]="isPhone()"
+        (page)="pageChange($event)"
+        aria-label="Choose a page of this project's tasks"
+      />
+    }
+  } @else {
+    <div class="skeleton-list" aria-busy="true">
+      <p class="sr-only" role="status">Loading tasks…</p>
+      @for (i of skeletonRows; track i) {
+        <span class="skeleton row" aria-hidden="true"></span>
+      }
+    </div>
+  }
+</section>

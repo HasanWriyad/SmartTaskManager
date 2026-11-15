@@ -356,3 +356,10 @@ a {
 .mat-sort-header .mat-sort-header-sorted .mat-sort-header-arrow {
   opacity: 1;
 }
+
+// Select options stay on one line; the panel grows to fit them (shared/select/select-panel-fit.ts).
+.mat-mdc-select-panel .mat-mdc-option .mdc-list-item__primary-text {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}

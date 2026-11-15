@@ -12,6 +12,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
+import { SelectPanelFit } from '../../shared/select/select-panel-fit';
 import { MatSortModule, Sort } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -67,6 +68,7 @@ type RowAccess = 'manage' | 'status' | 'view';
     MatPaginatorModule,
     MatProgressBarModule,
     MatSelectModule,
+    SelectPanelFit,
     MatSortModule,
     MatTableModule,
     MatTooltipModule,

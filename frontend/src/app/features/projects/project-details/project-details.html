@@ -45,6 +45,13 @@
       </dl>
     </section>
 
+    <app-project-tasks
+      [projectId]="project.id"
+      [projectName]="project.name"
+      [canManage]="project.canManage"
+      (changed)="tasksChanged()"
+    />
+
     <section class="surface-card members" aria-labelledby="members-title" [attr.aria-busy]="busy()">
       @if (busy()) {
         <mat-progress-bar mode="indeterminate" class="loading-bar" aria-label="Updating members" />

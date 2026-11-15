@@ -25,6 +25,22 @@ export class TaskService {
     );
   }
 
+  /**
+   * GET /api/projects/{projectId}/tasks in the API's default order (highest priority, then earliest due
+   * date). No request while projectId is undefined. Call from an injection context.
+   */
+  listByProject(query: () => { projectId: string; page: number; pageSize: number } | undefined) {
+    return httpResource<PagedResult<TaskListItem>>(
+      () => {
+        const q = query();
+        return q
+          ? { url: tasksUrl(q.projectId), params: { page: q.page, pageSize: q.pageSize }, context: silentErrors() }
+          : undefined;
+      },
+      { parse: (body) => (body as ApiResponse<PagedResult<TaskListItem>>).data! },
+    );
+  }
+
   get(projectId: string, taskId: string): Observable<TaskDetails> {
     return this.http
       .get<ApiResponse<TaskDetails>>(`${tasksUrl(projectId)}/${encodeURIComponent(taskId)}`, { context: silentErrors() })

@@ -35,7 +35,7 @@
           <span>{{ message }}</span>
         </p>
       }
-      @if (isCreate && projectsLoaded() && manageableProjects().length === 0) {
+      @if (noProjectToCreateIn()) {
         <p class="inline-alert" role="alert">
           <mat-icon>info</mat-icon>
           <span>You don't manage any projects yet. Create a project first, then add tasks to it.</span>
@@ -115,8 +115,10 @@
 
       <div class="grid">
         <div class="field">
-          <label class="field-label" [attr.for]="isCreate ? 'task-project' : null" id="task-project-label">Project</label>
-          @if (isCreate) {
+          <label class="field-label" [attr.for]="isCreate && !fixedProject ? 'task-project' : null" id="task-project-label">Project</label>
+          @if (fixedProject) {
+            <p class="read-only" aria-labelledby="task-project-label">{{ fixedProject.name }}</p>
+          } @else if (isCreate) {
             <mat-form-field appearance="outline" subscriptSizing="dynamic" hideRequiredMarker>
               <mat-select id="task-project" formControlName="projectId" aria-labelledby="task-project-label" placeholder="Choose a project">
                 @for (project of manageableProjects(); track project.id) {
@@ -183,12 +185,20 @@
           <label class="field-label" for="task-due">Due date</label>
           <mat-form-field appearance="outline" subscriptSizing="dynamic">
             <input matInput id="task-due" formControlName="dueDate" [matDatepicker]="duePicker" placeholder="No due date" />
-            @if (form.controls.dueDate.value && form.controls.dueDate.enabled) {
-              <button mat-icon-button matSuffix type="button" aria-label="Clear the due date" (click)="form.controls.dueDate.setValue(null); form.controls.dueDate.markAsDirty()">
-                <mat-icon>close</mat-icon>
-              </button>
-            }
-            <mat-datepicker-toggle matIconSuffix [for]="duePicker" aria-label="Choose a due date" />
+            <!-- One suffix holding both buttons side by side, so the field keeps the standard height. -->
+            <span matIconSuffix class="due-suffix">
+              @if (form.controls.dueDate.value && form.controls.dueDate.enabled) {
+                <button
+                  mat-icon-button
+                  type="button"
+                  aria-label="Clear the due date"
+                  (click)="form.controls.dueDate.setValue(null); form.controls.dueDate.markAsDirty()"
+                >
+                  <mat-icon>close</mat-icon>
+                </button>
+              }
+              <mat-datepicker-toggle [for]="duePicker" aria-label="Choose a due date" />
+            </span>
             <mat-datepicker #duePicker />
             @if (form.controls.dueDate.hasError('matDatepickerParse')) {
               <mat-error>Enter a valid date.</mat-error>
@@ -222,7 +232,7 @@
       <button
         mat-flat-button
         type="submit"
-        [disabled]="saving() || (isCreate && manageableProjects().length === 0)"
+        [disabled]="saving() || noProjectToCreateIn()"
       >
         {{ saving() ? 'Saving…' : isCreate ? 'Create task' : 'Save changes' }}
       </button>
