@@ -1,0 +1,34 @@
+<div class="auth">
+  <section class="form-panel">
+    <header class="top-bar">
+      <app-logo />
+      <app-theme-toggle />
+    </header>
+
+    <main class="form-area">
+      <div class="form-box">
+        <ng-content />
+      </div>
+    </main>
+
+    <footer class="copyright">© {{ year }} SmartTask</footer>
+  </section>
+
+  <aside class="product-panel" aria-hidden="true">
+    <div class="product">
+      <p class="headline">Every project, task and deadline in one place.</p>
+      <p class="tagline">Assign work, track progress by status and priority, and see what's due next.</p>
+      <ul class="samples">
+        @for (task of samples; track task.title) {
+          <li class="sample">
+            <div class="sample-text">
+              <span class="sample-title">{{ task.title }}</span>
+              <span class="sample-meta">{{ task.meta }}</span>
+            </div>
+            <app-status-badge [status]="task.status" />
+          </li>
+        }
+      </ul>
+    </div>
+  </aside>
+</div>

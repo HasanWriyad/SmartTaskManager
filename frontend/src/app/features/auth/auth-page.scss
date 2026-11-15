@@ -1,53 +1,92 @@
-// Shared by the sign-in and registration pages.
-.auth-page {
-  min-height: 100%;
-  display: grid;
-  place-items: center;
-  padding: 24px 16px;
-  box-sizing: border-box;
+// Form styles shared by the sign-in and registration pages (spec §7.1). The two-column frame is
+// AuthLayout.
+.title {
+  margin: 0;
+  font-size: 28px;
+  line-height: 36px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
 }
 
-.auth-card {
-  width: 100%;
-  max-width: 420px;
-  overflow: hidden;
+.subtitle {
+  margin: 8px 0 28px;
+  color: var(--text-muted);
 }
 
-mat-card-header {
-  margin-bottom: 16px;
+// Banners: the error uses the overdue colours (spec §7.1), the expiry notice the accent-soft ones.
+.banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0 0 20px;
+  padding: 12px;
+  border-radius: var(--radius-control);
+
+  mat-icon {
+    flex: none;
+  }
+}
+
+.banner-error {
+  background: var(--overdue-bg);
+  color: var(--overdue-text);
+}
+
+.banner-notice {
+  background: var(--accent-soft);
+  color: var(--accent-text);
 }
 
 form {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 16px;
 }
 
-.auth-submit {
-  margin-top: 8px;
-  height: 44px;
-}
-
-.auth-footer {
+.field {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
+  flex-direction: column;
+  gap: 6px;
+
+  mat-form-field {
+    width: 100%;
+  }
 }
 
-.auth-error,
-.auth-notice {
-  margin: 0 0 16px;
-  padding: 12px;
-  border-radius: 8px;
+.field-label {
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 500;
 }
 
-.auth-error {
-  background: var(--mat-sys-error-container);
-  color: var(--mat-sys-on-error-container);
+.mismatch {
+  color: var(--overdue-text);
 }
 
-.auth-notice {
-  background: var(--mat-sys-secondary-container);
-  color: var(--mat-sys-on-secondary-container);
+.toggle-visibility {
+  color: var(--text-muted);
+}
+
+.submit {
+  width: 100%;
+  height: 44px;
+  margin-top: 8px;
+}
+
+.switch {
+  margin: 24px 0 0;
+  color: var(--text-muted);
+  text-align: center;
+
+  a {
+    color: var(--accent-text);
+    font-weight: 600;
+    text-decoration: none;
+    border-radius: 4px;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
 }

@@ -8,14 +8,13 @@ import {
   Validators,
 } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { Router, RouterLink } from '@angular/router';
 import { ApiError } from '../../../core/api/api-error';
 import { AuthService } from '../../../core/auth/auth.service';
+import { AuthLayout } from '../auth-layout/auth-layout';
 import { applyServerErrors } from '../../../core/forms/server-errors';
 
 /** Same rules as the backend's RegisterRequestValidator, so most mistakes are caught before submitting. */
@@ -36,13 +35,12 @@ const passwordsMatch: ValidatorFn = (group: AbstractControl): ValidationErrors |
   selector: 'app-register',
   imports: [
     ReactiveFormsModule,
+    AuthLayout,
     RouterLink,
     MatButtonModule,
-    MatCardModule,
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
-    MatProgressBarModule,
   ],
   templateUrl: './register.html',
   styleUrl: '../auth-page.scss',
@@ -65,6 +63,12 @@ export class Register {
     },
     { validators: passwordsMatch },
   );
+
+  /** Shown once the confirmation has been entered and left, and differs from the password. */
+  protected passwordMismatch(): boolean {
+    const confirm = this.form.controls.confirmPassword;
+    return this.form.hasError('passwordMismatch') && confirm.touched && confirm.value !== '';
+  }
 
   /** Lists the password rules that are not met yet, for the hint under the field. */
   protected missingPasswordRules(): string[] {
