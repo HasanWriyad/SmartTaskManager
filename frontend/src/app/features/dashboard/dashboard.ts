@@ -4,6 +4,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../core/auth/auth.service';
 import { ProjectActions } from '../projects/project-actions';
+import { TaskDialogService } from '../tasks/task-dialog/task-dialog';
+import { UpcomingTask } from './dashboard.models';
 import { DashboardService } from './dashboard.service';
 import { priorityRows, statusSlices, summaryCards } from './dashboard.view';
 import { PriorityChart } from './priority-chart';
@@ -24,6 +26,7 @@ const upcomingRows = 5;
 export class Dashboard {
   private readonly auth = inject(AuthService);
   private readonly projectActions = inject(ProjectActions);
+  private readonly taskDialogs = inject(TaskDialogService);
 
   protected readonly dashboard = inject(DashboardService).load();
 
@@ -63,6 +66,15 @@ export class Dashboard {
   /** Opens the new-project dialog; the created project opens on its details page. */
   protected createProject(): void {
     this.projectActions.create();
+  }
+
+  /** Upcoming rows open the task dialog; the numbers refresh after a save or delete. */
+  protected openTask(task: UpcomingTask): void {
+    this.taskDialogs.open({ projectId: task.projectId, taskId: task.id }).subscribe((result) => {
+      if (result) {
+        this.dashboard.reload();
+      }
+    });
   }
 
   protected retry(): void {

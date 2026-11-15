@@ -1,0 +1,231 @@
+<form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+  <header class="dialog-header">
+    <h2 id="task-dialog-title" class="dialog-title">{{ heading() }}</h2>
+    <button mat-icon-button type="button" aria-label="Close" [disabled]="saving()" (click)="close()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </header>
+
+  <div class="dialog-body">
+    @if (loadError(); as failure) {
+      <div class="state" role="alert">
+        <span class="state-tile" [class.error]="!failure.notFound" aria-hidden="true">
+          <mat-icon>{{ failure.notFound ? 'search_off' : 'cloud_off' }}</mat-icon>
+        </span>
+        <h3 class="state-title">{{ failure.notFound ? 'Task not found' : 'The task could not be loaded' }}</h3>
+        <p class="state-text">
+          {{ failure.notFound ? "It may have been deleted, or you don't have access to it." : failure.message }}
+        </p>
+        @if (!failure.notFound) {
+          <button mat-flat-button type="button" (click)="retryLoad()"><mat-icon>refresh</mat-icon>Try again</button>
+        }
+      </div>
+    } @else if (!isCreate && !task()) {
+      <div class="loading" aria-busy="true">
+        <p class="sr-only" role="status">Loading the task…</p>
+        <span class="skeleton line short" aria-hidden="true"></span>
+        <span class="skeleton block" aria-hidden="true"></span>
+        <span class="skeleton line short" aria-hidden="true"></span>
+        <span class="skeleton tall" aria-hidden="true"></span>
+      </div>
+    } @else {
+      @if (errorMessage(); as message) {
+        <p class="inline-alert" role="alert">
+          <mat-icon>error</mat-icon>
+          <span>{{ message }}</span>
+        </p>
+      }
+      @if (isCreate && projectsLoaded() && manageableProjects().length === 0) {
+        <p class="inline-alert" role="alert">
+          <mat-icon>info</mat-icon>
+          <span>You don't manage any projects yet. Create a project first, then add tasks to it.</span>
+        </p>
+      }
+
+      <div class="field">
+        <label class="field-label" for="task-title">Title</label>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic" hideRequiredMarker>
+          <input matInput id="task-title" formControlName="title" [maxlength]="titleMax" autocomplete="off" required />
+          @if (form.controls.title.hasError('required')) {
+            <mat-error>Title is required.</mat-error>
+          } @else if (form.controls.title.hasError('server')) {
+            <mat-error>{{ form.controls.title.getError('server') }}</mat-error>
+          }
+        </mat-form-field>
+      </div>
+
+      <div class="field">
+        <div class="label-row">
+          <label class="field-label" for="task-description">Description</label>
+          @if (canUseAi()) {
+            <button
+              mat-button
+              type="button"
+              class="ai-button"
+              [disabled]="descriptionEmpty() || aiLoading() || saving()"
+              [attr.aria-describedby]="descriptionEmpty() ? 'ai-hint' : null"
+              (click)="improve()"
+            >
+              <mat-icon>auto_awesome</mat-icon>
+              {{ aiLoading() ? 'Improving…' : 'Improve with AI' }}
+            </button>
+          }
+        </div>
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <textarea matInput id="task-description" formControlName="description" rows="4" [maxlength]="descriptionMax"></textarea>
+          @if (form.controls.description.hasError('server')) {
+            <mat-error>{{ form.controls.description.getError('server') }}</mat-error>
+          }
+        </mat-form-field>
+        @if (canUseAi() && descriptionEmpty()) {
+          <p id="ai-hint" class="hint">Write a description first, then Improve with AI can rewrite it.</p>
+        }
+
+        <!-- AI suggestion: announced politely; never overwrites the field without Apply. -->
+        <div class="ai-region" aria-live="polite">
+          @if (aiLoading()) {
+            <div class="ai-panel" aria-busy="true">
+              <p class="sr-only">Improving the description…</p>
+              <span class="skeleton line" aria-hidden="true"></span>
+              <span class="skeleton line" aria-hidden="true"></span>
+              <span class="skeleton line short" aria-hidden="true"></span>
+            </div>
+          } @else if (suggestion(); as text) {
+            <section class="ai-panel" aria-labelledby="ai-panel-title">
+              <header class="ai-panel-head">
+                <h3 id="ai-panel-title" class="ai-panel-title"><mat-icon>auto_awesome</mat-icon>Improved description</h3>
+                <span class="ai-panel-note">Review before applying</span>
+              </header>
+              <p class="ai-text">{{ text }}</p>
+              <div class="ai-actions">
+                <button mat-stroked-button type="button" (click)="discardSuggestion()">Discard</button>
+                <button mat-flat-button type="button" (click)="applySuggestion()">Apply suggestion</button>
+              </div>
+            </section>
+          } @else if (aiError(); as message) {
+            <p class="inline-alert ai-error" role="alert">
+              <mat-icon>error</mat-icon>
+              <span>{{ message }}</span>
+            </p>
+          } @else if (aiApplied()) {
+            <p class="ai-applied"><mat-icon>check_circle</mat-icon>Description updated. You can still edit it before saving.</p>
+          }
+        </div>
+      </div>
+
+      <div class="grid">
+        <div class="field">
+          <label class="field-label" [attr.for]="isCreate ? 'task-project' : null" id="task-project-label">Project</label>
+          @if (isCreate) {
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" hideRequiredMarker>
+              <mat-select id="task-project" formControlName="projectId" aria-labelledby="task-project-label" placeholder="Choose a project">
+                @for (project of manageableProjects(); track project.id) {
+                  <mat-option [value]="project.id">{{ project.name }}</mat-option>
+                }
+              </mat-select>
+              @if (form.controls.projectId.hasError('required')) {
+                <mat-error>Choose a project.</mat-error>
+              }
+            </mat-form-field>
+          } @else {
+            <p class="read-only" aria-labelledby="task-project-label">{{ task()?.projectName }}</p>
+          }
+        </div>
+
+        <div class="field">
+          <label class="field-label" id="task-assignee-label">Assignee</label>
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-select formControlName="assigneeId" aria-labelledby="task-assignee-label">
+              <mat-option value="">Unassigned</mat-option>
+              @for (member of members(); track member.userId) {
+                <mat-option [value]="member.userId">{{ member.fullName }}</mat-option>
+              }
+              @if (task(); as t) {
+                @if (t.assigneeId && !members().length) {
+                  <mat-option [value]="t.assigneeId">{{ t.assigneeName }}</mat-option>
+                }
+              }
+            </mat-select>
+            @if (form.controls.assigneeId.hasError('server')) {
+              <mat-error>{{ form.controls.assigneeId.getError('server') }}</mat-error>
+            }
+          </mat-form-field>
+        </div>
+
+        @if (!isCreate) {
+          <div class="field">
+            <label class="field-label" id="task-status-label">Status</label>
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
+              <mat-select formControlName="status" aria-labelledby="task-status-label">
+                @for (status of statusOptions(); track status) {
+                  <mat-option [value]="status">{{ statusLabels[status] }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+            @if (task()?.status === 'Cancelled' && !task()?.canManage) {
+              <p class="hint">Only the project owner or an Admin can reopen a cancelled task.</p>
+            }
+          </div>
+        }
+
+        <div class="field">
+          <label class="field-label" id="task-priority-label">Priority</label>
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <mat-select formControlName="priority" aria-labelledby="task-priority-label">
+              @for (priority of priorities; track priority) {
+                <mat-option [value]="priority">{{ priorityLabels[priority] }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <div class="field">
+          <label class="field-label" for="task-due">Due date</label>
+          <mat-form-field appearance="outline" subscriptSizing="dynamic">
+            <input matInput id="task-due" formControlName="dueDate" [matDatepicker]="duePicker" placeholder="No due date" />
+            @if (form.controls.dueDate.value && form.controls.dueDate.enabled) {
+              <button mat-icon-button matSuffix type="button" aria-label="Clear the due date" (click)="form.controls.dueDate.setValue(null); form.controls.dueDate.markAsDirty()">
+                <mat-icon>close</mat-icon>
+              </button>
+            }
+            <mat-datepicker-toggle matIconSuffix [for]="duePicker" aria-label="Choose a due date" />
+            <mat-datepicker #duePicker />
+            @if (form.controls.dueDate.hasError('matDatepickerParse')) {
+              <mat-error>Enter a valid date.</mat-error>
+            } @else if (form.controls.dueDate.hasError('server')) {
+              <mat-error>{{ form.controls.dueDate.getError('server') }}</mat-error>
+            }
+          </mat-form-field>
+        </div>
+      </div>
+
+      @if (task(); as t) {
+        <p class="meta">
+          Created by {{ t.createdByName }} on {{ t.createdAt | date: 'd MMM y' }}
+          @if (t.completedAt) {
+            · completed {{ t.completedAt | date: 'd MMM y' }}
+          }
+        </p>
+      }
+    }
+  </div>
+
+  <footer class="dialog-footer">
+    @if (canDelete()) {
+      <button mat-button type="button" class="delete" [disabled]="saving()" (click)="delete()">
+        <mat-icon>delete</mat-icon>Delete
+      </button>
+    }
+    <span class="spacer"></span>
+    <button mat-button type="button" [disabled]="saving()" (click)="close()">{{ canSave() ? 'Cancel' : 'Close' }}</button>
+    @if (canSave() && !loadError()) {
+      <button
+        mat-flat-button
+        type="submit"
+        [disabled]="saving() || (isCreate && manageableProjects().length === 0)"
+      >
+        {{ saving() ? 'Saving…' : isCreate ? 'Create task' : 'Save changes' }}
+      </button>
+    }
+  </footer>
+</form>

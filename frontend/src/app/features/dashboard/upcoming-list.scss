@@ -31,8 +31,25 @@ tbody tr:hover {
   display: block;
 }
 
+// The title is a button (opens the task dialog) that looks like text.
 .title {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--text);
+  font: inherit;
   font-weight: 500;
+  text-align: left;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+tbody tr {
+  cursor: pointer;
 }
 
 .meta {

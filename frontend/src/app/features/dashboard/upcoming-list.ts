@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { Avatar } from '../../shared/avatar/avatar';
 import { PriorityBadge } from '../../shared/badges/priority-badge';
 import { StatusBadge } from '../../shared/badges/status-badge';
@@ -29,9 +29,9 @@ import { relativeDue } from './dashboard.view';
         </thead>
         <tbody>
           @for (task of tasks(); track task.id) {
-            <tr>
+            <tr class="row" (click)="openTask.emit(task)">
               <td>
-                <span class="title">{{ task.title }}</span>
+                <button type="button" class="title" (click)="openTask.emit(task); $event.stopPropagation()">{{ task.title }}</button>
                 <span class="meta">{{ task.projectName }}</span>
               </td>
               <td class="wide-only">
@@ -65,6 +65,8 @@ export class UpcomingList {
   readonly asOf = input.required<string>();
   readonly windowDays = input(7);
   readonly currentUserId = input<string | null>(null);
+  /** A row (or its title button, for keyboard users) was chosen: open the task dialog. */
+  readonly openTask = output<UpcomingTask>();
 
   protected relative(dueDate: string): string {
     return relativeDue(dueDate, this.asOf());

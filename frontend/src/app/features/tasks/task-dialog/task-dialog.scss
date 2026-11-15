@@ -1,0 +1,244 @@
+// Task form dialog (spec §7.4). Full screen on phones (global .app-form-dialog), footer at the bottom.
+:host,
+form {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+form {
+  flex: 1;
+  min-height: 0;
+}
+
+.dialog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 16px 16px 8px 24px;
+}
+
+.dialog-title {
+  margin: 0;
+  font-size: 18px;
+  line-height: 26px;
+  font-weight: 600;
+}
+
+.dialog-body {
+  flex: 1;
+  overflow: auto;
+  padding: 8px 24px 20px;
+}
+
+.field + .field,
+.grid {
+  margin-top: 16px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+
+  .field + .field {
+    margin-top: 0;
+  }
+}
+
+.label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 32px;
+  margin-bottom: 6px;
+
+  .field-label {
+    margin: 0;
+  }
+}
+
+.field-label {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 500;
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 96px;
+}
+
+.read-only {
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  min-height: 44px;
+  margin: 0;
+  padding: 0 14px;
+  border-radius: var(--radius-control);
+  background: var(--surface-2);
+  overflow-wrap: anywhere;
+}
+
+.hint,
+.meta {
+  margin: 6px 0 0;
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 16px;
+}
+
+.meta {
+  margin-top: 16px;
+}
+
+// ---------- Improve with AI: tonal 32px button, accent-tinted suggestion panel.
+.ai-button.mat-mdc-button {
+  height: 32px;
+  padding: 0 12px;
+  background: var(--accent-soft);
+  --mat-button-text-label-text-color: var(--accent-text);
+
+  &:disabled {
+    opacity: 0.38;
+  }
+
+  mat-icon {
+    width: 18px;
+    height: 18px;
+    font-size: 18px;
+  }
+}
+
+.ai-panel {
+  margin-top: 12px;
+  padding: 16px;
+  border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent);
+  border-radius: var(--radius-card);
+  background: color-mix(in srgb, var(--accent) 4%, var(--surface));
+}
+
+.ai-panel-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px 12px;
+  margin-bottom: 8px;
+}
+
+.ai-panel-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  color: var(--accent-text);
+  font-size: 13px;
+  font-weight: 600;
+
+  mat-icon {
+    width: 18px;
+    height: 18px;
+    font-size: 18px;
+  }
+}
+
+.ai-panel-note {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.ai-text {
+  margin: 0;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+.ai-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.ai-error {
+  margin: 12px 0 0;
+}
+
+.ai-applied {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 8px 0 0;
+  color: var(--status-completed-text);
+  font-size: 13px;
+
+  mat-icon {
+    width: 18px;
+    height: 18px;
+    font-size: 18px;
+  }
+}
+
+// ---------- Loading
+.loading .skeleton {
+  margin-bottom: 12px;
+}
+
+.skeleton.line {
+  height: 12px;
+  margin: 6px 0;
+
+  &.short {
+    width: 30%;
+  }
+}
+
+.skeleton.block {
+  height: 44px;
+}
+
+.skeleton.tall {
+  height: 112px;
+}
+
+// ---------- Footer
+.dialog-footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 24px;
+  border-top: 1px solid var(--border);
+}
+
+.spacer {
+  flex: 1;
+}
+
+.delete {
+  --mat-button-text-label-text-color: var(--overdue-text);
+  margin-left: -8px;
+}
+
+@media (max-width: 599.98px) {
+  .dialog-body,
+  .dialog-footer {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
