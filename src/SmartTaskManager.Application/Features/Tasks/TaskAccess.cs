@@ -20,18 +20,31 @@ public static class TaskAccess
     /// <summary>The caller is the task's assignee (inactive users are already rejected at authentication).</summary>
     public static bool IsAssignee(Viewer viewer, Guid? assigneeId) => assigneeId == viewer.UserId;
 
-    public static readonly Expression<Func<TaskItem, TaskListItemDto>> ToListItem = t => new TaskListItemDto(
-        t.Id,
-        t.ProjectId,
-        t.Project.Name,
-        t.Title,
-        t.Status,
-        t.Priority,
-        t.DueDate,
-        t.AssigneeId,
-        t.Assignee != null ? t.Assignee.FullName : null,
-        t.CompletedAt,
-        t.CreatedAt);
+    /// <summary>
+    /// List row for the given viewer. CanManage and CanUpdateStatus are the same rules as
+    /// <see cref="CanManage"/> and <see cref="IsAssignee"/>, written inline so EF translates them into
+    /// the list query (no extra round trip per row); <see cref="ToDetails"/> uses the same expressions.
+    /// </summary>
+    public static Expression<Func<TaskItem, TaskListItemDto>> ToListItem(Viewer viewer)
+    {
+        var userId = viewer.UserId;
+        var isAdmin = viewer.IsAdmin;
+        var isProjectManager = viewer.IsProjectManager;
+        return t => new TaskListItemDto(
+            t.Id,
+            t.ProjectId,
+            t.Project.Name,
+            t.Title,
+            t.Status,
+            t.Priority,
+            t.DueDate,
+            t.AssigneeId,
+            t.Assignee != null ? t.Assignee.FullName : null,
+            t.CompletedAt,
+            t.CreatedAt,
+            isAdmin || (isProjectManager && t.Project.OwnerId == userId),
+            isAdmin || (isProjectManager && t.Project.OwnerId == userId) || t.AssigneeId == userId);
+    }
 
     public static Expression<Func<TaskItem, TaskDetailsDto>> ToDetails(Viewer viewer)
     {

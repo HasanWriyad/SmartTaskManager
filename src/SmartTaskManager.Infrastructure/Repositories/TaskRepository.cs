@@ -25,9 +25,10 @@ internal sealed class TaskRepository(AppDbContext db) : ITaskRepository
 
     public Task<PagedResult<TaskListItemDto>> ListByProjectAsync(
         Guid projectId,
+        Viewer viewer,
         TaskListQuery query,
         CancellationToken cancellationToken) =>
-        ToPagedListAsync(Filter(db.Tasks.AsNoTracking().Where(t => t.ProjectId == projectId), query), query, cancellationToken);
+        ToPagedListAsync(Filter(db.Tasks.AsNoTracking().Where(t => t.ProjectId == projectId), query), viewer, query, cancellationToken);
 
     public Task<PagedResult<TaskListItemDto>> ListVisibleAsync(
         Viewer viewer,
@@ -52,11 +53,12 @@ internal sealed class TaskRepository(AppDbContext db) : ITaskRepository
                 && (t.Status == TaskItemStatus.ToDo || t.Status == TaskItemStatus.InProgress));
         }
 
-        return ToPagedListAsync(tasks, query, cancellationToken);
+        return ToPagedListAsync(tasks, viewer, query, cancellationToken);
     }
 
     private static Task<PagedResult<TaskListItemDto>> ToPagedListAsync(
         IQueryable<TaskItem> tasks,
+        Viewer viewer,
         TaskFilterQuery query,
         CancellationToken cancellationToken)
     {
@@ -80,7 +82,7 @@ internal sealed class TaskRepository(AppDbContext db) : ITaskRepository
         return ordered
             .ThenBy(t => t.CreatedAt)
             .ThenBy(t => t.Id)
-            .Select(TaskAccess.ToListItem)
+            .Select(TaskAccess.ToListItem(viewer))
             .ToPagedResultAsync(query, cancellationToken);
     }
 

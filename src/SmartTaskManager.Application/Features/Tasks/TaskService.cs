@@ -21,8 +21,9 @@ internal sealed partial class TaskService(
 
     public async Task<PagedResult<TaskListItemDto>> ListAsync(Guid projectId, TaskListQuery query, CancellationToken cancellationToken)
     {
-        await LoadProjectAsync(projectId, currentUser.RequireViewer(), cancellationToken);
-        return await tasks.ListByProjectAsync(projectId, query, cancellationToken);
+        var viewer = currentUser.RequireViewer();
+        await LoadProjectAsync(projectId, viewer, cancellationToken);
+        return await tasks.ListByProjectAsync(projectId, viewer, query, cancellationToken);
     }
 
     public Task<PagedResult<TaskListItemDto>> ListAllAsync(AllTasksListQuery query, CancellationToken cancellationToken)

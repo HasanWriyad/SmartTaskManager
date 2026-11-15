@@ -21,6 +21,8 @@ public sealed record AssignTaskRequest(Guid? AssigneeId);
 public sealed record UpdateTaskStatusRequest(TaskItemStatus? Status);
 
 /// <summary>A row of either task list (one project, or all projects the caller can see).</summary>
+/// <param name="CanManage">Caller may edit, assign, or delete (drives UI actions).</param>
+/// <param name="CanUpdateStatus">Caller may change the status.</param>
 public sealed record TaskListItemDto(
     Guid Id,
     Guid ProjectId,
@@ -32,7 +34,9 @@ public sealed record TaskListItemDto(
     Guid? AssigneeId,
     string? AssigneeName,
     DateTimeOffset? CompletedAt,
-    DateTimeOffset CreatedAt);
+    DateTimeOffset CreatedAt,
+    bool CanManage,
+    bool CanUpdateStatus);
 
 /// <param name="CanManage">Caller may edit, assign, or delete (drives UI actions).</param>
 /// <param name="CanUpdateStatus">Caller may change the status.</param>

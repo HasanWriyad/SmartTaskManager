@@ -67,6 +67,19 @@ $list = (Req GET "/api/projects/$P/tasks" -bearer $tok.tm2).Body.data.items
 Check 'list: member sees all project tasks, Critical first, no-due-date ordering' (@($list).Count -eq 5 -and $list[0].id -eq $T2) (($list | ForEach-Object { "$($_.priority):$($_.title)" }) -join ' | ')
 Check 'list: non-member -> 404' ((Req GET "/api/projects/$P/tasks" -bearer $tok.out).Code -eq 404)
 
+# --- Row flags (canManage / canUpdateStatus on each list row, same rules as the details)
+function RowFlags($items, $taskId) { $row = @($items | Where-Object { $_.id -eq $taskId })[0]; if ($row) { "$($row.canManage)/$($row.canUpdateStatus)" } else { 'missing' } }
+$rowsBy = @{}
+foreach ($who in 'pm1', 'pm2', 'tm1', 'tm2') { $rowsBy[$who] = (Req GET "/api/projects/$P/tasks?pageSize=100" -bearer $tok[$who]).Body.data.items }
+$rowsBy['admin'] = (Req GET "/api/projects/$P/tasks?pageSize=100" -bearer $A).Body.data.items
+Check 'row flags: owner PM and Admin manage every row' (@($rowsBy.pm1 + $rowsBy.admin | Where-Object { -not ($_.canManage -and $_.canUpdateStatus) }).Count -eq 0)
+Check 'row flags: assignee TM -> False/True on own task, False/False on others' ((RowFlags $rowsBy.tm1 $T1) -eq 'False/True' -and (RowFlags $rowsBy.tm1 $T2) -eq 'False/False') "$(RowFlags $rowsBy.tm1 $T1), $(RowFlags $rowsBy.tm1 $T2)"
+Check 'row flags: other TM and member PM -> False/False' ((RowFlags $rowsBy.tm2 $T1) -eq 'False/False' -and @($rowsBy.pm2 | Where-Object { $_.canManage -or $_.canUpdateStatus }).Count -eq 0)
+$all = (Req GET "/api/tasks?projectId=$P&pageSize=100" -bearer $tok.tm1).Body.data.items
+Check 'row flags: GET /api/tasks carries the same flags' ((RowFlags $all $T1) -eq 'False/True' -and (RowFlags $all $T2) -eq 'False/False') "$(RowFlags $all $T1), $(RowFlags $all $T2)"
+$all = (Req GET "/api/tasks?projectId=$P&pageSize=100" -bearer $tok.pm1).Body.data.items
+Check 'row flags: GET /api/tasks owner -> True/True' ((RowFlags $all $T1) -eq 'True/True' -and (RowFlags $all $T2) -eq 'True/True')
+
 # --- Update
 $r = Req PUT "/api/projects/$P/tasks/$T1" @{ title = 'Write spec v2'; description = $null; priority = 'High'; dueDate = (& $d 10) } $tok.pm1
 Check 'update: owner -> 200, fields changed, description cleared, updatedAt' ($r.Code -eq 200 -and $r.Body.data.title -eq 'Write spec v2' -and $r.Body.data.priority -eq 'High' -and $null -eq $r.Body.data.description -and $r.Body.data.updatedAt -and $r.Body.data.assigneeId -eq $ids.tm1)
@@ -122,6 +135,18 @@ foreach ($b in '{}', '{"status":"Done"}', '{"status":42}', '{"status":2}') {
 $TPm = (Req POST "/api/projects/$P/tasks" @{ title = 'For member PM'; assigneeId = $ids.pm2 } $tok.pm1).Body.data.id
 $g = (Req GET "/api/projects/$P/tasks/$TPm" -bearer $tok.pm2).Body.data
 Check 'assignee PM (member, not owner): canUpdateStatus true, canManage false' ($g.canUpdateStatus -and -not $g.canManage)
+$row = @((Req GET "/api/tasks?projectId=$P&pageSize=100" -bearer $tok.pm2).Body.data.items | Where-Object { $_.id -eq $TPm })[0]
+Check 'row flags: assignee PM (not owner) -> canManage false, canUpdateStatus true' ($row -and -not $row.canManage -and $row.canUpdateStatus)
+# Every row of every viewer matches that task's details flags.
+$mismatch = @()
+foreach ($who in 'pm1', 'pm2', 'tm1', 'tm2', 'admin') {
+  $bearer = if ($who -eq 'admin') { $A } else { $tok[$who] }
+  foreach ($item in (Req GET "/api/projects/$P/tasks?pageSize=100" -bearer $bearer).Body.data.items) {
+    $det = (Req GET "/api/projects/$P/tasks/$($item.id)" -bearer $bearer).Body.data
+    if ($det.canManage -ne $item.canManage -or $det.canUpdateStatus -ne $item.canUpdateStatus) { $mismatch += "$who/$($item.title)" }
+  }
+}
+Check 'row flags equal the details flags for every viewer and task' ($mismatch.Count -eq 0) ($mismatch -join ', ')
 Check 'status: assignee PM (not owner) InProgress -> 200' ((St $TPm 'InProgress' 'pm2').Body.data.status -eq 'InProgress')
 Check 'status: assignee PM cancels -> 200' ((St $TPm 'Cancelled' 'pm2').Body.data.status -eq 'Cancelled')
 Check 'status: assignee PM reopens Cancelled -> 403' ((St $TPm 'ToDo' 'pm2').Code -eq 403)

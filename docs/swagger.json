@@ -2760,6 +2760,12 @@
           "createdAt": {
             "type": "string",
             "format": "date-time"
+          },
+          "canManage": {
+            "type": "boolean"
+          },
+          "canUpdateStatus": {
+            "type": "boolean"
           }
         },
         "additionalProperties": false

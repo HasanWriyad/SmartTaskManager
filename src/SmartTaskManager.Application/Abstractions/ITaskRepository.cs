@@ -16,7 +16,7 @@ public interface ITaskRepository
 
     Task<TaskDetailsDto?> GetDetailsAsync(Guid projectId, Guid taskId, Viewer viewer, CancellationToken cancellationToken);
 
-    Task<PagedResult<TaskListItemDto>> ListByProjectAsync(Guid projectId, TaskListQuery query, CancellationToken cancellationToken);
+    Task<PagedResult<TaskListItemDto>> ListByProjectAsync(Guid projectId, Viewer viewer, TaskListQuery query, CancellationToken cancellationToken);
 
     /// <summary>
     /// Tasks of every project the viewer can see (this method applies the visibility rule itself).
