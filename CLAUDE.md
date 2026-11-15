@@ -45,6 +45,7 @@ Clean Architecture:
 ### Auth and security
 - Public registration always creates a TeamMember; Admin changes roles
 - Seed one Admin at startup if none exists; credentials come from user-secrets / environment variables
+- Demo data (Persistence/Seed/DemoDataSeeder.cs) is seeded only in the Development environment, only when SeedDemo:Enabled is true (appsettings.Development.json) and the database has never had a project; the shared demo password is SeedDemo:Password in user-secrets (tools/setup-dev.ps1 generates it). The api-checks set SeedDemo__Enabled=false
 - Access token lasts 15 min, refresh token 7 days, rotated on every refresh, stored as a SHA-256 hash; reusing a revoked token revokes its chain
 - Logout revokes the refresh token; no access-token blacklist
 - Refresh tokens carry a FamilyId (one per login); revoking a chain means revoking the family

@@ -26,6 +26,7 @@ public static class DependencyInjection
 
         services.AddOptions<DatabaseOptions>().Bind(configuration.GetSection(DatabaseOptions.SectionName));
         services.AddOptions<SeedAdminOptions>().Bind(configuration.GetSection(SeedAdminOptions.SectionName));
+        services.AddOptions<SeedDemoOptions>().Bind(configuration.GetSection(SeedDemoOptions.SectionName));
         services.AddOptions<JwtOptions>()
             .Bind(configuration.GetSection(JwtOptions.SectionName))
             .ValidateDataAnnotations()
@@ -65,6 +66,7 @@ public static class DependencyInjection
         services.AddSingleton<IPasswordHasher, PasswordHasher>();
         services.AddSingleton<ITokenService, JwtTokenService>();
         services.AddScoped<AdminSeeder>();
+        services.AddScoped<DemoDataSeeder>();
 
         return services;
     }

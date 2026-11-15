@@ -42,7 +42,8 @@ try
 
     var app = builder.Build();
 
-    await app.Services.InitializeDatabaseAsync(app.Lifetime.ApplicationStopping);
+    // Demo data is seeded only in Development (and only into an empty database).
+    await app.Services.InitializeDatabaseAsync(app.Environment.IsDevelopment(), app.Lifetime.ApplicationStopping);
 
     // Resolve once so the startup log states which AI implementation is active (provider or fallback).
     _ = app.Services.GetRequiredService<IAiDescriptionService>();

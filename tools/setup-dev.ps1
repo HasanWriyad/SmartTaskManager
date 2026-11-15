@@ -11,6 +11,7 @@
          Jwt:SigningKey      64 random bytes (Base64)
          SeedAdmin:Email     -AdminEmail (default admin@smarttask.local)
          SeedAdmin:Password  20 random characters; printed once at the end so you can sign in
+         SeedDemo:Password   20 random characters for the Development demo users; printed once
          AiSettings:ApiKey   only when -AiApiKey is given; without it the offline AI fallback is used
     5. Optionally trusts the HTTPS development certificate (-TrustDevCert; shows a Windows prompt).
     6. Builds the API (which restores packages) and creates or migrates the database
@@ -137,6 +138,13 @@ try {
     }
     else { $summary.Add('SeedAdmin:Password    kept') }
 
+    if ($Force -or -not $existing.ContainsKey('SeedDemo:Password')) {
+        $generatedDemoPassword = New-AdminPassword
+        Set-Secret 'SeedDemo:Password' $generatedDemoPassword
+        $summary.Add('SeedDemo:Password     generated (shown below)')
+    }
+    else { $summary.Add('SeedDemo:Password     kept') }
+
     if ($AiApiKey) {
         Set-Secret 'AiSettings:ApiKey' $AiApiKey
         $summary.Add('AiSettings:ApiKey     set')
@@ -185,6 +193,13 @@ try {
             Write-Host '  Note: the Admin account is only created when no Admin exists yet. If one already exists,' -ForegroundColor Yellow
             Write-Host '        its password is unchanged; the new value only applies to a fresh database.' -ForegroundColor Yellow
         }
+    }
+    if ($generatedDemoPassword) {
+        Write-Host ''
+        Write-Host 'Demo users (Development only; seeded when the database has no projects):' -ForegroundColor Yellow
+        Write-Host '  ayesha@demo.smarttask.local (Admin), rafi@ / sadia@demo.smarttask.local (ProjectManager),'
+        Write-Host '  nusrat@ / tanvir@ / imran@ / farhana@demo.smarttask.local (TeamMember)'
+        Write-Host "  Password for all of them: $generatedDemoPassword (user-secrets SeedDemo:Password)"
     }
     Write-Host ''
     Write-Host 'Start the API:'
