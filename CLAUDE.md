@@ -90,6 +90,15 @@ Clean Architecture:
 - Frontend UI: Angular Material
 - Deliverables: idempotent migration script at docs/database.sql, plus a Postman collection and swagger.json in docs/
 
+## Design
+- The UI follows docs/design/DESIGN-SPEC.md (and the screenshots next to it) for look and feel
+- Rule: the frontend implements what we planned and what the backend already does; the design spec only decides how it looks. If part of the spec needs an endpoint, field or behaviour the backend does not have, follow the backend and the decisions above, leave that part out and list it. Do not invent features
+- Overrides (already decided):
+  - Auth stays as decided: access token in memory, refresh token in the httpOnly cookie. Never store tokens in localStorage
+  - Login: no "Keep me signed in" and no "Forgot password?" (no backend). Keep the "Create an account" link to the register page
+  - AI suggestion panel: show and apply only the improved description. No suggested title, priority or "What changed" tags
+  - The task dialog saves through the existing endpoints (fields, status and assignee are separate calls); only send what changed
+
 ## Workflow
 - Explain the plan before large changes
 - Keep commits small and focused
