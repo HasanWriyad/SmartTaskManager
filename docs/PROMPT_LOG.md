@@ -691,3 +691,137 @@ snackbar on first use.
 - Tested myself: creating a project from the dashboard, adding a member,
   the protected owner, filters surviving a reload, delete confirmation, and
   the team member's read-only view.
+
+  ---
+
+### Step 8.5 — Tasks and AI Dialog
+**Prompt:**
+Build the task list (section 7.3 of the design spec) on GET /api/tasks and
+the task dialog (section 7.4): filters with state in the URL, including
+overdue, "Me" and a project filter read from the URL; a create and edit
+dialog where the project is read-only on edit, assignees are the project's
+members, status is shown only when editing, and only changed fields are
+saved through the existing endpoints; permissions from canManage and
+canUpdateStatus; Improve with AI for Admin and ProjectManager with loading,
+Apply or Discard, and the API's error messages; and dashboard rows that open
+the task dialog.
+
+Follow-up prompts:
+1. Add canManage and canUpdateStatus to each row of the task lists, computed
+   with the existing TaskAccess rules in the same query, and use them for
+   the row actions instead of the project-list workaround. Show dates in the
+   task dialog in the same format as the list, not the US format.
+2. Fix the due date field's stacked icons and the select options wrapping
+   onto two lines. Add a Tasks section to the project details page, with a
+   "New task" button that opens the create dialog with the project fixed.
+3. Use the API's UTC date everywhere in the frontend for overdue and
+   relative due dates, consistent with decision D8, and make the browser
+   checks independent of the time of day. Replace the per-page select
+   directive with Material's global option if it can do the same job.
+
+**Result:** Task list with filters, sorting and paging in the URL, mobile
+cards and empty states. Task dialog that sends only the requests for changed
+fields, verified by recording them in the browser. Improve with AI with
+loading, apply and discard, tested live with Gemini. Row permission flags
+from the API, checked against task details for five users. Tasks section on
+the project details page. 436 API checks and all browser checks passing at
+any time of day.
+
+**My review/changes:**
+- Rejected the first version's row permissions, which were worked out on
+  the page from the first 100 projects. This duplicated backend rules in
+  the frontend and would break with more projects, so the API now returns
+  the flags on every row.
+- Asked for the dialog's date field to match the list format, since a US
+  date like 11/12/2026 reads as 11 December in Bangladesh and Europe.
+- Accepted keeping the AI button disabled for an empty description, since
+  the API requires one.
+- Tested myself: creating a task with Improve with AI, assigning and
+  changing status, filters surviving a reload, the project's "View tasks"
+  link, dashboard rows, and a team member's status-only view.
+- Found two layout issues while testing: the due date field's icons stacked
+  and made it taller than other fields, and select options wrapped onto
+  two lines. Asked for both to be fixed across the app.
+- Added a Tasks section to the project details page, with a "New task"
+  button that opens the dialog with the project fixed, so a project's work
+  can be managed without leaving its page.
+- Running the checks just after midnight in UTC+6 exposed an inconsistency:
+  the list marked tasks overdue by local date while the API's overdue filter
+  used the UTC date. Made the frontend use the UTC date everywhere,
+  consistent with decision D8, and made the checks independent of the time
+  of day.
+- Asked to replace the per-page select directive with Material's global
+  option; measured, the global option made panels narrower than their
+  fields and enlarged the initial bundle, so the directive stays behind one
+  shared import that every page uses.
+  ---
+
+### Step 8.6 — Users Page and Layout Sweep
+**Prompt:**
+Build the Admin users page (list, search, role and active filters, change
+role, activate or deactivate) with the same table, filter and pagination
+patterns. Disable the actions that the API forbids: an Admin cannot change
+their own role or deactivate themselves, and show the API's message when
+the last active Admin cannot be demoted. Then check every page at 360px,
+720px and 1200px in light and dark mode and fix any layout issues. Make sure
+every action is hidden when the user's role cannot perform it.
+
+Follow-up prompts:
+1. At 720–959px, hide the Assignee column in the task tables so Due date and
+   the row actions stay visible, consistent with the projects and users
+   tables.
+2. Keep due dates on one line, and fit the task table at laptop widths by
+   letting long titles truncate instead of hiding the Assignee column.
+
+**Result:** Admin users page with filters and sorting in the URL, role
+changes and deactivation with confirmations, and the Admin's own row
+protected. Layout sweep across every page at three widths in both themes,
+with no horizontal overflow. Role matrix verified for Admin, a
+ProjectManager who owns one project and is a member of another, and a
+TeamMember. 142 browser checks in the sweep.
+
+**My review/changes:**
+- Disabled actions on the Admin's own row in the UI, so forbidden requests
+  are never sent, instead of relying only on the API's error.
+- Asked for the task tables to fit at medium widths like the other tables,
+  rather than scroll sideways.
+- Kept the Assignee column at laptop widths by letting long titles truncate,
+  since who is doing a task matters more than the full title in the list.
+- Accepted removing the design spec's 940px minimum table width, since it
+  only ever caused sideways scrolling.
+- Accepted leaving out user creation, deletion and editing, since the API
+  has no endpoints for them and users register themselves.
+- Tested myself: searching users, the protected own row, promoting a user to
+  ProjectManager, and deactivation blocking sign-in until reactivated.
+
+  ---
+
+### Step 9.1 — Documentation
+**Prompt:**
+Write the documentation, based on the actual code, for a reviewer who has
+never seen the project. README.md: overview, features by role, screenshots
+in light and dark mode, tech stack, prerequisites, quick start with the
+setup script, troubleshooting for the Visual Studio debugger, architecture
+and design patterns, key decisions, API overview, security summary, how to
+run the API checks, deployment notes and known limitations. PROMPTS.md: AI
+prompt design, prompt structure, example inputs and outputs, validation
+approach, safety considerations, and the model choice and its history.
+Update the requirements checklist with the frontend and documentation.
+
+Follow-up prompt:
+Label offline fallback suggestions clearly in the task dialog, so they are
+not presented as AI output.
+
+**Result:** README.md and PROMPTS.md written and checked against the source
+code. 16 screenshots in light and dark mode from a throwaway database.
+Requirements checklist covering backend, frontend and documentation with no
+gaps.
+
+**My review/changes:**
+- Added a troubleshooting note for the Visual Studio debugger, based on the
+  blank page I hit myself during testing.
+- Asked for the offline fallback to be labelled in the dialog, since a
+  reviewer without an AI key would otherwise see basic rewrites presented
+  as AI suggestions.
+- Compared the rebuilt design patterns table with the original audit.
+- Read the README and PROMPTS.md myself before submission.
