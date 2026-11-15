@@ -1,40 +1,113 @@
-<mat-toolbar class="toolbar">
-  <a class="brand" routerLink="/dashboard">
-    <mat-icon>task_alt</mat-icon>
-    <span class="brand-name">Smart Task Manager</span>
-  </a>
-
-  <nav class="nav" aria-label="Main">
-    @for (item of navItems(); track item.path) {
-      <a mat-button [routerLink]="item.path" routerLinkActive="active" [attr.aria-label]="item.label">
-        <mat-icon>{{ item.icon }}</mat-icon>
-        <span class="nav-label">{{ item.label }}</span>
-      </a>
-    }
-  </nav>
-
-  <span class="spacer"></span>
-
-  @if (user(); as current) {
-    <button mat-button [matMenuTriggerFor]="userMenu" class="user-button" aria-label="Account menu">
-      <mat-icon>account_circle</mat-icon>
-      <span class="user-name">{{ current.fullName }}</span>
-    </button>
-    <mat-menu #userMenu="matMenu" xPosition="before">
-      <div class="user-summary" role="presentation">
-        <strong>{{ current.fullName }}</strong>
-        <span>{{ current.email }}</span>
-        <span class="role">{{ roleLabel() }}</span>
+<mat-sidenav-container class="container" autosize>
+  <mat-sidenav
+    class="sidebar"
+    [class.compact]="compact()"
+    [class.drawer]="isDrawer()"
+    [mode]="isDrawer() ? 'over' : 'side'"
+    [opened]="opened()"
+    (closedStart)="drawerOpen.set(false)"
+    [attr.aria-label]="'Main navigation'"
+  >
+    <div class="sidebar-inner">
+      <div class="sidebar-top">
+        <a class="brand" routerLink="/dashboard" aria-label="SmartTask, go to the dashboard">
+          <app-logo [wordmark]="!compact()" />
+        </a>
+        @if (isDrawer()) {
+          <button mat-icon-button type="button" class="close" aria-label="Close navigation" (click)="drawerOpen.set(false)">
+            <mat-icon>close</mat-icon>
+          </button>
+        }
       </div>
-      <mat-divider />
-      <button mat-menu-item (click)="logout()">
-        <mat-icon>logout</mat-icon>
-        <span>Sign out</span>
-      </button>
-    </mat-menu>
-  }
-</mat-toolbar>
 
-<main class="content">
-  <router-outlet />
-</main>
+      <nav class="nav" aria-label="Main">
+        @for (item of mainNav; track item.path) {
+          <ng-container *ngTemplateOutlet="navLink; context: { $implicit: item }" />
+        }
+        @if (isAdmin()) {
+          <div class="overline" [class.sr-only]="compact()">Admin</div>
+          @for (item of adminNav; track item.path) {
+            <ng-container *ngTemplateOutlet="navLink; context: { $implicit: item }" />
+          }
+        }
+      </nav>
+
+      <div class="sidebar-bottom">
+        @if (layout() === 'wide') {
+          <button
+            type="button"
+            class="nav-item collapse"
+            (click)="toggleCollapsed()"
+            [attr.aria-label]="collapsed() ? 'Expand sidebar' : 'Collapse sidebar'"
+            [attr.aria-expanded]="!collapsed()"
+            [matTooltip]="compact() ? 'Expand' : ''"
+            matTooltipPosition="right"
+          >
+            <mat-icon>{{ collapsed() ? 'keyboard_double_arrow_right' : 'keyboard_double_arrow_left' }}</mat-icon>
+            <span class="nav-label">Collapse</span>
+          </button>
+        }
+
+        @if (user(); as current) {
+          <div class="user-row">
+            <app-avatar [name]="current.fullName" [self]="true" />
+            <div class="user-text">
+              <span class="user-name">{{ current.fullName }}</span>
+              <span class="user-role">{{ roleLabel() }}</span>
+            </div>
+            <button
+              mat-icon-button
+              type="button"
+              class="sign-out"
+              aria-label="Sign out"
+              matTooltip="Sign out"
+              [matTooltipPosition]="compact() ? 'right' : 'above'"
+              (click)="logout()"
+            >
+              <mat-icon>logout</mat-icon>
+            </button>
+          </div>
+        }
+      </div>
+    </div>
+  </mat-sidenav>
+
+  <mat-sidenav-content class="main">
+    <header class="header">
+      @if (isDrawer()) {
+        <button
+          mat-icon-button
+          type="button"
+          class="menu"
+          aria-label="Open navigation"
+          [attr.aria-expanded]="drawerOpen()"
+          (click)="drawerOpen.set(true)"
+        >
+          <mat-icon>menu</mat-icon>
+        </button>
+      }
+      <h1 class="page-title">{{ heading() }}</h1>
+      <span class="spacer"></span>
+      <app-theme-toggle />
+    </header>
+
+    <main class="content">
+      <router-outlet />
+    </main>
+  </mat-sidenav-content>
+</mat-sidenav-container>
+
+<ng-template #navLink let-item>
+  <a
+    class="nav-item"
+    [routerLink]="item.path"
+    routerLinkActive="active"
+    ariaCurrentWhenActive="page"
+    [attr.aria-label]="compact() ? item.label : null"
+    [matTooltip]="compact() ? item.label : ''"
+    matTooltipPosition="right"
+  >
+    <mat-icon>{{ item.icon }}</mat-icon>
+    <span class="nav-label">{{ item.label }}</span>
+  </a>
+</ng-template>

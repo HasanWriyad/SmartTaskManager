@@ -4,10 +4,8 @@ import { AuthService } from '../../core/auth/auth.service';
 /** Placeholder until the dashboard statistics are built. */
 @Component({
   selector: 'app-dashboard',
-  template: `
-    <h1>Dashboard</h1>
-    <p>Welcome, {{ user()?.fullName }}.</p>
-  `,
+  template: `<p class="placeholder">Welcome, {{ user()?.fullName }}. The dashboard statistics are coming next.</p>`,
+  styles: `.placeholder { margin: 0; color: var(--text-muted); }`,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Dashboard {

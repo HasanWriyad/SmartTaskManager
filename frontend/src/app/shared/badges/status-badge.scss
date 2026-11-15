@@ -1,0 +1,45 @@
+@use 'badge';
+
+:host {
+  @include badge.anatomy;
+  background: var(--badge-bg);
+  color: var(--badge-text);
+}
+
+.dot {
+  flex: none;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--badge-dot);
+}
+
+:host(.status-todo) {
+  --badge-bg: var(--status-todo-bg);
+  --badge-text: var(--status-todo-text);
+  --badge-dot: var(--status-todo-dot);
+}
+
+:host(.status-inprogress) {
+  --badge-bg: var(--status-inprogress-bg);
+  --badge-text: var(--status-inprogress-text);
+  --badge-dot: var(--status-inprogress-dot);
+}
+
+:host(.status-completed) {
+  --badge-bg: var(--status-completed-bg);
+  --badge-text: var(--status-completed-text);
+  --badge-dot: var(--status-completed-dot);
+}
+
+// Outlined badge with a hollow ring.
+:host(.status-cancelled) {
+  --badge-bg: var(--status-cancelled-bg);
+  --badge-text: var(--status-cancelled-text);
+  border: 1px solid var(--status-cancelled-border);
+
+  .dot {
+    background: transparent;
+    box-shadow: inset 0 0 0 1.5px var(--status-cancelled-dot);
+  }
+}

@@ -1,0 +1,36 @@
+@use 'badge';
+
+:host {
+  @include badge.anatomy;
+  background: var(--badge-bg);
+  color: var(--badge-text);
+}
+
+.bars {
+  flex: none;
+  fill: currentColor;
+
+  .off {
+    opacity: 0.3;
+  }
+}
+
+:host(.priority-low) {
+  --badge-bg: var(--priority-low-bg);
+  --badge-text: var(--priority-low-text);
+}
+
+:host(.priority-medium) {
+  --badge-bg: var(--priority-medium-bg);
+  --badge-text: var(--priority-medium-text);
+}
+
+:host(.priority-high) {
+  --badge-bg: var(--priority-high-bg);
+  --badge-text: var(--priority-high-text);
+}
+
+:host(.priority-critical) {
+  --badge-bg: var(--priority-critical-bg);
+  --badge-text: var(--priority-critical-text);
+}

@@ -1,0 +1,106 @@
+// Design tokens from docs/design/DESIGN-SPEC.md (sections 1-3). Light values on :root, dark values
+// under .dark-theme on <html> (set by ThemeService). Components use these variables, never raw hex.
+
+:root {
+  // Neutrals and the single accent (spec §1).
+  --bg: #f5f6f8;
+  --surface: #ffffff;
+  --surface-2: #f0f2f5;
+  --border: #e3e6eb;
+  --hover: #f7f8fa;
+  --text: #111827;
+  --text-muted: #5b6475;
+  --accent: #5b47e0;
+  --accent-soft: #efedfc;
+  --accent-text: #503ec5;
+  --on-accent: #ffffff;
+  --scrim: rgba(16, 24, 40, 0.45);
+  --dialog-shadow: 0 24px 48px -12px rgba(16, 24, 40, 0.25);
+
+  // Task status (spec §2): badge background / text / dot, plus chart colour.
+  --status-todo-bg: #eef0f3;
+  --status-todo-text: #475063;
+  --status-todo-dot: #8b93a1;
+  --status-inprogress-bg: #e1ecfe;
+  --status-inprogress-text: #1e4fc2;
+  --status-inprogress-dot: #3b7bf6;
+  --status-completed-bg: #dcf3e6;
+  --status-completed-text: #13663f;
+  --status-completed-dot: #1f9d5c;
+  --status-cancelled-bg: #ffffff;
+  --status-cancelled-border: #d5d9e0;
+  --status-cancelled-text: #5b6475;
+  --status-cancelled-dot: #8b93a1;
+  --status-cancelled-chart: #cdd2da;
+
+  // Overdue is derived (due before today and To do / In progress).
+  --overdue-text: #b42318;
+  --overdue-bg: #fde6e4;
+
+  // Task priority (spec §3): badge background / text, plus bar and chart colour.
+  --priority-low-bg: #eef0f3;
+  --priority-low-text: #475063;
+  --priority-low-bar: #8b93a1;
+  --priority-medium-bg: #fef0d3;
+  --priority-medium-text: #8a5300;
+  --priority-medium-bar: #e3a008;
+  --priority-high-bg: #fee4d8;
+  --priority-high-text: #b03a0e;
+  --priority-high-bar: #f07a2b;
+  --priority-critical-bg: #fde2e1;
+  --priority-critical-text: #a3170f;
+  --priority-critical-bar: #d92d20;
+
+  // Shape (spec §5).
+  --radius-badge: 6px;
+  --radius-control: 8px;
+  --radius-card: 12px;
+  --radius-dialog: 16px;
+}
+
+.dark-theme {
+  --bg: #0d0f13;
+  --surface: #15181e;
+  --surface-2: #1c2027;
+  --border: #272c35;
+  --hover: #1a1e25;
+  --text: #e7e9ee;
+  --text-muted: #9ba3b2;
+  --accent: #998dec;
+  --accent-soft: #242249;
+  --accent-text: #b5acf1;
+  --on-accent: #0d0f13;
+  --scrim: rgba(0, 0, 0, 0.6);
+  --dialog-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.6);
+
+  --status-todo-bg: #252a33;
+  --status-todo-text: #c3c9d4;
+  --status-todo-dot: #8b93a1;
+  --status-inprogress-bg: #16284a;
+  --status-inprogress-text: #8db4ff;
+  --status-inprogress-dot: #4c8dff;
+  --status-completed-bg: #11301f;
+  --status-completed-text: #74d9a2;
+  --status-completed-dot: #2fbf71;
+  --status-cancelled-bg: transparent;
+  --status-cancelled-border: #353b47;
+  --status-cancelled-text: #9ba3b2;
+  --status-cancelled-dot: #7b8494;
+  --status-cancelled-chart: #3e4552;
+
+  --overdue-text: #ff9a8f;
+  --overdue-bg: #3a1715;
+
+  --priority-low-bg: #252a33;
+  --priority-low-text: #c3c9d4;
+  --priority-low-bar: #8b93a1;
+  --priority-medium-bg: #36280c;
+  --priority-medium-text: #f5c46b;
+  --priority-medium-bar: #f2b53a;
+  --priority-high-bg: #3d1e10;
+  --priority-high-text: #ff9e73;
+  --priority-high-bar: #ff8a57;
+  --priority-critical-bg: #451414;
+  --priority-critical-text: #ff8b85;
+  --priority-critical-bar: #f04438;
+}

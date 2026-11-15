@@ -12,6 +12,7 @@ import { routes } from './app.routes';
 import { errorInterceptor } from './core/api/error.interceptor';
 import { authInterceptor } from './core/auth/auth.interceptor';
 import { AuthService } from './core/auth/auth.service';
+import { ThemeService } from './core/theme/theme.service';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -23,8 +24,10 @@ export const appConfig: ApplicationConfig = {
     // authInterceptor's refresh-and-retry.
     provideHttpClient(withFetch(), withInterceptors([errorInterceptor, authInterceptor])),
     provideAppInitializer(() => {
-      // index.html loads the Material Symbols font; make <mat-icon> use it.
-      inject(MatIconRegistry).setDefaultFontSetClass('material-symbols-outlined');
+      // index.html loads the Material Symbols Rounded font; make <mat-icon> use it.
+      inject(MatIconRegistry).setDefaultFontSetClass('material-symbols-rounded');
+      // Start following the system theme and the saved toggle choice (index.html applied it already).
+      inject(ThemeService);
       // Restore the session from the refresh cookie before the first navigation, so the guards
       // already know whether the user is signed in. Settles within ~5 s and never rejects, so the
       // app always boots (signed out if the API is slow, down or failing).

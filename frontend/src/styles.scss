@@ -1,46 +1,169 @@
-// Include theming for Angular Material with `mat.theme()`.
-// This Sass mixin will define CSS variables that are used for styling Angular Material
-// components according to the Material 3 design spec.
-// Learn more about theming and how to use it for your application's
-// custom components at https://material.angular.dev/guide/theming
+// Global styles. Look and feel follow docs/design/DESIGN-SPEC.md: the design tokens live in
+// styles/_tokens.scss, and Angular Material is themed from the same accent and neutrals.
 @use '@angular/material' as mat;
+@use './styles/theme-colors' as theme-colors;
+@use './styles/tokens';
+
+$font-family: 'Inter', system-ui, sans-serif;
 
 html {
   height: 100%;
+  // Material's system colours use light-dark(), so switching color-scheme switches them too.
+  color-scheme: light;
+
   @include mat.theme(
     (
       color: (
-        primary: mat.$azure-palette,
-        tertiary: mat.$blue-palette,
+        primary: theme-colors.$primary-palette,
+        tertiary: theme-colors.$tertiary-palette,
       ),
-      typography: Roboto,
+      typography: (
+        plain-family: $font-family,
+        brand-family: $font-family,
+        regular-weight: 400,
+        medium-weight: 500,
+        bold-weight: 600,
+      ),
       density: 0,
+    )
+  );
+
+  // Map Material's surfaces and accent onto the spec's tokens, so both themes match exactly.
+  @include mat.theme-overrides(
+    (
+      primary: var(--accent),
+      on-primary: var(--on-accent),
+      primary-container: var(--accent-soft),
+      on-primary-container: var(--accent-text),
+      secondary-container: var(--accent-soft),
+      on-secondary-container: var(--accent-text),
+      background: var(--bg),
+      on-background: var(--text),
+      surface: var(--surface),
+      on-surface: var(--text),
+      on-surface-variant: var(--text-muted),
+      surface-container-lowest: var(--surface),
+      surface-container-low: var(--surface),
+      surface-container: var(--surface),
+      surface-container-high: var(--surface),
+      surface-container-highest: var(--surface-2),
+      outline: var(--text-muted),
+      outline-variant: var(--border),
+    )
+  );
+
+  // Shapes (spec §5): 8px controls instead of M3's pills, 12px cards, 16px dialogs.
+  @include mat.button-overrides(
+    (
+      filled-container-shape: var(--radius-control),
+      outlined-container-shape: var(--radius-control),
+      protected-container-shape: var(--radius-control),
+      text-container-shape: var(--radius-control),
+      tonal-container-shape: var(--radius-control),
+      outlined-outline-color: var(--border),
+    )
+  );
+  @include mat.icon-button-overrides(
+    (
+      container-shape: var(--radius-control),
+    )
+  );
+  @include mat.form-field-overrides(
+    (
+      outlined-container-shape: var(--radius-control),
+      outlined-outline-color: var(--border),
+      outlined-hover-outline-color: var(--text-muted),
+      outlined-focus-outline-color: var(--accent),
+      container-height: 44px,
+      container-vertical-padding: 10px,
+    )
+  );
+  @include mat.card-overrides(
+    (
+      outlined-container-shape: var(--radius-card),
+      outlined-container-color: var(--surface),
+      outlined-outline-color: var(--border),
+    )
+  );
+  @include mat.dialog-overrides(
+    (
+      container-shape: var(--radius-dialog),
+      container-color: var(--surface),
+    )
+  );
+  @include mat.sidenav-overrides(
+    (
+      container-shape: 0,
+      container-background-color: var(--surface),
+      container-text-color: var(--text),
+      container-divider-color: var(--border),
+      content-background-color: var(--bg),
+      content-text-color: var(--text),
+      scrim-color: var(--scrim),
     )
   );
 }
 
+html.dark-theme {
+  color-scheme: dark;
+}
+
 body {
-  // Default the application to a light color theme. This can be changed to
-  // `dark` to enable the dark color theme, or to `light dark` to defer to the
-  // user's system settings.
-  color-scheme: light;
-
-  // Set a default background, font and text colors for the application using
-  // Angular Material's system-level CSS variables. Learn more about these
-  // variables at https://material.angular.dev/guide/system-variables
-  background-color: var(--mat-sys-surface);
-  color: var(--mat-sys-on-surface);
-  font: var(--mat-sys-body-medium);
-
-  // Reset the user agent margin.
   margin: 0;
   height: 100%;
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: $font-family;
+  font-size: 14px;
+  line-height: 20px;
+  -webkit-font-smoothing: antialiased;
 }
-/* You can add global styles to this file, and also import other style files */
+
+h1,
+h2,
+h3 {
+  margin: 0;
+}
+
+a {
+  color: var(--accent-text);
+}
+
+// Focus is always visible (spec §5, §10): 2px accent outline.
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+// Counts, dates and pagination use tabular figures (spec §4).
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+// Icons: Material Symbols Rounded, weight 400, 20px (spec §9).
+.material-symbols-rounded {
+  font-variation-settings:
+    'FILL' 0,
+    'wght' 400,
+    'GRAD' 0,
+    'opsz' 20;
+}
+
+.mat-icon {
+  width: 20px;
+  height: 20px;
+  font-size: 20px;
+  line-height: 20px;
+}
+
+// Dialog: the only surface with a shadow besides the mobile drawer (spec §5).
+.mat-mdc-dialog-surface {
+  box-shadow: var(--dialog-shadow) !important;
+}
 
 // Error snackbars (NotificationService.error).
 .snackbar-error {
-  --mat-snack-bar-container-color: var(--mat-sys-error-container);
-  --mat-snack-bar-supporting-text-color: var(--mat-sys-on-error-container);
-  --mat-snack-bar-button-color: var(--mat-sys-on-error-container);
+  --mat-snack-bar-container-color: var(--overdue-bg);
+  --mat-snack-bar-supporting-text-color: var(--overdue-text);
+  --mat-snack-bar-button-color: var(--overdue-text);
 }
