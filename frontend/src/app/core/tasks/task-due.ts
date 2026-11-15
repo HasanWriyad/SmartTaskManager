@@ -1,20 +1,27 @@
 import { TaskStatus } from './task.models';
 
-/** Today's local calendar date as yyyy-mm-dd. */
-export function localToday(now = new Date()): string {
-  return toIsoDate(now);
+/**
+ * "Today" as the API defines it (CLAUDE.md, D8): the current UTC date, yyyy-mm-dd. The overdue
+ * highlight, the relative due captions and the due-date filters all use it, so they agree with the
+ * API's overdue filter and the dashboard (which returns its own asOf; use that where it is available).
+ */
+export function utcToday(now = new Date()): string {
+  return now.toISOString().slice(0, 10);
 }
 
-/** Local calendar date to yyyy-mm-dd (not shifted to UTC). */
+/**
+ * A calendar date the user picked (a local Date at midnight) to yyyy-mm-dd, unshifted. This is a date
+ * value, not a moment in time, so it must not go through UTC conversion.
+ */
 export function toIsoDate(date: Date): string {
   const pad = (n: number) => String(n).padStart(2, '0');
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
 }
 
-/** yyyy-mm-dd plus days, as yyyy-mm-dd. */
+/** yyyy-mm-dd plus days, as yyyy-mm-dd (pure calendar arithmetic, in UTC so DST never shifts it). */
 export function addDays(isoDate: string, days: number): string {
   const [y, m, d] = isoDate.split('-').map(Number);
-  return toIsoDate(new Date(y, m - 1, d + days));
+  return new Date(Date.UTC(y, m - 1, d + days)).toISOString().slice(0, 10);
 }
 
 /** Whole days from `from` to `to` (both yyyy-mm-dd). */

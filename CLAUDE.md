@@ -26,6 +26,7 @@ Clean Architecture:
 - Angular 22 conventions: signals for state, new control flow (@if, @for), inject() over constructor injection
 - Reactive forms, functional guards and interceptors
 - Services handle HTTP; components stay thin
+- Selects: import SELECT_IMPORTS (shared/select/select-panel-fit.ts) instead of MatSelectModule, so option panels are at least as wide as the field and fit their options (Material's MAT_SELECT_CONFIG panelWidth cannot do both)
 
 ## Decisions
 ### Data model
@@ -70,6 +71,7 @@ Clean Architecture:
 - Any status transition is allowed, except that leaving Cancelled means reopening to ToDo, which only a PM or Admin can do
 - Moving to Completed sets CompletedAt; reopening clears it
 - Dashboard: Pending = ToDo + InProgress; Cancelled counts as neither completed nor pending; Upcoming = due within 7 days and not Completed/Cancelled; also show an Overdue count
+- D8: "today" is the UTC date: overdue = due before today and ToDo or InProgress (task list filter and dashboard; the dashboard returns it as asOf). The frontend uses the same UTC date for the overdue highlight, the relative due captions and the due-date filters (core/tasks/task-due.ts utcToday), and the dashboard's asOf where it has it
 
 ### AI
 - D10: Google Gemini via its OpenAI-compatible endpoint (https://generativelanguage.googleapis.com/v1beta/openai/), called with the OpenAI .NET SDK; API key in user-secrets as AiSettings:ApiKey

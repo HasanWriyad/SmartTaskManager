@@ -3,7 +3,7 @@ import { Injectable, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { ApiResponse, PagedResult } from '../../core/api/api.models';
 import { silentErrors } from '../../core/api/http-context';
-import { addDays, localToday } from '../../core/tasks/task-due';
+import { addDays, utcToday } from '../../core/tasks/task-due';
 import { TaskStatus } from '../../core/tasks/task.models';
 import { CreateTaskRequest, TaskDetails, TaskListItem, TaskListState, UpdateTaskRequest } from './task.models';
 
@@ -82,8 +82,8 @@ export class TaskService {
 }
 
 /**
- * State to API query. Due filters use the user's local "today"; "overdue" is the API's own filter
- * (due before today in UTC, to do or in progress).
+ * State to API query. Due filters use the API's "today", the UTC date (D8); "overdue" is the API's own
+ * filter (due before today, to do or in progress).
  */
 function toQueryParams(state: TaskListState): Record<string, string | number | boolean> {
   const params: Record<string, string | number | boolean> = {
@@ -105,7 +105,7 @@ function toQueryParams(state: TaskListState): Record<string, string | number | b
     }
   }
 
-  const today = localToday();
+  const today = utcToday();
   switch (state.due) {
     case 'overdue':
       params['overdue'] = true;

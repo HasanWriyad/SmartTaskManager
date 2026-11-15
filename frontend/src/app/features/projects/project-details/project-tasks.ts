@@ -10,7 +10,7 @@ import { map } from 'rxjs';
 import { apiErrorMessage } from '../../../core/api/api-error';
 import { PagedResult } from '../../../core/api/api.models';
 import { AuthService } from '../../../core/auth/auth.service';
-import { dueCaption, isOverdue, localToday } from '../../../core/tasks/task-due';
+import { dueCaption, isOverdue, utcToday } from '../../../core/tasks/task-due';
 import { Avatar } from '../../../shared/avatar/avatar';
 import { PriorityBadge } from '../../../shared/badges/priority-badge';
 import { StatusBadge } from '../../../shared/badges/status-badge';
@@ -68,7 +68,7 @@ export class ProjectTasks {
     initialValue: inject(BreakpointObserver).isMatched(phoneQuery),
   });
   protected readonly currentUserId = computed(() => this.auth.user()?.id ?? '');
-  protected readonly today = localToday();
+  protected readonly today = utcToday();
   protected readonly skeletonRows = [1, 2, 3];
 
   constructor() {

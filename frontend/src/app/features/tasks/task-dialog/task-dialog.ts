@@ -9,8 +9,7 @@ import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angu
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { SelectPanelFit } from '../../../shared/select/select-panel-fit';
+import { SELECT_IMPORTS } from '../../../shared/select/select-panel-fit';
 import { Observable, filter, firstValueFrom, map, startWith } from 'rxjs';
 import { AiService } from '../../../core/ai/ai.service';
 import { ApiError, apiErrorMessage, apiErrorStatus } from '../../../core/api/api-error';
@@ -62,8 +61,7 @@ const statuses: TaskStatus[] = ['ToDo', 'InProgress', 'Completed', 'Cancelled'];
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
-    MatSelectModule,
-    SelectPanelFit,
+    SELECT_IMPORTS,
   ],
   providers: [provideAppDateAdapter()],
   templateUrl: './task-dialog.html',

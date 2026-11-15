@@ -11,8 +11,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { MatSelectModule } from '@angular/material/select';
-import { SelectPanelFit } from '../../shared/select/select-panel-fit';
+import { SELECT_IMPORTS } from '../../shared/select/select-panel-fit';
 import { MatSortModule, Sort } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -22,7 +21,7 @@ import { apiErrorMessage } from '../../core/api/api-error';
 import { ApiResponse, PagedResult } from '../../core/api/api.models';
 import { silentErrors } from '../../core/api/http-context';
 import { AuthService } from '../../core/auth/auth.service';
-import { dueCaption, isOverdue, localToday } from '../../core/tasks/task-due';
+import { dueCaption, isOverdue, utcToday } from '../../core/tasks/task-due';
 import { TaskPriority, TaskStatus, taskPriorityLabels, taskStatusLabels } from '../../core/tasks/task.models';
 import { UserLookup } from '../../core/users/user-lookup.service';
 import { HeaderAction } from '../../layout/header-action/header-action';
@@ -67,8 +66,7 @@ type RowAccess = 'manage' | 'status' | 'view';
     MatMenuModule,
     MatPaginatorModule,
     MatProgressBarModule,
-    MatSelectModule,
-    SelectPanelFit,
+    SELECT_IMPORTS,
     MatSortModule,
     MatTableModule,
     MatTooltipModule,
@@ -111,7 +109,7 @@ export class Tasks {
   /** Admin and ProjectManager create tasks (in projects they manage) and can look users up. */
   protected readonly canCreate = computed(() => this.auth.hasAnyRole(['Admin', 'ProjectManager']));
   protected readonly filtersActive = computed(() => hasTaskFilters(this.state()));
-  protected readonly today = localToday();
+  protected readonly today = utcToday();
 
   // ---------- Filter options
   /** Projects the user can see (first 100 by name), for the project filter. */

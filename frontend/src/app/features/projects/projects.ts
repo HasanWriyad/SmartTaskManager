@@ -12,8 +12,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { MatSelectModule } from '@angular/material/select';
-import { SelectPanelFit } from '../../shared/select/select-panel-fit';
+import { SELECT_IMPORTS } from '../../shared/select/select-panel-fit';
 import { MatSortModule, Sort } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -57,8 +56,7 @@ const phoneQuery = '(max-width: 719.98px)';
     MatMenuModule,
     MatPaginatorModule,
     MatProgressBarModule,
-    MatSelectModule,
-    SelectPanelFit,
+    SELECT_IMPORTS,
     MatSortModule,
     MatTableModule,
     Avatar,
