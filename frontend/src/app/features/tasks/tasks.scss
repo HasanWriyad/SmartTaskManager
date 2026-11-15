@@ -1,4 +1,4 @@
-// Task list (spec §7.3): filter bar, table (cards below 720px) and pagination.
+// Task list: filter bar, table (cards below 720px) and pagination.
 .page {
   display: flex;
   flex-direction: column;
@@ -55,7 +55,7 @@
   }
 }
 
-// ---------- Table. No minimum width (the spec's 940px is wider than the content area beside the
+// ---------- Table. No minimum width (a 940px minimum would be wider than the content area beside the
 // sidebar below ~1262px): the table always fits its card, so Due date and the row actions stay visible.
 // 720-959px (icon rail) leaves out Assignee (tasks.ts); 960-1259px truncates long titles.
 .list-card {

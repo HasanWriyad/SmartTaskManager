@@ -18,7 +18,6 @@ SmartTask is a full-stack task management application. Teams organise their work
 - [Key decisions](#key-decisions)
 - [API overview](#api-overview)
 - [Security](#security)
-- [Testing: API checks](#testing-api-checks)
 - [Deployment notes](#deployment-notes)
 - [Known limitations](#known-limitations)
 - [How this was built](#how-this-was-built)
@@ -162,7 +161,7 @@ dotnet user-secrets set ConnectionStrings:DefaultConnection \
 pwsh ./tools/setup-dev.ps1 -SkipLocalDb -TrustDevCert
 ```
 
-The connection string in user-secrets overrides the LocalDB one in `appsettings.Development.json`. The rest of the quick start is the same. `dotnet dev-certs https --trust` works on macOS; on Linux, trusting the certificate depends on the distribution (see the .NET documentation). The API checks in `tools/api-checks/` need Windows and LocalDB.
+The connection string in user-secrets overrides the LocalDB one in `appsettings.Development.json`. The rest of the quick start is the same. `dotnet dev-certs https --trust` works on macOS; on Linux, trusting the certificate depends on the distribution (see the .NET documentation).
 
 ## Troubleshooting
 
@@ -207,10 +206,8 @@ SmartTaskManager/
 │       ├── features/    auth, dashboard, projects, tasks, users, errors (one lazy-loaded route each)
 │       └── shared/      avatar, badges, confirm dialog, date adapter, select sizing, logo, theme toggle
 ├── tools/
-│   ├── setup-dev.ps1          one-time developer setup
-│   ├── export-api-docs.ps1    regenerates docs/database.sql, swagger.json, Postman collection
-│   └── api-checks/            end-to-end API checks (PowerShell)
-└── docs/                      swagger.json, Postman collection, database.sql, screenshots, design spec
+│   └── setup-dev.ps1          one-time developer setup
+└── docs/                      swagger.json, Postman collection, database.sql, screenshots
 ```
 
 ### Design patterns
@@ -290,7 +287,6 @@ Task and project rows include `canManage` (and, for tasks, `canUpdateStatus`), s
 - Full reference: [docs/swagger.json](docs/swagger.json) (OpenAPI), or Swagger UI at `/swagger` while the API runs in Development.
 - Postman: [docs/SmartTaskManager.postman_collection.json](docs/SmartTaskManager.postman_collection.json), with a `{{baseUrl}}` variable.
 - Database: EF Core migrations in `src/SmartTaskManager.Infrastructure/Persistence/Migrations/`, and an idempotent script in [docs/database.sql](docs/database.sql).
-- Regenerate all three with `./tools/export-api-docs.ps1`.
 
 ## Security
 
@@ -304,18 +300,6 @@ Task and project rows include `canManage` (and, for tasks, `canUpdateStatus`), s
 - **Secrets:** none in `appsettings*.json`. The JWT key, the Admin seed and the AI key come from user-secrets (development) or environment variables (`Jwt__SigningKey`, `SeedAdmin__Email`, `SeedAdmin__Password`, `AiSettings__ApiKey`).
 - **Logging** with Serilog to the console and rolling files. Tokens, passwords, API keys and the text sent to the AI are never logged; AI calls log lengths and timings only.
 - **Errors** never expose stack traces; the global handler returns a safe message and a trace id.
-
-## Testing: API checks
-
-There is no unit-test project, by design (see `CLAUDE.md`). Instead, `tools/api-checks/` holds end-to-end PowerShell checks that call the running API over HTTPS and verify responses, database state and logs. Each run builds the API into a temporary folder, creates a **throwaway database**, and drops it at the end, so your development database is never touched.
-
-```powershell
-./tools/api-checks/Run-ApiChecks.ps1                     # all suites (about 10 minutes, 436 checks)
-./tools/api-checks/Run-ApiChecks.ps1 -Suite auth, tasks  # selected suites
-./tools/api-checks/Run-ApiChecks.ps1 -Live               # also call the real AI provider (uses quota)
-```
-
-The suites cover authentication, users, projects, tasks, lists, the dashboard, the AI endpoint (against a local fake provider and the offline fallback), rate limits and health. They run on Windows with LocalDB, `sqlcmd` and `curl.exe`. Run `setup-dev.ps1` first, because the checks sign in as the seeded Admin. Details are in [tools/api-checks/README.md](tools/api-checks/README.md).
 
 ## Deployment notes
 
@@ -337,17 +321,9 @@ The suites cover authentication, users, projects, tasks, lists, the dashboard, t
 
 ## How this was built
 
-SmartTask was built with [Claude Code](https://claude.com/claude-code), step by step, with a person directing and reviewing every step.
-
-- **Rules and decisions first.** [CLAUDE.md](CLAUDE.md) holds the project rules (architecture, stack, conventions) and every decision, such as how tokens are stored or how soft delete works. Each step was planned against it before any code was written.
-- **Small, reviewed steps.** Each step was reviewed, tested and committed separately. The backend is covered by the end-to-end API checks, and every frontend step by browser checks in light and dark mode at phone, tablet and desktop widths.
-- **UI designed first.** The look and feel was designed before the frontend was built, in [docs/design/](docs/design/) (design spec and screenshots). The frontend follows it, adapted where the backend's behaviour required.
-- **Every prompt is logged.** [docs/PROMPT_LOG.md](docs/PROMPT_LOG.md) records each prompt, what came back, and the review: what was accepted, changed or rejected, and why.
+SmartTask was built with [Claude Code](https://claude.com/claude-code), step by step, with each step reviewed, tested and committed separately. The prompts used to build it are provided separately with the submission.
 
 ## Further documentation
 
 - [PROMPTS.md](PROMPTS.md): AI prompt design, examples, validation and safety
-- [docs/REQUIREMENTS_CHECKLIST.md](docs/REQUIREMENTS_CHECKLIST.md): every assignment requirement and where it is implemented
-- [docs/design/DESIGN-SPEC.md](docs/design/DESIGN-SPEC.md): UI design specification
-- [tools/api-checks/README.md](tools/api-checks/README.md): how the API checks work
-- [CLAUDE.md](CLAUDE.md): project rules and the full list of decisions
+- [docs/screenshots/](docs/screenshots/): all screenshots in light and dark mode

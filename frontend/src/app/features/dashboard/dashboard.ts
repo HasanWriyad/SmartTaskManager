@@ -15,7 +15,7 @@ import { UpcomingList } from './upcoming-list';
 /** Rows shown in "Upcoming due" (the API returns up to 10). */
 const upcomingRows = 5;
 
-/** Dashboard (spec §7.2): summary cards, status and priority charts, and tasks due in the next 7 days. */
+/** Dashboard: summary cards, status and priority charts, and tasks due in the next 7 days. */
 @Component({
   selector: 'app-dashboard',
   imports: [RouterLink, MatButtonModule, MatIconModule, PriorityChart, StatusChart, UpcomingList],

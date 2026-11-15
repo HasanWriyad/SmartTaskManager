@@ -1,7 +1,7 @@
 {
     "info":  {
                  "name":  "Smart Task Manager API",
-                 "description":  "Generated from docs/swagger.json by tools/export-api-docs.ps1.\n\nSign in with \u0027POST /api/auth/login\u0027 first: it stores the access token in {{accessToken}}, which every request sends as a Bearer token. Create requests store new ids in {{userId}}, {{projectId}} and {{taskId}}. The refresh token is an httpOnly cookie that Postman keeps automatically. Requests marked \u0027No Auth\u0027 are anonymous.",
+                 "description":  "Generated from docs/swagger.json.\n\nSign in with \u0027POST /api/auth/login\u0027 first: it stores the access token in {{accessToken}}, which every request sends as a Bearer token. Create requests store new ids in {{userId}}, {{projectId}} and {{taskId}}. The refresh token is an httpOnly cookie that Postman keeps automatically. Requests marked \u0027No Auth\u0027 are anonymous.",
                  "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
              },
     "auth":  {

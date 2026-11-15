@@ -23,14 +23,14 @@ export class UserService {
     );
   }
 
-  /** Takes effect immediately: the user's next request gets a new token with the new role (D6). */
+  /** Takes effect immediately: the user's next request gets a new token with the new role. */
   changeRole(userId: string, role: Role): Observable<AdminUser> {
     return this.http
       .put<ApiResponse<AdminUser>>(`/api/users/${userId}/role`, { role }, { context: silentErrors() })
       .pipe(map((response) => response.data!));
   }
 
-  /** Deactivating ends the user's sessions immediately (D6). */
+  /** Deactivating ends the user's sessions immediately. */
   changeStatus(userId: string, isActive: boolean): Observable<AdminUser> {
     return this.http
       .put<ApiResponse<AdminUser>>(`/api/users/${userId}/status`, { isActive }, { context: silentErrors() })

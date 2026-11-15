@@ -1,4 +1,4 @@
-// Form styles shared by the sign-in and registration pages (spec §7.1). The two-column frame is
+// Form styles shared by the sign-in and registration pages. The two-column frame is
 // AuthLayout.
 .title {
   margin: 0;
@@ -13,7 +13,7 @@
   color: var(--text-muted);
 }
 
-// Banners: the error uses the overdue colours (spec §7.1), the expiry notice the accent-soft ones.
+// Banners: the error uses the overdue colours, the expiry notice the accent-soft ones.
 .banner {
   display: flex;
   align-items: flex-start;

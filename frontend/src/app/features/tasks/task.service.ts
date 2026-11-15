@@ -82,7 +82,7 @@ export class TaskService {
 }
 
 /**
- * State to API query. Due filters use the API's "today", the UTC date (D8); "overdue" is the API's own
+ * State to API query. Due filters use the API's "today", the UTC date; "overdue" is the API's own
  * filter (due before today, to do or in progress).
  */
 function toQueryParams(state: TaskListState): Record<string, string | number | boolean> {

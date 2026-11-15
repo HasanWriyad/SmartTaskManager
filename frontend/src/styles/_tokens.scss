@@ -1,8 +1,8 @@
-// Design tokens from docs/design/DESIGN-SPEC.md (sections 1-3). Light values on :root, dark values
+// Design tokens. Light values on :root, dark values
 // under .dark-theme on <html> (set by ThemeService). Components use these variables, never raw hex.
 
 :root {
-  // Neutrals and the single accent (spec §1).
+  // Neutrals and the single accent.
   --bg: #f5f6f8;
   --surface: #ffffff;
   --surface-2: #f0f2f5;
@@ -17,7 +17,7 @@
   --scrim: rgba(16, 24, 40, 0.45);
   --dialog-shadow: 0 24px 48px -12px rgba(16, 24, 40, 0.25);
 
-  // Task status (spec §2): badge background / text / dot, plus chart colour.
+  // Task status: badge background / text / dot, plus chart colour.
   --status-todo-bg: #eef0f3;
   --status-todo-text: #475063;
   --status-todo-dot: #8b93a1;
@@ -37,7 +37,7 @@
   --overdue-text: #b42318;
   --overdue-bg: #fde6e4;
 
-  // Task priority (spec §3): badge background / text, plus bar and chart colour.
+  // Task priority: badge background / text, plus bar and chart colour.
   --priority-low-bg: #eef0f3;
   --priority-low-text: #475063;
   --priority-low-bar: #8b93a1;
@@ -51,7 +51,7 @@
   --priority-critical-text: #a3170f;
   --priority-critical-bar: #d92d20;
 
-  // Shape (spec §5).
+  // Shape.
   --radius-badge: 6px;
   --radius-control: 8px;
   --radius-card: 12px;

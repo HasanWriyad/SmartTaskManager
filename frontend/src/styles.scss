@@ -1,5 +1,5 @@
-// Global styles. Look and feel follow docs/design/DESIGN-SPEC.md: the design tokens live in
-// styles/_tokens.scss, and Angular Material is themed from the same accent and neutrals.
+// Global styles. The design tokens live in styles/_tokens.scss, and Angular Material is themed from
+// the same accent and neutrals.
 @use '@angular/material' as mat;
 @use './styles/theme-colors' as theme-colors;
 @use './styles/tokens';
@@ -28,7 +28,7 @@ html {
     )
   );
 
-  // Map Material's surfaces and accent onto the spec's tokens, so both themes match exactly.
+  // Map Material's surfaces and accent onto the design tokens, so both themes match exactly.
   @include mat.theme-overrides(
     (
       primary: var(--accent),
@@ -52,7 +52,7 @@ html {
     )
   );
 
-  // Shapes (spec §5): 8px controls instead of M3's pills, 12px cards, 16px dialogs.
+  // Shapes: 8px controls instead of M3's pills, 12px cards, 16px dialogs.
   @include mat.button-overrides(
     (
       filled-container-shape: var(--radius-control),
@@ -129,18 +129,18 @@ a {
   color: var(--accent-text);
 }
 
-// Focus is always visible (spec §5, §10): 2px accent outline.
+// Focus is always visible: 2px accent outline.
 :focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
 
-// Counts, dates and pagination use tabular figures (spec §4).
+// Counts, dates and pagination use tabular figures.
 .tabular {
   font-variant-numeric: tabular-nums;
 }
 
-// Icons: Material Symbols Rounded, weight 400, 20px (spec §9).
+// Icons: Material Symbols Rounded, weight 400, 20px.
 .material-symbols-rounded {
   font-variation-settings:
     'FILL' 0,
@@ -156,7 +156,7 @@ a {
   line-height: 20px;
 }
 
-// Dialog: the only surface with a shadow besides the mobile drawer (spec §5).
+// Dialog: the only surface with a shadow besides the mobile drawer.
 .mat-mdc-dialog-surface {
   box-shadow: var(--dialog-shadow) !important;
 }
@@ -240,7 +240,7 @@ a {
   background: var(--surface);
 }
 
-// Inline alert inside cards and dialogs (overdue colours, spec §7.1).
+// Inline alert inside cards and dialogs (overdue colours).
 .inline-alert {
   display: flex;
   align-items: flex-start;
@@ -256,7 +256,7 @@ a {
   }
 }
 
-// Form dialogs are full screen below 600px (spec §7.4).
+// Form dialogs are full screen below 600px.
 @media (max-width: 599.98px) {
   .cdk-overlay-pane.app-form-dialog {
     --mat-dialog-container-small-max-width: 100vw;
@@ -275,7 +275,7 @@ a {
   }
 }
 
-// Active filter: the field border turns accent (spec §5).
+// Active filter: the field border turns accent.
 .mat-mdc-form-field.active {
   --mat-form-field-outlined-outline-color: var(--accent);
   --mat-form-field-outlined-hover-outline-color: var(--accent);
@@ -338,7 +338,7 @@ a {
   --mat-menu-item-icon-color: var(--overdue-text);
 }
 
-// Tables (spec §7.3): divider lines in --border; inactive sort arrows at 30%, hover 54%, active 100%.
+// Tables: divider lines in --border; inactive sort arrows at 30%, hover 54%, active 100%.
 .mat-mdc-table {
   --mat-table-row-item-outline-color: var(--border);
   --mat-table-background-color: transparent;

@@ -16,7 +16,7 @@ interface Segment {
 }
 
 /**
- * "Tasks by status" card (spec §7.2): a 168px doughnut (16px ring) with the total in the centre,
+ * "Tasks by status" card: a 168px doughnut (16px ring) with the total in the centre,
  * a legend with dot, label, count and percentage, and the overdue note. Drawn as inline SVG so the
  * colours come straight from the tokens in both themes.
  */

@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 
-/** Round avatar with initials. The current user's avatar uses the accent-soft colours (spec §1). */
+/** Round avatar with initials. The current user's avatar uses the accent-soft colours. */
 @Component({
   selector: 'app-avatar',
   template: `{{ initials() }}`,

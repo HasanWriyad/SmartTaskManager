@@ -44,7 +44,7 @@ const priorities: TaskPriority[] = ['Critical', 'High', 'Medium', 'Low'];
 const statuses: TaskStatus[] = ['ToDo', 'InProgress', 'Completed', 'Cancelled'];
 
 /**
- * Task form dialog (spec §7.4). Creating: project (a project the user manages), title, description,
+ * Task form dialog. Creating: project (a project the user manages), title, description,
  * assignee (the project's members), priority and due date, in one POST. Editing: the task's own
  * canManage and canUpdateStatus decide what is editable, and only what changed is sent, through the
  * existing endpoints (fields, assignee and status are separate calls). "Improve with AI" (Admin and

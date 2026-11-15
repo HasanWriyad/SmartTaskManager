@@ -1,4 +1,4 @@
-// Badge anatomy shared by status and priority badges (spec §3): 24px tall, 8px padding, 6px radius,
+// Badge anatomy shared by status and priority badges: 24px tall, 8px padding, 6px radius,
 // 12px/500 text, 6px gap. Colours come from the --status-* / --priority-* tokens.
 @mixin anatomy {
   display: inline-flex;

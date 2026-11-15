@@ -491,3 +491,7 @@ frontend/dist/
 
 # Serilog rolling files
 logs/
+
+# Local working notes, kept on disk but not in the repository
+CLAUDE.md
+docs/PROMPT_LOG.md

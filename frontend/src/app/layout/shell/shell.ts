@@ -22,7 +22,7 @@ interface NavItem {
 }
 
 /**
- * Sidebar layout per spec §6:
+ * Sidebar layout:
  * - wide (>= 1200px): expanded 256px sidebar, collapsible to the icon rail (choice saved);
  * - rail (720-1199px): 72px icon rail;
  * - drawer (< 720px): 280px slide-out drawer over a scrim, opened from the header's menu button.

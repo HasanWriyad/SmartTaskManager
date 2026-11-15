@@ -16,7 +16,7 @@ export interface SummaryCard {
   tone: CardTone;
   value: number;
   footnote: string;
-  /** Overdue shows its value in red (spec §7.2). */
+  /** Overdue shows its value in red. */
   alert: boolean;
 }
 
@@ -36,9 +36,9 @@ export interface PriorityRow {
   barWidth: number;
 }
 
-/** Legend and doughnut order (spec screenshot): Completed, In progress, To do, then Cancelled. */
+/** Legend and doughnut order: Completed, In progress, To do, then Cancelled. */
 const statusOrder: TaskStatus[] = ['Completed', 'InProgress', 'ToDo', 'Cancelled'];
-/** Bar chart order (spec §7.2): Critical -> High -> Medium -> Low. */
+/** Bar chart order: Critical -> High -> Medium -> Low. */
 const priorityOrder: TaskPriority[] = ['Critical', 'High', 'Medium', 'Low'];
 
 export function percentOf(count: number, total: number): number {
@@ -89,7 +89,7 @@ export function summaryCards(d: Dashboard, isAdmin: boolean): SummaryCard[] {
       alert: d.overdueCount > 0,
     },
     {
-      // Label per CLAUDE.md: the API returns only the caller's open (pending) tasks.
+      // Label: the API returns only the caller's open (pending) tasks.
       label: 'My open tasks',
       icon: 'person',
       tone: 'accent',

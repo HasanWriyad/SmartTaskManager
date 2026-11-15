@@ -46,14 +46,14 @@ import { TaskService } from './task.service';
 
 const phoneQuery = '(max-width: 719.98px)';
 const mediumQuery = '(min-width: 720px) and (max-width: 959.98px)';
-/** Beside the expanded or rail sidebar the table is narrower than the spec's 940px minimum. */
+/** Beside the expanded or rail sidebar the table is narrower than 940px. */
 const laptopQuery = '(min-width: 960px) and (max-width: 1259.98px)';
 
 /** What the current user may do with a row: manage (edit/assign/delete), status only, or view. */
 type RowAccess = 'manage' | 'status' | 'view';
 
 /**
- * Task list (spec §7.3) on GET /api/tasks: search, project, status, priority, assignee and due-date
+ * Task list on GET /api/tasks: search, project, status, priority, assignee and due-date
  * filters, sorting and paging, all kept in the URL (?projectId= comes from the project page).
  * A table at >= 720px, cards below. Rows open the task dialog.
  */
@@ -177,7 +177,7 @@ export class Tasks {
   protected readonly search = new FormControl(this.state().search, { nonNullable: true });
 
   constructor() {
-    // Search is debounced by 300ms (spec §7.3) and replaces the history entry instead of adding one.
+    // Search is debounced by 300ms and replaces the history entry instead of adding one.
     this.search.valueChanges
       .pipe(
         map((value) => value.trim()),

@@ -7,7 +7,7 @@ import { UpcomingTask } from './dashboard.models';
 import { relativeDue } from './dashboard.view';
 
 /**
- * "Upcoming due" table (spec §7.2): Task (title + project), Assignee, Due (date + relative), Priority,
+ * "Upcoming due" table: Task (title + project), Assignee, Due (date + relative), Priority,
  * Status. Below 960px Assignee and Status are hidden; below 720px Priority too.
  */
 @Component({

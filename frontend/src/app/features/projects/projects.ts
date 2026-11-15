@@ -127,7 +127,7 @@ export class Projects {
   });
 
   constructor() {
-    // Search is debounced by 300ms (spec §7.3) and replaces the history entry instead of adding one.
+    // Search is debounced by 300ms and replaces the history entry instead of adding one.
     this.search.valueChanges
       .pipe(
         map((value) => value.trim()),

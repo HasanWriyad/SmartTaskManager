@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, input } from '@angular/co
 import { PriorityRow } from './dashboard.view';
 
 /**
- * "Tasks by priority" card body (spec §7.2): horizontal bars, Critical -> Low, 28px tall with a 6px
+ * "Tasks by priority" card body: horizontal bars, Critical -> Low, 28px tall with a 6px
  * radius on a --surface-2 track, each with its count and percentage. Bars are scaled to the largest
  * priority. The "critical or high-priority still open" footnote is left out: the API's priority
  * counts include every status.

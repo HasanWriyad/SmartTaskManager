@@ -65,7 +65,7 @@ export const taskDescriptionMaxLength = 4000;
 export const aiInputMaxLength = 2000;
 
 export type TaskSortField = 'title' | 'status' | 'priority' | 'dueDate';
-/** Due date filter (spec §7.3): any, overdue (API overdue=true), today, next 7 days, later. */
+/** Due date filter: any, overdue (API overdue=true), today, next 7 days, later. */
 export type DueFilter = '' | 'overdue' | 'today' | 'week' | 'later';
 
 export const dueFilterLabels: Record<Exclude<DueFilter, ''>, string> = {

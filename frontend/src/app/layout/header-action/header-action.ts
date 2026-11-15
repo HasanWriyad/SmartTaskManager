@@ -1,6 +1,6 @@
 import { Directive, Injectable, OnDestroy, TemplateRef, inject, signal } from '@angular/core';
 
-/** Holds the current page's main action (spec §6: the header holds the page's main action). */
+/** Holds the current page's main action, which the shell shows at the right of the header. */
 @Injectable({ providedIn: 'root' })
 export class HeaderActionSlot {
   readonly template = signal<TemplateRef<unknown> | null>(null);

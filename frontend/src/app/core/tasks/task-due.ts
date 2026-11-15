@@ -1,7 +1,7 @@
 import { TaskStatus } from './task.models';
 
 /**
- * "Today" as the API defines it (CLAUDE.md, D8): the current UTC date, yyyy-mm-dd. The overdue
+ * "Today" as the API defines it: the current UTC date, yyyy-mm-dd. The overdue
  * highlight, the relative due captions and the due-date filters all use it, so they agree with the
  * API's overdue filter and the dashboard (which returns its own asOf; use that where it is available).
  */
@@ -35,7 +35,7 @@ export function isOverdue(dueDate: string | null, status: TaskStatus, today: str
 }
 
 /**
- * The caption under a due date (spec §7.3): "Done", "Cancelled", "Overdue by 3 days", "Today",
+ * The caption under a due date: "Done", "Cancelled", "Overdue by 3 days", "Today",
  * "Tomorrow", "In 4 days", or "3 days ago" for a closed task.
  */
 export function dueCaption(dueDate: string, status: TaskStatus, today: string): string {
