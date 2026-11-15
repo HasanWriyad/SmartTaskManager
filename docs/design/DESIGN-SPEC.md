@@ -1,5 +1,7 @@
 # SmartTask — UI Design Spec
 
+> **Note:** This is the original design reference. Where the implementation differs, for example token storage (tokens stay out of localStorage) and the login options ("Keep me signed in" and "Forgot password?" are not built), the Design section of [CLAUDE.md](../../CLAUDE.md#design) explains why.
+
 Smart Task Management System · Angular 18+ with Angular Material 3 · v1.1 (15 Nov 2026)
 
 One accent colour, neutral greys, light and dark themes, responsive from 360px up.
