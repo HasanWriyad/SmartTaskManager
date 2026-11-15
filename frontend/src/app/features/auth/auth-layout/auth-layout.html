@@ -14,21 +14,11 @@
     <footer class="copyright">© {{ year }} SmartTask</footer>
   </section>
 
-  <aside class="product-panel" aria-hidden="true">
-    <div class="product">
-      <p class="headline">Every project, task and deadline in one place.</p>
-      <p class="tagline">Assign work, track progress by status and priority, and see what's due next.</p>
-      <ul class="samples">
-        @for (task of samples; track task.title) {
-          <li class="sample">
-            <div class="sample-text">
-              <span class="sample-title">{{ task.title }}</span>
-              <span class="sample-meta">{{ task.meta }}</span>
-            </div>
-            <app-status-badge [status]="task.status" />
-          </li>
-        }
-      </ul>
+  <aside class="brand-panel" aria-hidden="true">
+    <div class="brand">
+      <app-logo-mark [size]="112" />
+      <p class="brand-name">SmartTask</p>
+      <p class="tagline">Smart Task Management System</p>
     </div>
   </aside>
 </div>

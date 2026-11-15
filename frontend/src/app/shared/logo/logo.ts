@@ -1,12 +1,12 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
-import { MatIconModule } from '@angular/material/icon';
+import { LogoMark } from './logo-mark';
 
-/** The SmartTask mark: a 32px accent tile with a check, plus the wordmark (17px/700). */
+/** The 32px SmartTask mark plus the wordmark (17px/700), used in the sidebar and the auth top bar. */
 @Component({
   selector: 'app-logo',
-  imports: [MatIconModule],
+  imports: [LogoMark],
   template: `
-    <span class="tile" aria-hidden="true"><mat-icon>check</mat-icon></span>
+    <app-logo-mark [size]="32" />
     @if (wordmark()) {
       <span class="wordmark">SmartTask</span>
     }
@@ -17,23 +17,6 @@ import { MatIconModule } from '@angular/material/icon';
       align-items: center;
       gap: 12px;
       color: var(--text);
-    }
-    .tile {
-      display: grid;
-      place-items: center;
-      flex: none;
-      width: 32px;
-      height: 32px;
-      border-radius: var(--radius-control);
-      background: var(--accent);
-      color: var(--on-accent);
-    }
-    .tile mat-icon {
-      width: 18px;
-      height: 18px;
-      font-size: 18px;
-      line-height: 18px;
-      font-variation-settings: 'wght' 600;
     }
     .wordmark {
       font-size: 17px;

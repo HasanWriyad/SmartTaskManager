@@ -44,70 +44,58 @@
   line-height: 16px;
 }
 
-// ---------- Product panel
-.product-panel {
+// ---------- Brand panel: a soft accent glow over a faint grid that fades out toward the edges.
+.brand-panel {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 40px;
-  background: var(--bg);
+  overflow: hidden;
   border-left: 1px solid var(--border);
+  background:
+    radial-gradient(circle at 50% 45%, color-mix(in srgb, var(--accent) 16%, transparent) 0, transparent 55%),
+    var(--bg);
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 32px 32px;
+    background-position: center;
+    mask-image: radial-gradient(circle at 50% 45%, #000 0, transparent 70%);
+    opacity: 0.7;
+  }
 }
 
-.product {
-  width: 100%;
-  max-width: 480px;
+.brand {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+
+  app-logo-mark {
+    filter: drop-shadow(0 16px 32px color-mix(in srgb, var(--accent) 30%, transparent));
+  }
 }
 
-.headline {
-  margin: 0 0 12px;
+.brand-name {
+  margin: 28px 0 6px;
   font-size: 28px;
   line-height: 36px;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: -0.02em;
 }
 
 .tagline {
-  margin: 0 0 32px;
+  margin: 0;
   color: var(--text-muted);
   font-size: 16px;
   line-height: 24px;
-}
-
-.samples {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.sample {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 16px 20px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-card);
-  background: var(--surface);
-}
-
-.sample-text {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-}
-
-.sample-title {
-  font-weight: 500;
-}
-
-.sample-meta {
-  color: var(--text-muted);
-  font-size: 12px;
-  line-height: 16px;
 }
 
 @media (max-width: 899.98px) {
@@ -115,7 +103,7 @@
     grid-template-columns: 1fr;
   }
 
-  .product-panel {
+  .brand-panel {
     display: none;
   }
 }

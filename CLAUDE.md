@@ -98,6 +98,10 @@ Clean Architecture:
   - Login: no "Keep me signed in" and no "Forgot password?" (no backend). Keep the "Create an account" link to the register page
   - AI suggestion panel: show and apply only the improved description. No suggested title, priority or "What changed" tags
   - The task dialog saves through the existing endpoints (fields, status and assignee are separate calls); only send what changed
+- Notes for later pages:
+  - Task list search placeholder is "Search tasks" (the search matches title and description, not project names)
+  - The dashboard's my-tasks card is labelled "My open tasks" (the API returns only the caller's pending and overdue counts)
+- Branding: the SmartTask mark is shared/logo/logo-mark.ts (sidebar, auth top bar, auth brand panel); the favicons in frontend/public are its simplified form (tile and bold check)
 
 ## Workflow
 - Explain the plan before large changes
