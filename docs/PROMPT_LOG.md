@@ -655,3 +655,39 @@ retry.
   machine because formatting converted to UTC.
 - Disabled CLI analytics in angular.json so reviewers are not prompted.
   
+
+  ---
+
+### Step 8.4 — Projects
+**Prompt:**
+Build the projects pages, reusing the shell, filter bar, table, pagination
+and badge patterns from the design spec: project list with search, the
+ownedByMe filter, created date range, sorting and paging, with state in the
+URL; a create and edit dialog; a project details page with members
+management for users with canManage, where the owner cannot be removed and
+"View tasks" opens the task list filtered by project; and a delete
+confirmation that explains its tasks are deleted too. On the dashboard, when
+the user has no projects, show a role-specific message, with a "Create
+project" button for Admin and ProjectManager.
+
+Follow-up prompt:
+Hide the owner filter for TeamMembers, since they never own projects.
+
+**Result:** Project list with filters, sorting and paging kept in the URL,
+mobile card layout, create and edit dialog, details page with member
+management, delete confirmation with the task count, and role-specific
+empty states on the dashboard. 55 browser checks across roles, themes and
+widths. Initial bundle reduced from 483 kB to 360 kB by loading the
+snackbar on first use.
+
+**My review/changes:**
+- Added empty-state messages because the app starts without data: a new
+  team member is told to ask for access, and managers get a direct
+  "Create project" action.
+- Hid the owner filter from team members, since it could only ever be empty
+  for them.
+- Accepted opening the new project's page after creation, so members can be
+  added straight away.
+- Tested myself: creating a project from the dashboard, adding a member,
+  the protected owner, filters surviving a reload, delete confirmation, and
+  the team member's read-only view.
