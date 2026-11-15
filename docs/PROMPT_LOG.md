@@ -621,4 +621,37 @@ and forbidden pages.
   dashboard's "View all tasks" link depend on it.
 - A projectId the caller cannot see returns an empty list rather than 404,
   so the filter does not reveal whether a project exists.
+  ---
+
+### Step 8.3 — Brand and Dashboard
+**Prompt:**
+On the login and register pages, replace the right panel's sample task rows
+with a brand panel: an original SVG logo mark, "SmartTask" and the tagline
+"Smart Task Management System", on a subtle background that works in light
+and dark mode. Use the same mark in the sidebar and login top bar. Make a
+simplified favicon that stays clear at 16px, with ICO and apple-touch-icon
+fallbacks.
+
+Follow-up prompt:
+Set analytics to false in angular.json so the CLI never prompts reviewers.
+Build the dashboard page following section 7.2 of the design spec, using
+GET /api/dashboard. Leave out the "critical or high-priority still open"
+note, because the API does not return it. Show loading skeletons and an
+error state.
+
+**Result:** Original logo mark used on the login brand panel, sidebar and
+favicons. Dashboard with six summary cards, a status doughnut and priority
+bars drawn in SVG, upcoming due tasks, skeletons and an inline error with
+retry.
+
+**My review/changes:**
+- Replaced the mock-up's sample tasks on the login page with an original
+  brand panel, and asked for a simplified favicon readable at 16px.
+- Accepted SVG charts instead of ng2-charts: one dependency fewer, theme
+  colours work in dark mode, and screen readers get the numbers.
+- Verified per-role numbers: Admin sees all tasks, others only their
+  projects, and card footnotes change accordingly.
+- A date bug was found and fixed: due dates showed one day early on a UTC+6
+  machine because formatting converted to UTC.
+- Disabled CLI analytics in angular.json so reviewers are not prompted.
   
