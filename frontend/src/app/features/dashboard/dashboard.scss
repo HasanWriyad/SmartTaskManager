@@ -1,0 +1,324 @@
+// Dashboard.
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.card {
+  box-sizing: border-box;
+  min-width: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  background: var(--surface);
+}
+
+// ---------- Summary cards: 6 columns >= 1360px, 3 >= 720px, 2 below.
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+@media (min-width: 720px) {
+  .metrics {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+  }
+}
+
+@media (min-width: 1360px) {
+  .metrics {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+}
+
+.metric {
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+}
+
+.metric-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.metric-label {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 500;
+}
+
+.icon-tile {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-control);
+  background: var(--surface-2);
+  color: var(--text-muted);
+
+  mat-icon {
+    width: 18px;
+    height: 18px;
+    font-size: 18px;
+    line-height: 18px;
+  }
+}
+
+.tone-completed .icon-tile {
+  background: var(--status-completed-bg);
+  color: var(--status-completed-text);
+}
+.tone-pending .icon-tile {
+  background: var(--status-inprogress-bg);
+  color: var(--status-inprogress-text);
+}
+.tone-overdue .icon-tile {
+  background: var(--overdue-bg);
+  color: var(--overdue-text);
+}
+.tone-accent .icon-tile {
+  background: var(--accent-soft);
+  color: var(--accent-text);
+}
+
+.metric-value {
+  margin: 12px 0 6px;
+  font-size: 28px;
+  line-height: 36px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+
+  &.alert {
+    color: var(--overdue-text);
+  }
+}
+
+.footnote {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 16px;
+}
+
+// ---------- No projects yet (above the cards)
+.no-projects {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 16px;
+  padding: 16px 20px;
+
+  .icon-tile {
+    background: var(--accent-soft);
+    color: var(--accent-text);
+  }
+}
+
+.no-projects-text {
+  flex: 1 1 240px;
+}
+
+// ---------- Charts: side by side >= 960px.
+.charts {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+}
+
+@media (min-width: 960px) {
+  .charts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.chart-card {
+  padding: 20px;
+}
+
+.card-header {
+  margin-bottom: 20px;
+}
+
+.card-title {
+  margin: 0;
+  font-size: 15px;
+  line-height: 22px;
+  font-weight: 600;
+}
+
+.card-subtitle {
+  margin: 2px 0 0;
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 18px;
+}
+
+// ---------- Upcoming due
+.upcoming-card {
+  overflow: hidden;
+}
+
+.upcoming-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 0;
+  padding: 20px;
+}
+
+.view-all {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  min-height: 44px;
+  padding: 0 4px 0 8px;
+  border-radius: var(--radius-control);
+  color: var(--accent-text);
+  font-weight: 500;
+  text-decoration: none;
+  white-space: nowrap;
+
+  &:hover {
+    background: var(--accent-soft);
+  }
+
+  mat-icon {
+    width: 18px;
+    height: 18px;
+    font-size: 18px;
+    line-height: 18px;
+  }
+}
+
+.view-all-short {
+  display: none;
+}
+
+// ---------- Error state
+.error-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 480px;
+  margin: 40px auto 0;
+  padding: 32px 24px;
+  text-align: center;
+
+  .card-subtitle {
+    margin: 6px 0 20px;
+  }
+}
+
+.error-tile {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 16px;
+  border-radius: var(--radius-card);
+  background: var(--overdue-bg);
+  color: var(--overdue-text);
+
+  mat-icon {
+    width: 24px;
+    height: 24px;
+    font-size: 24px;
+    line-height: 24px;
+  }
+}
+
+// ---------- Loading skeleton shapes (the .skeleton shimmer itself is global, in styles.scss)
+.skeleton.line {
+  height: 12px;
+  width: 100%;
+  margin: 6px 0;
+}
+
+.skeleton.short {
+  width: 45%;
+}
+
+.skeleton.value {
+  height: 28px;
+  width: 40%;
+  margin: 14px 0 10px;
+}
+
+.skeleton-chart {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  margin-top: 24px;
+}
+
+.skeleton.ring {
+  flex: none;
+  width: 168px;
+  height: 168px;
+  border-radius: 50%;
+}
+
+.skeleton-lines {
+  flex: 1;
+}
+
+.skeleton-table {
+  padding: 20px;
+
+  .skeleton.row {
+    height: 40px;
+    margin-top: 14px;
+  }
+}
+
+// ---------- Phones (mock-up): compact metric cards with the value in the tone colour.
+@media (max-width: 719.98px) {
+  .icon-tile,
+  .footnote {
+    display: none;
+  }
+
+  .metric-value {
+    margin-bottom: 0;
+  }
+
+  .tone-completed .metric-value {
+    color: var(--status-completed-text);
+  }
+  .tone-pending .metric-value {
+    color: var(--status-inprogress-text);
+  }
+  .tone-overdue .metric-value {
+    color: var(--overdue-text);
+  }
+  .tone-accent .metric-value {
+    color: var(--accent-text);
+  }
+
+  .chart-card,
+  .upcoming-header {
+    padding: 16px;
+  }
+
+  .view-all-long {
+    display: none;
+  }
+
+  .view-all-short {
+    display: inline;
+  }
+
+  .skeleton.ring {
+    width: 120px;
+    height: 120px;
+  }
+}

@@ -1,0 +1,57 @@
+<form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+  <header class="dialog-header">
+    <h2 id="project-dialog-title" class="dialog-title">{{ editing ? 'Edit project' : 'New project' }}</h2>
+    <button mat-icon-button type="button" mat-dialog-close aria-label="Close" [disabled]="saving()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </header>
+
+  <div class="dialog-body">
+    @if (errorMessage(); as message) {
+      <p class="inline-alert" role="alert">
+        <mat-icon>error</mat-icon>
+        <span>{{ message }}</span>
+      </p>
+    }
+
+    <div class="field">
+      <label class="field-label" for="project-dialog-name">Name</label>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic" hideRequiredMarker>
+        <input matInput id="project-dialog-name" formControlName="name" [maxlength]="nameMax" autocomplete="off" required />
+        @if (form.controls.name.hasError('required')) {
+          <mat-error>Name is required.</mat-error>
+        } @else if (form.controls.name.hasError('maxlength')) {
+          <mat-error>Use at most {{ nameMax }} characters.</mat-error>
+        } @else if (form.controls.name.hasError('server')) {
+          <mat-error>{{ form.controls.name.getError('server') }}</mat-error>
+        }
+      </mat-form-field>
+    </div>
+
+    <div class="field">
+      <div class="label-row">
+        <label class="field-label" for="project-dialog-description">Description <span class="optional">(optional)</span></label>
+        <span class="counter tabular" aria-hidden="true">{{ form.controls.description.value.length }} / {{ descriptionMax }}</span>
+      </div>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic">
+        <textarea
+          matInput
+          id="project-dialog-description"
+          formControlName="description"
+          rows="4"
+          [maxlength]="descriptionMax"
+        ></textarea>
+        @if (form.controls.description.hasError('server')) {
+          <mat-error>{{ form.controls.description.getError('server') }}</mat-error>
+        }
+      </mat-form-field>
+    </div>
+  </div>
+
+  <footer class="dialog-footer">
+    <button mat-button type="button" mat-dialog-close [disabled]="saving()">Cancel</button>
+    <button mat-flat-button type="submit" [disabled]="saving()">
+      {{ saving() ? 'Saving…' : editing ? 'Save changes' : 'Create project' }}
+    </button>
+  </footer>
+</form>

@@ -1,0 +1,231 @@
+// App shell. Sidebar widths: 256px expanded, 72px icon rail, 280px phone drawer.
+:host {
+  display: block;
+  height: 100%;
+}
+
+.container {
+  height: 100%;
+}
+
+// ---------- Sidebar
+.sidebar {
+  width: 256px;
+  border-right: 1px solid var(--border);
+  transition: width 150ms ease;
+
+  &.compact {
+    width: 72px;
+  }
+
+  &.drawer {
+    width: 280px;
+    border-right: 0;
+    box-shadow: 0 24px 48px -12px rgba(16, 24, 40, 0.35);
+  }
+}
+
+.sidebar-inner {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  box-sizing: border-box;
+  padding: 16px 12px;
+}
+
+.sidebar-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 44px;
+  padding: 0 6px;
+  margin-bottom: 20px;
+}
+
+.brand {
+  display: inline-flex;
+  border-radius: var(--radius-control);
+  text-decoration: none;
+}
+
+.close {
+  color: var(--text-muted);
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 44px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: var(--text-muted);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  white-space: nowrap;
+
+  &:hover {
+    background: var(--hover);
+    color: var(--text);
+  }
+
+  &.active {
+    background: var(--accent-soft);
+    color: var(--accent-text);
+    font-weight: 600;
+  }
+
+  mat-icon {
+    flex: none;
+  }
+}
+
+.overline {
+  margin: 20px 12px 6px;
+  color: var(--text-muted);
+  font-size: 11px;
+  line-height: 16px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.sidebar-bottom {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.collapse {
+  width: 100%;
+}
+
+.user-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 0 0 4px;
+  border-top: 1px solid var(--border);
+}
+
+.user-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+
+.user-name {
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.user-role {
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 16px;
+}
+
+.sign-out {
+  flex: none;
+  color: var(--text-muted);
+}
+
+// Icon rail: hide labels, centre icons, stack the user row.
+.compact {
+  .sidebar-top {
+    justify-content: center;
+    padding: 0;
+  }
+
+  .nav-item {
+    justify-content: center;
+    padding: 0;
+  }
+
+  .nav-label,
+  .user-text {
+    display: none;
+  }
+
+  .user-row {
+    flex-direction: column;
+    gap: 8px;
+    padding-left: 0;
+  }
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+// ---------- Header and content
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 64px;
+  padding: 0 32px;
+  box-sizing: border-box;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+
+.menu {
+  margin-left: -8px;
+  color: var(--text);
+}
+
+.page-title {
+  font-size: 20px;
+  line-height: 28px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.spacer {
+  flex: 1;
+}
+
+.content {
+  padding: 24px 32px;
+  box-sizing: border-box;
+}
+
+@media (max-width: 719.98px) {
+  .header {
+    height: 56px;
+    padding: 0 16px;
+  }
+
+  .content {
+    padding: 16px;
+  }
+}

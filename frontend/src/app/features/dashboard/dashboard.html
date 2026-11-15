@@ -1,0 +1,120 @@
+@if (data(); as d) {
+  <div class="page">
+    @if (d.totalProjects === 0) {
+      <section class="card no-projects" aria-labelledby="no-projects-title">
+        <span class="icon-tile" aria-hidden="true"><mat-icon>folder</mat-icon></span>
+        @if (canCreateProject()) {
+          <div class="no-projects-text">
+            <h2 id="no-projects-title" class="card-title">No projects yet</h2>
+            <p class="card-subtitle">Create a project, then add members and tasks to it.</p>
+          </div>
+          <button mat-flat-button type="button" (click)="createProject()"><mat-icon>add</mat-icon>Create project</button>
+        } @else {
+          <div class="no-projects-text">
+            <h2 id="no-projects-title" class="card-title">You haven't been added to a project yet.</h2>
+            <p class="card-subtitle">Ask a project manager to add you.</p>
+          </div>
+        }
+      </section>
+    }
+
+    <section class="metrics" aria-label="Summary">
+      @for (card of cards(); track card.label) {
+        <article class="card metric" [class]="'card metric tone-' + card.tone">
+          <div class="metric-head">
+            <h2 class="metric-label">{{ card.label }}</h2>
+            <span class="icon-tile" aria-hidden="true"><mat-icon>{{ card.icon }}</mat-icon></span>
+          </div>
+          <p class="metric-value tabular" [class.alert]="card.alert">{{ card.value }}</p>
+          <p class="footnote">{{ card.footnote }}</p>
+        </article>
+      }
+    </section>
+
+    <div class="charts">
+      <section class="card chart-card" aria-labelledby="status-title">
+        <header class="card-header">
+          <div>
+            <h2 id="status-title" class="card-title">Tasks by status</h2>
+            <p class="card-subtitle">{{ scopeLabel() }}</p>
+          </div>
+        </header>
+        <app-status-chart [slices]="slices()" [total]="d.totalTasks" [overdue]="d.overdueCount" />
+      </section>
+
+      <section class="card chart-card" aria-labelledby="priority-title">
+        <header class="card-header">
+          <div>
+            <h2 id="priority-title" class="card-title">Tasks by priority</h2>
+            <p class="card-subtitle">{{ scopeLabel() }}</p>
+          </div>
+        </header>
+        <app-priority-chart [rows]="priorities()" />
+      </section>
+    </div>
+
+    <section class="card upcoming-card" aria-labelledby="upcoming-title">
+      <header class="card-header upcoming-header">
+        <div>
+          <h2 id="upcoming-title" class="card-title">Upcoming due</h2>
+          <p class="card-subtitle">Next {{ d.upcomingWindowDays }} days · not completed</p>
+        </div>
+        <a class="view-all" routerLink="/tasks">
+          <span class="view-all-long">View all tasks</span><span class="view-all-short">View all</span>
+          <mat-icon aria-hidden="true">chevron_right</mat-icon>
+        </a>
+      </header>
+      <app-upcoming-list
+        [tasks]="upcoming()"
+        [asOf]="d.asOf"
+        [windowDays]="d.upcomingWindowDays"
+        [currentUserId]="currentUserId()"
+        (openTask)="openTask($event)"
+      />
+    </section>
+  </div>
+} @else if (errorMessage(); as message) {
+  <section class="card error-state" role="alert">
+    <span class="error-tile" aria-hidden="true"><mat-icon>cloud_off</mat-icon></span>
+    <h2 class="card-title">The dashboard could not be loaded</h2>
+    <p class="card-subtitle">{{ message }}</p>
+    <button mat-flat-button type="button" (click)="retry()">
+      <mat-icon>refresh</mat-icon>
+      Try again
+    </button>
+  </section>
+} @else {
+  <div class="page" aria-busy="true">
+    <p class="sr-only" role="status">Loading the dashboard…</p>
+    <div class="metrics" aria-hidden="true">
+      @for (i of skeletonCards; track i) {
+        <div class="card metric">
+          <span class="skeleton line short"></span>
+          <span class="skeleton value"></span>
+          <span class="skeleton line"></span>
+        </div>
+      }
+    </div>
+    <div class="charts" aria-hidden="true">
+      @for (i of [1, 2]; track i) {
+        <div class="card chart-card">
+          <span class="skeleton line short"></span>
+          <div class="skeleton-chart">
+            <span class="skeleton ring"></span>
+            <div class="skeleton-lines">
+              <span class="skeleton line"></span>
+              <span class="skeleton line"></span>
+              <span class="skeleton line"></span>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+    <div class="card upcoming-card skeleton-table" aria-hidden="true">
+      <span class="skeleton line short"></span>
+      @for (i of skeletonRows; track i) {
+        <span class="skeleton row"></span>
+      }
+    </div>
+  </div>
+}

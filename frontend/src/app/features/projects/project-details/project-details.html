@@ -1,0 +1,153 @@
+<a class="back" routerLink="/projects"><mat-icon aria-hidden="true">chevron_left</mat-icon>All projects</a>
+
+@if (data(); as project) {
+  <div class="page">
+    <section class="surface-card overview" aria-labelledby="project-name">
+      <div class="overview-head">
+        <h2 id="project-name" class="name">{{ project.name }}</h2>
+        <div class="head-actions">
+          <a mat-stroked-button [routerLink]="['/tasks']" [queryParams]="{ projectId: project.id }">
+            <mat-icon>check_box</mat-icon>View tasks
+          </a>
+          @if (project.canManage) {
+            <button mat-stroked-button type="button" (click)="edit(project)"><mat-icon>edit</mat-icon>Edit</button>
+            <button mat-button type="button" class="delete" (click)="delete(project)"><mat-icon>delete</mat-icon>Delete</button>
+          }
+        </div>
+      </div>
+
+      @if (project.description) {
+        <p class="description">{{ project.description }}</p>
+      } @else {
+        <p class="description muted">No description.</p>
+      }
+
+      <dl class="facts">
+        <div class="fact">
+          <dt>Owner</dt>
+          <dd class="person">
+            <app-avatar [name]="project.ownerName" [size]="28" [self]="project.ownerId === currentUserId()" />
+            {{ project.ownerName }}{{ project.ownerId === currentUserId() ? ' (you)' : '' }}
+          </dd>
+        </div>
+        <div class="fact">
+          <dt>Tasks</dt>
+          <dd class="tabular">{{ project.taskCount }}</dd>
+        </div>
+        <div class="fact">
+          <dt>Members</dt>
+          <dd class="tabular">{{ project.members.length }}</dd>
+        </div>
+        <div class="fact">
+          <dt>Created</dt>
+          <dd class="tabular">{{ project.createdAt | date: 'd MMM y' }}</dd>
+        </div>
+      </dl>
+    </section>
+
+    <app-project-tasks
+      [projectId]="project.id"
+      [projectName]="project.name"
+      [canManage]="project.canManage"
+      (changed)="tasksChanged()"
+    />
+
+    <section class="surface-card members" aria-labelledby="members-title" [attr.aria-busy]="busy()">
+      @if (busy()) {
+        <mat-progress-bar mode="indeterminate" class="loading-bar" aria-label="Updating members" />
+      }
+      <header class="members-head">
+        <div>
+          <h2 id="members-title" class="card-title">Members</h2>
+          <p class="card-subtitle">Tasks in this project can be assigned to its members.</p>
+        </div>
+        @if (project.canManage) {
+          <mat-form-field appearance="outline" subscriptSizing="dynamic" class="add-member">
+            <mat-icon matPrefix>person_add</mat-icon>
+            <input
+              matInput
+              type="text"
+              [formControl]="memberSearch"
+              [matAutocomplete]="auto"
+              placeholder="Add a member"
+              aria-label="Add a member: search by name or email"
+            />
+            <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayUser" (optionSelected)="addMember($event)">
+              @for (user of available(); track user.id) {
+                <mat-option [value]="user">
+                  <span class="option-name">{{ user.fullName }}</span>
+                  <span class="option-email">{{ user.email }}</span>
+                </mat-option>
+              } @empty {
+                <mat-option disabled>{{ searching() ? 'Searching…' : 'No matching users' }}</mat-option>
+              }
+            </mat-autocomplete>
+          </mat-form-field>
+        }
+      </header>
+
+      <ul class="member-list">
+        @for (member of members(); track member.userId) {
+          <li class="member">
+            <app-avatar [name]="member.fullName" [size]="36" [self]="member.userId === currentUserId()" />
+            <div class="member-text">
+              <span class="member-name">
+                {{ member.fullName }}{{ member.userId === currentUserId() ? ' (you)' : '' }}
+                @if (member.userId === project.ownerId) {
+                  <span class="owner-tag">Owner</span>
+                }
+              </span>
+              <span class="member-email">{{ member.email }}</span>
+            </div>
+            <span class="member-added tabular">Added {{ member.addedAt | date: 'd MMM y' }}</span>
+            @if (project.canManage && member.userId !== project.ownerId) {
+              <button
+                mat-icon-button
+                type="button"
+                class="remove"
+                [disabled]="busy()"
+                [attr.aria-label]="'Remove ' + member.fullName + ' from the project'"
+                matTooltip="Remove from project"
+                (click)="removeMember(member)"
+              >
+                <mat-icon>person_remove</mat-icon>
+              </button>
+            } @else if (project.canManage) {
+              <span class="remove-placeholder" aria-hidden="true"></span>
+            }
+          </li>
+        }
+      </ul>
+    </section>
+  </div>
+} @else if (notFound()) {
+  <section class="surface-card state" role="alert">
+    <span class="state-tile" aria-hidden="true"><mat-icon>folder_off</mat-icon></span>
+    <h2 class="state-title">Project not found</h2>
+    <p class="state-text">It may have been deleted, or you don't have access to it.</p>
+    <a mat-flat-button routerLink="/projects">Back to projects</a>
+  </section>
+} @else if (errorMessage(); as message) {
+  <section class="surface-card state" role="alert">
+    <span class="state-tile error" aria-hidden="true"><mat-icon>cloud_off</mat-icon></span>
+    <h2 class="state-title">The project could not be loaded</h2>
+    <p class="state-text">{{ message }}</p>
+    <button mat-flat-button type="button" (click)="retry()"><mat-icon>refresh</mat-icon>Try again</button>
+  </section>
+} @else {
+  <div class="page" aria-busy="true">
+    <p class="sr-only" role="status">Loading the project…</p>
+    <div class="surface-card overview" aria-hidden="true">
+      <span class="skeleton line title"></span>
+      <span class="skeleton line"></span>
+      <span class="skeleton line short"></span>
+    </div>
+    <div class="surface-card members" aria-hidden="true">
+      <div class="skeleton-members">
+        @for (i of [1, 2, 3]; track i) {
+          <span class="skeleton line"></span>
+        }
+      </div>
+    </div>
+  </div>
+}

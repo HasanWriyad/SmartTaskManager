@@ -1,0 +1,277 @@
+@if (canCreate()) {
+  <ng-template appHeaderAction>
+    <button mat-flat-button type="button" class="header-action" aria-label="New task" (click)="create()">
+      <mat-icon>add</mat-icon>
+      <span class="header-action-label">New task</span>
+    </button>
+  </ng-template>
+}
+
+<div class="page">
+  <section class="surface-card filters" aria-label="Filter tasks">
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="search" [class.active]="state().search">
+      <mat-icon matPrefix>search</mat-icon>
+      <input matInput type="search" [formControl]="search" placeholder="Search tasks" aria-label="Search tasks" />
+    </mat-form-field>
+
+    <div class="selects">
+      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="select project" [class.active]="state().projectId">
+        <mat-select [value]="state().projectId" (selectionChange)="setProject($event.value)" aria-label="Project">
+          <mat-option value="">All projects</mat-option>
+          @for (project of projectOptions(); track project.id) {
+            <mat-option [value]="project.id">{{ project.name }}</mat-option>
+          }
+          @if (unknownProject()) {
+            <mat-option [value]="state().projectId">Selected project</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="select" [class.active]="state().status">
+        <mat-select [value]="state().status" (selectionChange)="update({ status: $event.value })" aria-label="Status">
+          <mat-option value="">All statuses</mat-option>
+          @for (status of statuses; track status) {
+            <mat-option [value]="status">{{ statusLabels[status] }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="select" [class.active]="state().priority">
+        <mat-select [value]="state().priority" (selectionChange)="update({ priority: $event.value })" aria-label="Priority">
+          <mat-option value="">All priorities</mat-option>
+          @for (priority of priorities; track priority) {
+            <mat-option [value]="priority">{{ priorityLabels[priority] }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="select" [class.active]="state().assigneeId">
+        <mat-select [value]="state().assigneeId" (selectionChange)="update({ assigneeId: $event.value })" aria-label="Assignee">
+          <mat-option value="">All assignees</mat-option>
+          <mat-option [value]="currentUserId()">Me</mat-option>
+          @for (person of assigneeOptions(); track person.id) {
+            <mat-option [value]="person.id">{{ person.name }}</mat-option>
+          }
+          @if (unknownAssignee()) {
+            <mat-option [value]="state().assigneeId">Selected user</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="select" [class.active]="state().due">
+        <mat-select [value]="state().due" (selectionChange)="update({ due: $event.value })" aria-label="Due date">
+          <mat-option value="">Any due date</mat-option>
+          @for (due of dueFilters; track due) {
+            <mat-option [value]="due">{{ dueLabels[due] }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      @if (filtersActive()) {
+        <button mat-button type="button" class="clear" (click)="clearFilters()">Clear filters</button>
+      }
+    </div>
+  </section>
+
+  @if (errorMessage(); as message) {
+    <section class="surface-card state" role="alert">
+      <span class="state-tile error" aria-hidden="true"><mat-icon>cloud_off</mat-icon></span>
+      <h2 class="state-title">The tasks could not be loaded</h2>
+      <p class="state-text">{{ message }}</p>
+      <button mat-flat-button type="button" (click)="retry()"><mat-icon>refresh</mat-icon>Try again</button>
+    </section>
+  } @else if (result(); as page) {
+    <div class="summary">
+      <p class="count tabular" role="status">{{ page.totalCount }} {{ page.totalCount === 1 ? 'task' : 'tasks' }}</p>
+      @if (isPhone() && page.totalCount > 1) {
+        <button mat-button type="button" class="sort-button" [matMenuTriggerFor]="sortMenu">
+          Sort: {{ sortLabels[state().sortBy] }}
+          <mat-icon class="sort-arrow" [class.desc]="state().sortDirection === 'desc'" aria-hidden="true">arrow_upward</mat-icon>
+          <span class="sr-only">{{ state().sortDirection === 'asc' ? 'ascending' : 'descending' }}</span>
+        </button>
+        <mat-menu #sortMenu="matMenu" xPosition="before">
+          @for (field of sortFields; track field) {
+            <button mat-menu-item type="button" (click)="sortBy(field)" [attr.aria-current]="state().sortBy === field">
+              {{ sortLabels[field] }}
+              @if (state().sortBy === field) {
+                ({{ state().sortDirection === 'asc' ? 'ascending' : 'descending' }})
+              }
+            </button>
+          }
+        </mat-menu>
+      }
+    </div>
+
+    <section class="surface-card list-card" [attr.aria-busy]="tasks.isLoading()">
+      @if (tasks.isLoading()) {
+        <mat-progress-bar mode="indeterminate" class="loading-bar" aria-label="Loading tasks" />
+      }
+
+      @if (page.items.length === 0) {
+        <div class="state">
+          <span class="state-tile" aria-hidden="true"><mat-icon>{{ filtersActive() ? 'search_off' : 'check_box' }}</mat-icon></span>
+          @if (filtersActive()) {
+            <h2 class="state-title">No tasks match these filters</h2>
+            <p class="state-text">Try another search or filter, or clear the filters.</p>
+            <button mat-stroked-button type="button" (click)="clearFilters()">Clear filters</button>
+          } @else if (canCreate()) {
+            <h2 class="state-title">No tasks yet</h2>
+            <p class="state-text">Create a task in one of your projects to get started.</p>
+            <button mat-flat-button type="button" (click)="create()"><mat-icon>add</mat-icon>New task</button>
+          } @else {
+            <h2 class="state-title">No tasks yet</h2>
+            <p class="state-text">Tasks in your projects will appear here.</p>
+          }
+        </div>
+      } @else if (isPhone()) {
+        <ul class="cards" aria-label="Tasks">
+          @for (task of page.items; track task.id) {
+            <li class="task-card">
+              <button type="button" class="card-open" (click)="open(task)">
+                <span class="card-title">{{ task.title }}</span>
+                <span class="card-project">{{ task.projectName }}</span>
+              </button>
+              <div class="card-foot">
+                <app-status-badge [status]="task.status" />
+                <app-priority-badge [priority]="task.priority" />
+                <span class="card-meta tabular" [class.overdue]="overdue(task)">
+                  @if (task.assigneeName; as name) {
+                    <app-avatar [name]="name" [size]="24" [self]="task.assigneeId === currentUserId()" />
+                    <span class="sr-only">{{ name }}</span>
+                  }
+                  @if (task.dueDate) {
+                    <span>{{ task.dueDate | date: 'd MMM' }}</span>
+                    @if (overdue(task)) {
+                      <span class="sr-only">, {{ caption(task) }}</span>
+                    }
+                  }
+                </span>
+              </div>
+            </li>
+          }
+        </ul>
+      } @else {
+        <div class="table-scroll">
+          <table
+            mat-table
+            [dataSource]="page.items"
+            matSort
+            [matSortActive]="state().sortBy"
+            [matSortDirection]="state().sortDirection"
+            matSortDisableClear
+            (matSortChange)="sortChange($event)"
+          >
+            <caption class="sr-only">Tasks</caption>
+            <ng-container matColumnDef="title">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header="title">Title</th>
+              <td mat-cell *matCellDef="let task">
+                <!-- 960-1259px: long titles end in an ellipsis; the tooltip and the button text keep the full title. -->
+                <button
+                  type="button"
+                  class="row-title"
+                  [matTooltip]="task.title"
+                  [matTooltipDisabled]="!isLaptop()"
+                  matTooltipShowDelay="400"
+                  (click)="open(task); $event.stopPropagation()"
+                >
+                  {{ task.title }}
+                </button>
+                <span class="row-meta">{{ task.projectName }}</span>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="status">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header="status">Status</th>
+              <td mat-cell *matCellDef="let task"><app-status-badge [status]="task.status" /></td>
+            </ng-container>
+
+            <ng-container matColumnDef="priority">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header="priority">Priority</th>
+              <td mat-cell *matCellDef="let task"><app-priority-badge [priority]="task.priority" /></td>
+            </ng-container>
+
+            <ng-container matColumnDef="assignee">
+              <th mat-header-cell *matHeaderCellDef>Assignee</th>
+              <td mat-cell *matCellDef="let task">
+                @if (task.assigneeName; as name) {
+                  <span class="person">
+                    <app-avatar [name]="name" [size]="28" [self]="task.assigneeId === currentUserId()" />
+                    <span class="person-name">{{ name }}{{ task.assigneeId === currentUserId() ? ' (you)' : '' }}</span>
+                  </span>
+                } @else {
+                  <span class="row-meta">Unassigned</span>
+                }
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="dueDate">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header="dueDate">Due date</th>
+              <td mat-cell *matCellDef="let task" class="due" [class.overdue]="overdue(task)">
+                @if (task.dueDate) {
+                  <span class="tabular">{{ task.dueDate | date: 'd MMM y' }}</span>
+                  <span class="due-caption">{{ caption(task) }}</span>
+                } @else {
+                  <span class="row-meta">No due date</span>
+                }
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef><span class="sr-only">Actions</span></th>
+              <td mat-cell *matCellDef="let task" class="actions" (click)="$event.stopPropagation()">
+                @switch (access(task)) {
+                  @case ('manage') {
+                    <button mat-icon-button type="button" [attr.aria-label]="'Edit ' + task.title" matTooltip="Edit" (click)="open(task)">
+                      <mat-icon>edit</mat-icon>
+                    </button>
+                  }
+                  @case ('status') {
+                    <button
+                      mat-icon-button
+                      type="button"
+                      [attr.aria-label]="'Update the status of ' + task.title"
+                      matTooltip="Update status"
+                      (click)="open(task)"
+                    >
+                      <mat-icon>published_with_changes</mat-icon>
+                    </button>
+                  }
+                  @default {
+                    <button mat-icon-button type="button" [attr.aria-label]="'View ' + task.title" matTooltip="View" (click)="open(task)">
+                      <mat-icon>visibility</mat-icon>
+                    </button>
+                  }
+                }
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="columns()"></tr>
+            <tr mat-row *matRowDef="let task; columns: columns()" class="row" (click)="open(task)"></tr>
+          </table>
+        </div>
+      }
+
+      @if (page.totalCount > 0) {
+        <mat-paginator
+          [length]="page.totalCount"
+          [pageIndex]="state().page - 1"
+          [pageSize]="state().pageSize"
+          [pageSizeOptions]="pageSizes"
+          [hidePageSize]="isPhone()"
+          (page)="pageChange($event)"
+          aria-label="Choose a page of tasks"
+        />
+      }
+    </section>
+  } @else {
+    <section class="surface-card list-card skeleton-list" aria-busy="true">
+      <p class="sr-only" role="status">Loading tasks…</p>
+      @for (i of skeletonRows; track i) {
+        <div class="skeleton-row" aria-hidden="true">
+          <span class="skeleton line wide"></span>
+          <span class="skeleton line"></span>
+        </div>
+      }
+    </section>
+  }
+</div>

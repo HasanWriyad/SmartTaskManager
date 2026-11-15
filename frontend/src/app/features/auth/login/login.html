@@ -1,0 +1,69 @@
+<app-auth-layout>
+  <h1 class="title">Sign in</h1>
+  <p class="subtitle">Welcome back. Sign in to manage your projects and tasks.</p>
+
+  @if (expired()) {
+    <p class="banner banner-notice" role="status">
+      <mat-icon>schedule</mat-icon>
+      <span>Your session has expired. Please sign in again.</span>
+    </p>
+  }
+  @if (errorMessage(); as message) {
+    <p class="banner banner-error" role="alert">
+      <mat-icon>error</mat-icon>
+      <span>{{ message }}</span>
+    </p>
+  }
+
+  <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    <div class="field">
+      <label class="field-label" for="login-email">Email</label>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic" hideRequiredMarker>
+        <input matInput id="login-email" formControlName="email" type="email" autocomplete="username" required />
+        @if (form.controls.email.hasError('required')) {
+          <mat-error>Email is required.</mat-error>
+        } @else if (form.controls.email.hasError('email')) {
+          <mat-error>Enter a valid email address.</mat-error>
+        } @else if (form.controls.email.hasError('server')) {
+          <mat-error>{{ form.controls.email.getError('server') }}</mat-error>
+        }
+      </mat-form-field>
+    </div>
+
+    <div class="field">
+      <label class="field-label" for="login-password">Password</label>
+      <mat-form-field appearance="outline" subscriptSizing="dynamic" hideRequiredMarker>
+        <input
+          matInput
+          id="login-password"
+          formControlName="password"
+          [type]="hidePassword() ? 'password' : 'text'"
+          autocomplete="current-password"
+          required
+        />
+        <button
+          mat-icon-button
+          matSuffix
+          type="button"
+          class="toggle-visibility"
+          (click)="hidePassword.set(!hidePassword())"
+          [attr.aria-label]="hidePassword() ? 'Show password' : 'Hide password'"
+          [attr.aria-pressed]="!hidePassword()"
+        >
+          <mat-icon>{{ hidePassword() ? 'visibility' : 'visibility_off' }}</mat-icon>
+        </button>
+        @if (form.controls.password.hasError('required')) {
+          <mat-error>Password is required.</mat-error>
+        } @else if (form.controls.password.hasError('server')) {
+          <mat-error>{{ form.controls.password.getError('server') }}</mat-error>
+        }
+      </mat-form-field>
+    </div>
+
+    <button mat-flat-button type="submit" class="submit" [disabled]="submitting()">
+      {{ submitting() ? 'Signing in…' : 'Sign in' }}
+    </button>
+  </form>
+
+  <p class="switch">New to SmartTask? <a routerLink="/register">Create an account</a></p>
+</app-auth-layout>

@@ -1,0 +1,231 @@
+// Project list: filter bar, table (cards below 720px) and pagination.
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+// ---------- Filter bar: one card that wraps.
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+}
+
+.search {
+  flex: 2 1 240px;
+}
+
+.owner {
+  flex: 1 1 180px;
+}
+
+.created {
+  flex: 1 1 260px;
+}
+
+.search mat-icon[matPrefix] {
+  margin: 0 4px 0 12px;
+  color: var(--text-muted);
+}
+
+.summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 20px;
+  margin: -4px 4px -8px;
+}
+
+.count {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.sort-arrow {
+  width: 16px;
+  height: 16px;
+  font-size: 16px;
+  transition: transform 150ms;
+
+  &.desc {
+    transform: rotate(180deg);
+  }
+}
+
+// ---------- List card
+.list-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.loading-bar {
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 1;
+}
+
+.table-scroll {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  min-width: 520px;
+  background: transparent;
+}
+
+th.mat-mdc-header-cell {
+  height: 48px;
+  background: var(--surface-2);
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+td.mat-mdc-cell {
+  height: 64px;
+  border-bottom-color: var(--border);
+}
+
+th:first-child,
+td:first-child {
+  padding-left: 20px;
+}
+
+.row {
+  cursor: pointer;
+
+  &:hover {
+    background: var(--hover);
+  }
+}
+
+.row-title {
+  display: block;
+  color: var(--text);
+  font-weight: 500;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+// The name column takes the free space; max-width: 0 lets its one-line description shrink (ellipsis)
+// instead of setting the table's minimum width.
+td.mat-column-name {
+  width: 40%;
+  max-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.row-meta {
+  display: block;
+  max-width: 420px;
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 16px;
+}
+
+.clamp {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.person {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.num {
+  width: 96px;
+}
+
+.nowrap {
+  white-space: nowrap;
+}
+
+.actions {
+  width: 56px;
+  text-align: right;
+}
+
+// ---------- Phone cards
+.cards {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.project-card {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  margin-right: -8px;
+}
+
+.card-title {
+  padding: 10px 0;
+  color: var(--text);
+  font-weight: 600;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+
+.card-description {
+  display: -webkit-box;
+  margin: 0 0 8px;
+  overflow: hidden;
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 18px;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 6px;
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+// ---------- Skeleton
+.skeleton-list {
+  padding: 8px 20px;
+}
+
+.skeleton-row {
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border);
+
+  &:last-child {
+    border-bottom: 0;
+  }
+}
+
+.skeleton.line {
+  width: 30%;
+  height: 12px;
+  margin: 4px 0;
+
+  &.wide {
+    width: 55%;
+  }
+}

@@ -1,0 +1,24 @@
+<div class="auth">
+  <section class="form-panel">
+    <header class="top-bar">
+      <app-logo />
+      <app-theme-toggle />
+    </header>
+
+    <main class="form-area">
+      <div class="form-box">
+        <ng-content />
+      </div>
+    </main>
+
+    <footer class="copyright">© {{ year }} SmartTask</footer>
+  </section>
+
+  <aside class="brand-panel" aria-hidden="true">
+    <div class="brand">
+      <app-logo-mark [size]="112" />
+      <p class="brand-name">SmartTask</p>
+      <p class="tagline">Smart Task Management System</p>
+    </div>
+  </aside>
+</div>

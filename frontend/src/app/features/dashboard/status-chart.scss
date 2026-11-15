@@ -1,0 +1,121 @@
+.body {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+
+.doughnut {
+  flex: none;
+  width: 168px;
+  height: 168px;
+}
+
+.track,
+.segment {
+  fill: none;
+  stroke-width: 16;
+}
+
+.track {
+  stroke: var(--surface-2);
+}
+
+.segment {
+  transform: rotate(-90deg);
+  transform-origin: 50% 50%;
+}
+
+.total {
+  fill: var(--text);
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.total-label {
+  fill: var(--text-muted);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+// Chart colours.
+.s-completed {
+  stroke: var(--status-completed-dot);
+  background: var(--status-completed-dot);
+}
+.s-inprogress {
+  stroke: var(--status-inprogress-dot);
+  background: var(--status-inprogress-dot);
+}
+.s-todo {
+  stroke: var(--status-todo-dot);
+  background: var(--status-todo-dot);
+}
+.s-cancelled {
+  stroke: var(--status-cancelled-chart);
+  background: var(--status-cancelled-chart);
+}
+
+.legend-wrap {
+  flex: 1;
+  min-width: 0;
+}
+
+.legend {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.legend-row {
+  display: grid;
+  grid-template-columns: 12px 1fr auto 44px;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+}
+
+.count {
+  font-weight: 600;
+  text-align: right;
+}
+
+.percent {
+  color: var(--text-muted);
+  text-align: right;
+}
+
+.overdue-note {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 14px 0 0;
+  color: var(--overdue-text);
+  font-weight: 500;
+
+  mat-icon {
+    width: 18px;
+    height: 18px;
+    font-size: 18px;
+    line-height: 18px;
+  }
+}
+
+@media (max-width: 479.98px) {
+  .body {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+  }
+
+  .doughnut {
+    align-self: center;
+  }
+}
