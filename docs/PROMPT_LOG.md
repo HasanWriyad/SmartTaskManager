@@ -529,3 +529,96 @@ against a throwaway database.
 - Required the API checks to use a throwaway database, so running them can
   never affect real data.
 - Verified both regression runs and that no test data was left behind.
+
+---
+
+### Step 8.1 — Angular Setup and Authentication
+**Prompt:**
+Create the Angular 22 app in frontend/ with Angular Material and standalone
+components. Add proxy.conf.json so /api goes to the backend. Build the core:
+auth service with signals (access token in memory), a functional interceptor
+that adds the token and refreshes once on 401, an error interceptor, and
+functional auth and role guards. Share a single in-flight refresh request
+between the interceptor and session restore, as recorded in CLAUDE.md.
+Restore the session on app start by calling refresh. Add lazy-loaded routes
+and the login and register pages with reactive forms.
+
+Follow-up prompt:
+Find out why the proxied refresh hangs and make session restore resilient:
+if refresh does not answer within about 5 seconds or fails for any reason,
+continue as signed out so the app always boots.
+
+**Result:** Angular 22 app (standalone, zoneless, signals) with Angular
+Material and strict TypeScript. Dev proxy for same-origin API calls. Auth
+service with the access token in memory and one shared in-flight refresh.
+Session restore before first navigation, with a 5-second limit. Interceptors
+for the token, refresh-and-retry, and typed errors. Auth, guest and role
+guards. Lazy-loaded login, register, shell, dashboard and users pages.
+Production bundle 112 kB over the network.
+
+**My review/changes:**
+- Checked that the shared refresh request from CLAUDE.md was used for both
+  the interceptor and session restore, since parallel refreshes would end
+  the session.
+- Verified that returnUrl only accepts same-app paths, which prevents open
+  redirects after login.
+- Found a blank page in my own browser: the API was paused by the Visual
+  Studio debugger on an expected UnauthorizedException, so session restore
+  waited forever. Asked for session restore to time out and start signed
+  out, and for a proxy timeout, so the app always boots even when the API is
+  down or paused.
+- Tested the interactive flows myself in the browser: register, login,
+  session restore after reload, the refresh cookie, the Admin-only users
+  page, the role guard and logout.
+
+---
+
+### Step 8.2 — UI Design and App Shell
+**Prompt (Claude Design, with the assignment PDF attached):**
+Design a clean, modern, professional UI for this Smart Task Management System
+(assignment attached). Only three screens: Login, Dashboard, and Task list.
+- App shell: a fixed left sidebar for navigation (Dashboard, Projects, Tasks,
+  and Users for Admins only) with the app name or logo at the top and the
+  signed-in user's name, role and sign-out at the bottom. The sidebar can
+  collapse to icons only on smaller screens and becomes a slide-out drawer
+  with a menu button on mobile. No navigation in the top area.
+- Dashboard: summary cards, charts for tasks by status and by priority, and a
+  list of upcoming due tasks.
+- Task list: search, filters, sortable table, pagination, status and priority
+  badges, and an "Improve with AI" action in the task form.
+It will be built with Angular Material. One accent colour, neutral
+background, light and dark mode, responsive down to mobile. Also give me a
+short design spec.
+
+**Prompt (Claude Code):**
+I added a UI design in docs/design/. The rule: the frontend implements what
+we planned and what the backend already does. The design spec only decides
+how it looks. If any part of the spec needs an endpoint, field or behaviour
+the backend does not have, follow the backend and the decisions in
+CLAUDE.md, leave that part out, and list it for me. Do not invent features.
+(Followed by four decided overrides, then: add GET /api/tasks across visible
+projects with projectId and overdue filters; build the design foundation and
+app shell; restyle the login, register and forbidden pages.)
+
+**Result:** Design spec and screenshots in docs/design/. Design rules and
+overrides recorded in CLAUDE.md. GET /api/tasks across all visible projects
+(429 API checks passing). Light and dark themes applied before first paint,
+Inter, Material theme from the accent colour, status and priority badges,
+and a sidebar shell with three breakpoints. Restyled sign-in, registration
+and forbidden pages.
+
+**My review/changes:**
+- Created the design first, so all remaining pages share one visual language
+  instead of being restyled at the end.
+- Moved navigation to a left sidebar.
+- Checked the design against the backend before building and found six
+  conflicts: token storage, login options without a backend, a missing
+  cross-project task list, a missing overdue filter, AI panel fields the API
+  does not return, and separate endpoints for task status and assignee.
+- Made the backend and the recorded decisions take priority over the design,
+  and asked for a list of anything left out instead of invented features.
+- Added the cross-project task endpoint, since the Tasks page and the
+  dashboard's "View all tasks" link depend on it.
+- A projectId the caller cannot see returns an empty list rather than 404,
+  so the filter does not reveal whether a project exists.
+  
