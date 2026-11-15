@@ -7,14 +7,8 @@ namespace SmartTaskManager.Infrastructure.Persistence;
 
 public static class DatabaseInitializer
 {
-    /// <summary>
-    /// Optionally applies migrations, seeds the initial Admin user if none exists, and, only when
-    /// <paramref name="isDevelopment"/> is true, seeds demo data into an empty database.
-    /// </summary>
-    public static async Task InitializeDatabaseAsync(
-        this IServiceProvider services,
-        bool isDevelopment,
-        CancellationToken cancellationToken = default)
+    /// <summary>Optionally applies migrations, then seeds the initial Admin user if none exists.</summary>
+    public static async Task InitializeDatabaseAsync(this IServiceProvider services, CancellationToken cancellationToken = default)
     {
         await using var scope = services.CreateAsyncScope();
         var provider = scope.ServiceProvider;
@@ -25,6 +19,5 @@ public static class DatabaseInitializer
         }
 
         await provider.GetRequiredService<AdminSeeder>().SeedAsync(cancellationToken);
-        await provider.GetRequiredService<DemoDataSeeder>().SeedAsync(isDevelopment, cancellationToken);
     }
 }

@@ -82,7 +82,6 @@ function Start-Api([hashtable]$envVars, [string]$database, [switch]$SqlLog) {
     $vars = @{
         'ASPNETCORE_ENVIRONMENT' = 'Development'
         'ASPNETCORE_URLS' = "https://localhost:$Port"
-        'SeedDemo__Enabled' = 'false' # checks expect an empty database
         'ConnectionStrings__DefaultConnection' = "Server=(localdb)\MSSQLLocalDB;Database=$database;Trusted_Connection=True;TrustServerCertificate=True;Connect Timeout=5"
     }
     if ($SqlLog) {
