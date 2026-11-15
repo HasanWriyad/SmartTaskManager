@@ -2,8 +2,10 @@ using Microsoft.EntityFrameworkCore;
 using SmartTaskManager.Application.Abstractions;
 using SmartTaskManager.Application.Common;
 using SmartTaskManager.Application.Common.Paging;
+using SmartTaskManager.Application.Features.Projects;
 using SmartTaskManager.Application.Features.Tasks;
 using SmartTaskManager.Domain.Entities;
+using SmartTaskManager.Domain.Enums;
 using SmartTaskManager.Infrastructure.Persistence;
 
 namespace SmartTaskManager.Infrastructure.Repositories;
@@ -24,9 +26,40 @@ internal sealed class TaskRepository(AppDbContext db) : ITaskRepository
     public Task<PagedResult<TaskListItemDto>> ListByProjectAsync(
         Guid projectId,
         TaskListQuery query,
+        CancellationToken cancellationToken) =>
+        ToPagedListAsync(Filter(db.Tasks.AsNoTracking().Where(t => t.ProjectId == projectId), query), query, cancellationToken);
+
+    public Task<PagedResult<TaskListItemDto>> ListVisibleAsync(
+        Viewer viewer,
+        AllTasksListQuery query,
+        DateOnly today,
         CancellationToken cancellationToken)
     {
-        var tasks = Filter(db.Tasks.AsNoTracking().Where(t => t.ProjectId == projectId), query);
+        // The projects query carries the soft-delete filter, so tasks of deleted projects never show.
+        var visibleProjectIds = db.Projects.Where(ProjectAccess.VisibleTo(viewer)).Select(p => p.Id);
+        var tasks = Filter(db.Tasks.AsNoTracking().Where(t => visibleProjectIds.Contains(t.ProjectId)), query);
+
+        if (query.ProjectId is { } projectId)
+        {
+            tasks = tasks.Where(t => t.ProjectId == projectId);
+        }
+
+        if (query.Overdue)
+        {
+            tasks = tasks.Where(t =>
+                t.DueDate != null
+                && t.DueDate < today
+                && (t.Status == TaskItemStatus.ToDo || t.Status == TaskItemStatus.InProgress));
+        }
+
+        return ToPagedListAsync(tasks, query, cancellationToken);
+    }
+
+    private static Task<PagedResult<TaskListItemDto>> ToPagedListAsync(
+        IQueryable<TaskItem> tasks,
+        TaskFilterQuery query,
+        CancellationToken cancellationToken)
+    {
         var direction = query.SortDirection;
 
         var ordered = query switch
@@ -51,7 +84,7 @@ internal sealed class TaskRepository(AppDbContext db) : ITaskRepository
             .ToPagedResultAsync(query, cancellationToken);
     }
 
-    private static IQueryable<TaskItem> Filter(IQueryable<TaskItem> tasks, TaskListQuery query)
+    private static IQueryable<TaskItem> Filter(IQueryable<TaskItem> tasks, TaskFilterQuery query)
     {
         if (!string.IsNullOrWhiteSpace(query.Search))
         {

@@ -23,6 +23,7 @@ public static class TaskAccess
     public static readonly Expression<Func<TaskItem, TaskListItemDto>> ToListItem = t => new TaskListItemDto(
         t.Id,
         t.ProjectId,
+        t.Project.Name,
         t.Title,
         t.Status,
         t.Priority,

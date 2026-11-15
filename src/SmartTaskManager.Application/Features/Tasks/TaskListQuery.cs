@@ -16,10 +16,10 @@ public static class TaskSortFields
 }
 
 /// <summary>
-/// Tasks of one project. Search matches title and description. Without sortBy the order is
-/// priority (highest first), then due date (none last), then creation time.
+/// Filters shared by the task lists. Search matches title and description. Without sortBy the order
+/// is priority (highest first), then due date (none last), then creation time.
 /// </summary>
-public sealed class TaskListQuery : PagedQuery
+public abstract class TaskFilterQuery : PagedQuery
 {
     public TaskItemStatus? Status { get; init; }
 
@@ -34,9 +34,23 @@ public sealed class TaskListQuery : PagedQuery
     public DateOnly? DueTo { get; init; }
 }
 
-internal sealed class TaskListQueryValidator : PagedQueryValidator<TaskListQuery>
+/// <summary>Tasks of one project.</summary>
+public sealed class TaskListQuery : TaskFilterQuery;
+
+/// <summary>Tasks across every project the caller can see.</summary>
+public sealed class AllTasksListQuery : TaskFilterQuery
 {
-    public TaskListQueryValidator()
+    /// <summary>Limits the list to one project; a project the caller cannot see gives an empty list.</summary>
+    public Guid? ProjectId { get; init; }
+
+    /// <summary>When true, only overdue tasks: due before today (UTC) and To Do or In Progress.</summary>
+    public bool Overdue { get; init; }
+}
+
+internal abstract class TaskFilterQueryValidator<T> : PagedQueryValidator<T>
+    where T : TaskFilterQuery
+{
+    protected TaskFilterQueryValidator()
         : base(TaskSortFields.All)
     {
         RuleFor(x => x.Status).IsInEnum();
@@ -46,5 +60,15 @@ internal sealed class TaskListQueryValidator : PagedQueryValidator<TaskListQuery
             .GreaterThanOrEqualTo(x => x.DueFrom)
             .When(x => x.DueFrom is not null && x.DueTo is not null)
             .WithMessage("DueTo must be on or after DueFrom.");
+    }
+}
+
+internal sealed class TaskListQueryValidator : TaskFilterQueryValidator<TaskListQuery>;
+
+internal sealed class AllTasksListQueryValidator : TaskFilterQueryValidator<AllTasksListQuery>
+{
+    public AllTasksListQueryValidator()
+    {
+        RuleFor(x => x.ProjectId).NotEqual(Guid.Empty);
     }
 }

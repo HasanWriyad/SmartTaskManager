@@ -698,6 +698,100 @@
                      "name":  "Tasks",
                      "item":  [
                                   {
+                                      "name":  "GET /api/tasks - Lists tasks across all projects the caller can see",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "header":  [
+
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/tasks",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "tasks"
+                                                                           ],
+                                                                  "query":  [
+                                                                                {
+                                                                                    "key":  "projectId",
+                                                                                    "value":  "00000000-0000-0000-0000-000000000000",
+                                                                                    "disabled":  true,
+                                                                                    "description":  ""
+                                                                                },
+                                                                                {
+                                                                                    "key":  "overdue",
+                                                                                    "value":  "true",
+                                                                                    "disabled":  true,
+                                                                                    "description":  ""
+                                                                                },
+                                                                                {
+                                                                                    "key":  "status",
+                                                                                    "value":  "ToDo",
+                                                                                    "disabled":  true,
+                                                                                    "description":  ""
+                                                                                },
+                                                                                {
+                                                                                    "key":  "priority",
+                                                                                    "value":  "Low",
+                                                                                    "disabled":  true,
+                                                                                    "description":  ""
+                                                                                },
+                                                                                {
+                                                                                    "key":  "assigneeId",
+                                                                                    "value":  "{{userId}}",
+                                                                                    "disabled":  true,
+                                                                                    "description":  ""
+                                                                                },
+                                                                                {
+                                                                                    "key":  "dueFrom",
+                                                                                    "value":  "2026-12-01",
+                                                                                    "disabled":  true,
+                                                                                    "description":  ""
+                                                                                },
+                                                                                {
+                                                                                    "key":  "dueTo",
+                                                                                    "value":  "2026-12-31",
+                                                                                    "disabled":  true,
+                                                                                    "description":  ""
+                                                                                },
+                                                                                {
+                                                                                    "key":  "search",
+                                                                                    "value":  "",
+                                                                                    "disabled":  true,
+                                                                                    "description":  ""
+                                                                                },
+                                                                                {
+                                                                                    "key":  "sortBy",
+                                                                                    "value":  "",
+                                                                                    "disabled":  true,
+                                                                                    "description":  ""
+                                                                                },
+                                                                                {
+                                                                                    "key":  "sortDirection",
+                                                                                    "value":  "Asc",
+                                                                                    "disabled":  true,
+                                                                                    "description":  ""
+                                                                                },
+                                                                                {
+                                                                                    "key":  "page",
+                                                                                    "value":  "1",
+                                                                                    "disabled":  true,
+                                                                                    "description":  ""
+                                                                                },
+                                                                                {
+                                                                                    "key":  "pageSize",
+                                                                                    "value":  "20",
+                                                                                    "disabled":  true,
+                                                                                    "description":  ""
+                                                                                }
+                                                                            ]
+                                                              },
+                                                      "description":  "Lists tasks across all projects the caller can see. Those are the projects they own or are a\r\nmember of (Admin: all projects); each row includes the project name. Same search, filters and\r\nsorting as the project task list, plus projectId (a project the caller cannot see gives an\r\nempty list) and overdue=true (due before today, UTC, and ToDo or InProgress)."
+                                                  }
+                                  },
+                                  {
                                       "name":  "GET /api/projects/{projectId}/tasks - Lists the project\u0027s tasks",
                                       "request":  {
                                                       "method":  "GET",

@@ -34,7 +34,7 @@ From the repository root:
 | `users` | Admin user list and lookup, role and status changes, self-protection, last-Admin rule and race, immediate effect of role changes and deactivation |
 | `projects` | CRUD, role matrix (404 vs 403), members, soft delete cascading to tasks in one transaction, rollback on failure |
 | `tasks` | CRUD, assignment rules, status transitions and `CompletedAt`, assignee permissions, due-date rules, soft delete |
-| `lists` | Search, filters, sorting and paging for projects and tasks; validation of query parameters |
+| `lists` | Search, filters, sorting and paging for projects, project tasks and all visible tasks (`GET /api/tasks`, incl. projectId and overdue); validation of query parameters |
 | `dashboard` | Every statistic per role, exclusions, and the query shape (number of SQL commands, `GROUP BY`) |
 | `ai-fallback` | AI endpoint with no key configured: offline fallback |
 | `ai-provider` | AI endpoint against a local fake OpenAI-compatible server: request shape, prompt injection handling, 429/500/503/timeout/invalid-output handling, one retry on 503 |

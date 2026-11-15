@@ -18,6 +18,12 @@ public interface ITaskRepository
 
     Task<PagedResult<TaskListItemDto>> ListByProjectAsync(Guid projectId, TaskListQuery query, CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Tasks of every project the viewer can see (this method applies the visibility rule itself).
+    /// <paramref name="today"/> is the date used by the overdue filter.
+    /// </summary>
+    Task<PagedResult<TaskListItemDto>> ListVisibleAsync(Viewer viewer, AllTasksListQuery query, DateOnly today, CancellationToken cancellationToken);
+
     /// <summary>Tracked load of all live tasks of the project, for deleting them with the project.</summary>
     Task<List<TaskItem>> GetAllInProjectAsync(Guid projectId, CancellationToken cancellationToken);
 

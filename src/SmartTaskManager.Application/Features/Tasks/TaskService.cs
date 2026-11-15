@@ -25,6 +25,13 @@ internal sealed partial class TaskService(
         return await tasks.ListByProjectAsync(projectId, query, cancellationToken);
     }
 
+    public Task<PagedResult<TaskListItemDto>> ListAllAsync(AllTasksListQuery query, CancellationToken cancellationToken)
+    {
+        // Same "today" as the dashboard's overdue count.
+        var today = DateOnly.FromDateTime(timeProvider.GetUtcNow().UtcDateTime);
+        return tasks.ListVisibleAsync(currentUser.RequireViewer(), query, today, cancellationToken);
+    }
+
     public async Task<TaskDetailsDto> GetAsync(Guid projectId, Guid taskId, CancellationToken cancellationToken)
     {
         var viewer = currentUser.RequireViewer();

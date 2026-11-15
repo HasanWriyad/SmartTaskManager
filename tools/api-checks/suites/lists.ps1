@@ -1,4 +1,4 @@
-# Search, filters, sorting and paging for GET /api/projects and GET /api/projects/{id}/tasks.
+# Search, filters, sorting and paging for GET /api/projects, GET /api/projects/{id}/tasks and GET /api/tasks.
 $ctx = Get-ApiChecksContext
 $Base = $ctx.BaseUrl
 $ServerLog = $ctx.ServerLog
@@ -20,7 +20,7 @@ Start-Sleep -Milliseconds 30
 $bravo = (Req POST /api/projects @{ name = "Bravo $sfx"; description = 'Garden' } $tok.pm1).Body.data.id
 Start-Sleep -Milliseconds 30
 $charlie = (Req POST /api/projects @{ name = "Charlie $sfx" } $tok.pm1).Body.data.id
-$null = Req POST /api/projects @{ name = "Delta $sfx (pm2)" } $tok.pm2
+$delta = (Req POST /api/projects @{ name = "Delta $sfx (pm2)" } $tok.pm2).Body.data.id
 $null = Req POST "/api/projects/$alpha/members" @{ userId = $ids.tm1 } $tok.pm1
 
 $d = { param($days) [DateTime]::UtcNow.Date.AddDays($days).ToString('yyyy-MM-dd') }
@@ -115,6 +115,51 @@ $r = Req GET $TasksUrl -bearer $tok.tm1
 Check 'tasks: soft-deleted task excluded from list and count' ((Order $r) -eq 'badc' -and $r.Body.data.totalCount -eq 4)
 Check 'projects: taskCount sort uses live tasks (Alpha now 4)' ((Names (Req GET "/api/projects?search=$sfx&sortBy=taskCount&sortDirection=desc" -bearer $tok.pm1) 'taskCount') -eq '4,1,0')
 Check 'tasks: non-member list -> 404' ((Req GET "/api/projects/$bravo/tasks" -bearer $tok.tm1).Code -eq 404)
+Check 'tasks: project list rows carry projectName' ((Names (Req GET $TasksUrl -bearer $tok.tm1) 'projectName') -eq (@("Alpha $sfx") * 4 -join ','))
+
+# ===== All tasks (GET /api/tasks): Alpha a b c d (e deleted), Bravo p, Delta x (pm2 only).
+# Due dates cannot be set in the past through the API, so overdue cases are set up in SQL.
+$t['p'] = @((Req GET "/api/projects/$bravo/tasks" -bearer $tok.pm1).Body.data.items)[0].id
+$t['x'] = (Req POST "/api/projects/$delta/tasks" @{ title = 'Delta work' } $tok.pm2).Body.data.id
+$key = @{}; foreach ($k in $t.Keys) { $key[$t[$k]] = $k }
+function SetDue($k, $days) { Sql "UPDATE Tasks SET DueDate = DATEADD(day, $days, CAST(SYSUTCDATETIME() AS date)) WHERE Id = '$($t[$k])'" | Out-Null }
+SetDue 'a' -3; SetDue 'c' -3   # a = High/ToDo overdue; c = Completed, past due but not overdue
+# Now: a=High/ToDo/-3/tm1  b=Critical/InProgress/+2/pm1  c=Low/Completed/-3  d=Medium/ToDo/+10/tm1  p=Medium/ToDo/none
+$r = Req GET /api/tasks -bearer $tok.pm1
+Check 'all tasks: pm1 sees Alpha + Bravo, default order -> b a d p c' ($r.Code -eq 200 -and (Order $r) -eq 'badpc' -and $r.Body.data.totalCount -eq 5) (Order $r)
+$rows = @{}; foreach ($i in $r.Body.data.items) { $rows[$key[$i.id]] = $i }
+Check 'all tasks: rows carry projectId and projectName' ($rows.a.projectName -eq "Alpha $sfx" -and $rows.p.projectName -eq "Bravo $sfx" -and $rows.p.projectId -eq $bravo -and $rows.a.assigneeName -eq "Test tm1 $sfx")
+Check 'all tasks: tm1 (member of Alpha only) -> b a d c' ((Order (Req GET /api/tasks -bearer $tok.tm1)) -eq 'badc')
+Check 'all tasks: pm2 sees only Delta -> x' ((Order (Req GET /api/tasks -bearer $tok.pm2)) -eq 'x')
+Check 'all tasks: Admin projectId=Delta -> x' ((Order (Req GET "/api/tasks?projectId=$delta" -bearer $A)) -eq 'x')
+Check 'all tasks: projectId=Bravo (pm1) -> p' ((Order (Req GET "/api/tasks?projectId=$bravo" -bearer $tok.pm1)) -eq 'p')
+$r = Req GET "/api/tasks?projectId=$delta" -bearer $tok.pm1
+Check 'all tasks: projectId of an invisible project -> 200, empty' ($r.Code -eq 200 -and $r.Body.data.totalCount -eq 0)
+Check 'all tasks: projectId of an unknown project -> 200, empty' ((Req GET "/api/tasks?projectId=$([guid]::NewGuid())" -bearer $tok.pm1).Body.data.totalCount -eq 0)
+Check 'all tasks: search title or description ("rocket" -> b a)' ((Order (Req GET '/api/tasks?search=rocket' -bearer $tok.pm1)) -eq 'ba')
+Check 'all tasks: status=ToDo -> a d p' ((Order (Req GET '/api/tasks?status=ToDo' -bearer $tok.pm1)) -eq 'adp')
+Check 'all tasks: priority=Medium -> d p' ((Order (Req GET '/api/tasks?priority=Medium' -bearer $tok.pm1)) -eq 'dp')
+Check 'all tasks: assigneeId=tm1 -> a d' ((Order (Req GET "/api/tasks?assigneeId=$($ids.tm1)" -bearer $tok.pm1)) -eq 'ad')
+Check 'all tasks: dueFrom=today -> b d' ((Order (Req GET "/api/tasks?dueFrom=$(& $d 0)" -bearer $tok.pm1)) -eq 'bd')
+Check 'all tasks: overdue=true -> a (completed c excluded)' ((Order (Req GET '/api/tasks?overdue=true' -bearer $tok.pm1)) -eq 'a')
+Check 'all tasks: overdue=true for tm1 -> a' ((Order (Req GET '/api/tasks?overdue=true' -bearer $tok.tm1)) -eq 'a')
+Check 'all tasks: overdue=false is no filter -> 5' ((Req GET '/api/tasks?overdue=false' -bearer $tok.pm1).Body.data.totalCount -eq 5)
+$r = Req GET '/api/tasks?pageSize=2&page=2' -bearer $tok.pm1
+Check 'all tasks: pageSize=2 page=2 -> d p, 3 pages' ((Order $r) -eq 'dp' -and $r.Body.data.totalPages -eq 3 -and $r.Body.data.hasNextPage)
+SetDue 'b' -1; SetDue 'd' -2; $null = Req PUT "/api/projects/$alpha/tasks/$($t.d)/status" @{ status = 'Cancelled' } $tok.pm1
+SetDue 'p' 0   # due today: not overdue
+Check 'all tasks: overdue includes InProgress, excludes Cancelled and due-today -> b a' ((Order (Req GET '/api/tasks?overdue=true' -bearer $tok.pm1)) -eq 'ba')
+Check 'all tasks: overdue=true&status=InProgress -> b' ((Order (Req GET '/api/tasks?overdue=true&status=InProgress' -bearer $tok.pm1)) -eq 'b')
+Check 'all tasks: overdue=true&projectId=Bravo -> none' ((Req GET "/api/tasks?overdue=true&projectId=$bravo" -bearer $tok.pm1).Body.data.totalCount -eq 0)
+Check 'all tasks: sortBy=dueDate (ties by createdAt) -> a c d b p' ((Order (Req GET '/api/tasks?sortBy=dueDate' -bearer $tok.pm1)) -eq 'acdbp')
+Check 'all tasks: sortBy=title desc -> c d p a b' ((Order (Req GET '/api/tasks?sortBy=title&sortDirection=desc' -bearer $tok.pm1)) -eq 'cdpab')
+foreach ($bad in "projectId=$([guid]::Empty)", 'projectId=abc', 'overdue=maybe', 'sortBy=project', 'status=1', 'pageSize=0', "dueFrom=$(& $d 5)&dueTo=$(& $d 1)") {
+  $r = Req GET "/api/tasks?$bad" -bearer $tok.pm1
+  Check "all tasks: invalid $($bad.Substring(0, [Math]::Min(26, $bad.Length))) -> 400" ($r.Code -eq 400 -and -not ($r.Body.errors.PSObject.Properties.Name | Where-Object { $_ -cmatch '^[A-Z$]' })) (($r.Body.errors.PSObject.Properties | ForEach-Object { "$($_.Name): $($_.Value -join ' ')" }) -join '; ')
+}
+Check 'all tasks: anonymous -> 401' ((Req GET /api/tasks).Code -eq 401)
+$null = Req DELETE "/api/projects/$bravo" -bearer $tok.pm1
+Check 'all tasks: tasks of a deleted project disappear -> b a d c' ((Order (Req GET '/api/tasks?sortBy=title' -bearer $tok.pm1)) -eq 'badc' -and (Req GET /api/tasks -bearer $tok.pm1).Body.data.totalCount -eq 4)
 
 # --- Cleanup
 $idList = ($ids.Values | ForEach-Object { "'$_'" }) -join ','

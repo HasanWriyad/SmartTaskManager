@@ -20,9 +20,11 @@ public sealed record AssignTaskRequest(Guid? AssigneeId);
 
 public sealed record UpdateTaskStatusRequest(TaskItemStatus? Status);
 
+/// <summary>A row of either task list (one project, or all projects the caller can see).</summary>
 public sealed record TaskListItemDto(
     Guid Id,
     Guid ProjectId,
+    string ProjectName,
     string Title,
     TaskItemStatus Status,
     TaskPriority Priority,

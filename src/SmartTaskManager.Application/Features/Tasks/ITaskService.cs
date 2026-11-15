@@ -10,6 +10,9 @@ public interface ITaskService
 {
     Task<PagedResult<TaskListItemDto>> ListAsync(Guid projectId, TaskListQuery query, CancellationToken cancellationToken);
 
+    /// <summary>Tasks across every project the caller can see (Admin: all projects).</summary>
+    Task<PagedResult<TaskListItemDto>> ListAllAsync(AllTasksListQuery query, CancellationToken cancellationToken);
+
     Task<TaskDetailsDto> GetAsync(Guid projectId, Guid taskId, CancellationToken cancellationToken);
 
     Task<TaskDetailsDto> CreateAsync(Guid projectId, CreateTaskRequest request, CancellationToken cancellationToken);
