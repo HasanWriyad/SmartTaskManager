@@ -1,0 +1,234 @@
+// Project details: overview card and members card.
+.back {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  margin: -12px 0 4px -8px;
+  padding: 0 8px 0 2px;
+  border-radius: var(--radius-control);
+  color: var(--text-muted);
+  font-weight: 500;
+  text-decoration: none;
+
+  &:hover {
+    background: var(--hover);
+    color: var(--text);
+  }
+}
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.overview {
+  padding: 20px;
+}
+
+.overview-head,
+.members-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px 16px;
+}
+
+.name {
+  min-width: 0;
+  font-size: 20px;
+  line-height: 28px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.head-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.delete {
+  --mat-button-text-label-text-color: var(--overdue-text);
+}
+
+.description {
+  max-width: 72ch;
+  margin: 12px 0 0;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+
+  &.muted {
+    color: var(--text-muted);
+  }
+}
+
+.facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 16px;
+  margin: 20px 0 0;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+
+dt {
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+}
+
+dd {
+  margin: 6px 0 0;
+  font-weight: 500;
+}
+
+.person {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+// ---------- Members
+.members {
+  position: relative;
+  overflow: hidden;
+}
+
+.loading-bar {
+  position: absolute;
+  inset: 0 0 auto;
+}
+
+.members-head {
+  padding: 20px;
+}
+
+.card-title {
+  margin: 0;
+  font-size: 15px;
+  line-height: 22px;
+  font-weight: 600;
+}
+
+.card-subtitle {
+  margin: 2px 0 0;
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 18px;
+}
+
+.add-member {
+  flex: 0 1 320px;
+  min-width: 0;
+
+  mat-icon[matPrefix] {
+    margin: 0 4px 0 12px;
+    color: var(--text-muted);
+  }
+}
+
+.option-name {
+  display: block;
+  line-height: 20px;
+}
+
+.option-email,
+.member-email,
+.member-added {
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 16px;
+}
+
+.member-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.member {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 64px;
+  padding: 8px 12px 8px 20px;
+  border-top: 1px solid var(--border);
+}
+
+.member-text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.member-name {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+}
+
+.member-email {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.owner-tag {
+  padding: 2px 8px;
+  border-radius: var(--radius-badge);
+  background: var(--accent-soft);
+  color: var(--accent-text);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+}
+
+.remove-placeholder {
+  width: 48px;
+  flex: none;
+}
+
+// ---------- Skeleton
+.skeleton.line {
+  width: 70%;
+  height: 12px;
+  margin: 10px 0;
+
+  &.title {
+    width: 35%;
+    height: 20px;
+  }
+
+  &.short {
+    width: 40%;
+  }
+}
+
+.skeleton-members {
+  padding: 12px 20px;
+}
+
+@media (max-width: 719.98px) {
+  .overview,
+  .members-head {
+    padding: 16px;
+  }
+
+  .member {
+    padding-left: 16px;
+  }
+
+  .member-added {
+    display: none;
+  }
+
+  .add-member {
+    flex-basis: 100%;
+  }
+}

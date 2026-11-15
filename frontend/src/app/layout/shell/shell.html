@@ -89,6 +89,9 @@
       <h1 class="page-title">{{ heading() }}</h1>
       <span class="spacer"></span>
       <app-theme-toggle />
+      @if (headerAction(); as action) {
+        <ng-container [ngTemplateOutlet]="action" />
+      }
     </header>
 
     <main class="content">

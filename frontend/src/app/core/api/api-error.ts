@@ -38,3 +38,22 @@ export class ApiError extends Error {
     return new ApiError(error.status, fallback);
   }
 }
+
+/** A user-safe message for any failure from HttpClient or httpResource. */
+export function apiErrorMessage(error: unknown, fallback: string): string {
+  if (error instanceof ApiError) {
+    return error.message;
+  }
+  if (error instanceof HttpErrorResponse) {
+    return ApiError.fromHttpError(error).message;
+  }
+  return fallback;
+}
+
+/** HTTP status of a failure from HttpClient or httpResource (0 when unknown). */
+export function apiErrorStatus(error: unknown): number {
+  if (error instanceof ApiError || error instanceof HttpErrorResponse) {
+    return error.status;
+  }
+  return 0;
+}

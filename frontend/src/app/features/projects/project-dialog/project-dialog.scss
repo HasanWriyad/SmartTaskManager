@@ -1,0 +1,81 @@
+// Form dialog (spec §7.4 anatomy): header with close button, fields, footer with a top border.
+// Full screen on phones (global .app-form-dialog), where the footer stays at the bottom.
+:host,
+form {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+form {
+  flex: 1;
+  min-height: 0;
+}
+
+.dialog-body {
+  flex: 1;
+  overflow: auto;
+}
+
+.dialog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 16px 16px 8px 24px;
+}
+
+.dialog-title {
+  margin: 0;
+  font-size: 18px;
+  line-height: 26px;
+  font-weight: 600;
+}
+
+.dialog-body {
+  padding: 8px 24px 24px;
+}
+
+.field + .field {
+  margin-top: 16px;
+}
+
+.label-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.field-label {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 500;
+}
+
+.optional,
+.counter {
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 400;
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 96px;
+}
+
+.dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 16px 24px;
+  border-top: 1px solid var(--border);
+}

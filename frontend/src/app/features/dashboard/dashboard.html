@@ -1,5 +1,23 @@
 @if (data(); as d) {
   <div class="page">
+    @if (d.totalProjects === 0) {
+      <section class="card no-projects" aria-labelledby="no-projects-title">
+        <span class="icon-tile" aria-hidden="true"><mat-icon>folder</mat-icon></span>
+        @if (canCreateProject()) {
+          <div class="no-projects-text">
+            <h2 id="no-projects-title" class="card-title">No projects yet</h2>
+            <p class="card-subtitle">Create a project, then add members and tasks to it.</p>
+          </div>
+          <button mat-flat-button type="button" (click)="createProject()"><mat-icon>add</mat-icon>Create project</button>
+        } @else {
+          <div class="no-projects-text">
+            <h2 id="no-projects-title" class="card-title">You haven't been added to a project yet.</h2>
+            <p class="card-subtitle">Ask a project manager to add you.</p>
+          </div>
+        }
+      </section>
+    }
+
     <section class="metrics" aria-label="Summary">
       @for (card of cards(); track card.label) {
         <article class="card metric" [class]="'card metric tone-' + card.tone">

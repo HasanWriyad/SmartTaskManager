@@ -37,6 +37,14 @@ export const routes: Routes = [
         loadComponent: () => import('./features/projects/projects').then((m) => m.Projects),
       },
       {
+        // The tab title becomes the project's name once it has loaded.
+        path: 'projects/:id',
+        title: 'Project · SmartTask',
+        data: { heading: 'Project' },
+        loadComponent: () =>
+          import('./features/projects/project-details/project-details').then((m) => m.ProjectDetailsPage),
+      },
+      {
         path: 'tasks',
         title: 'Tasks · SmartTask',
         data: { heading: 'Tasks' },

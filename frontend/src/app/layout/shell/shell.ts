@@ -13,6 +13,7 @@ import { AuthService } from '../../core/auth/auth.service';
 import { Avatar } from '../../shared/avatar/avatar';
 import { Logo } from '../../shared/logo/logo';
 import { ThemeToggle } from '../../shared/theme-toggle/theme-toggle';
+import { HeaderActionSlot } from '../header-action/header-action';
 
 interface NavItem {
   path: string;
@@ -62,6 +63,9 @@ export class Shell {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
   private readonly breakpoints = inject(BreakpointObserver);
+
+  /** The current page's main action (set by its appHeaderAction template). */
+  protected readonly headerAction = inject(HeaderActionSlot).template;
 
   protected readonly user = this.auth.user;
   protected readonly isAdmin = computed(() => this.auth.role() === 'Admin');

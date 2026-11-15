@@ -3,6 +3,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../core/auth/auth.service';
+import { ProjectActions } from '../projects/project-actions';
 import { DashboardService } from './dashboard.service';
 import { priorityRows, statusSlices, summaryCards } from './dashboard.view';
 import { PriorityChart } from './priority-chart';
@@ -22,6 +23,7 @@ const upcomingRows = 5;
 })
 export class Dashboard {
   private readonly auth = inject(AuthService);
+  private readonly projectActions = inject(ProjectActions);
 
   protected readonly dashboard = inject(DashboardService).load();
 
@@ -54,6 +56,14 @@ export class Dashboard {
 
   protected readonly skeletonCards = [1, 2, 3, 4, 5, 6];
   protected readonly skeletonRows = [1, 2, 3, 4, 5];
+
+  /** Admin and ProjectManager can create projects (the API enforces it). */
+  protected readonly canCreateProject = computed(() => this.auth.hasAnyRole(['Admin', 'ProjectManager']));
+
+  /** Opens the new-project dialog; the created project opens on its details page. */
+  protected createProject(): void {
+    this.projectActions.create();
+  }
 
   protected retry(): void {
     this.dashboard.reload();
