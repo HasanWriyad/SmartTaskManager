@@ -25,3 +25,10 @@ export interface RegisterRequest {
   fullName: string;
   password: string;
 }
+
+/** Display names for roles (sidebar user row, users page). */
+export const roleLabels: Record<Role, string> = {
+  Admin: 'Admin',
+  ProjectManager: 'Project Manager',
+  TeamMember: 'Team Member',
+};

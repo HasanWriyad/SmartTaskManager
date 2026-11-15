@@ -45,6 +45,7 @@ import {
 import { TaskService } from './task.service';
 
 const phoneQuery = '(max-width: 719.98px)';
+const mediumQuery = '(min-width: 720px) and (max-width: 959.98px)';
 
 /** What the current user may do with a row: manage (edit/assign/delete), status only, or view. */
 type RowAccess = 'manage' | 'status' | 'view';
@@ -156,7 +157,15 @@ export class Tasks {
   protected readonly sortLabels = taskSortLabels;
   protected readonly sortFields = Object.keys(taskSortLabels) as TaskSortField[];
   protected readonly pageSizes = taskPageSizes;
-  protected readonly columns = ['title', 'status', 'priority', 'assignee', 'dueDate', 'actions'];
+  /** 720-959px (icon rail): no Assignee column, so Due date and the row actions stay on screen. */
+  protected readonly isMedium = toSignal(inject(BreakpointObserver).observe(mediumQuery).pipe(map((r) => r.matches)), {
+    initialValue: inject(BreakpointObserver).isMatched(mediumQuery),
+  });
+  protected readonly columns = computed(() =>
+    this.isMedium()
+      ? ['title', 'status', 'priority', 'dueDate', 'actions']
+      : ['title', 'status', 'priority', 'assignee', 'dueDate', 'actions'],
+  );
   protected readonly skeletonRows = [1, 2, 3, 4, 5];
 
   protected readonly search = new FormControl(this.state().search, { nonNullable: true });

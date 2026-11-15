@@ -274,3 +274,11 @@ td.mat-column-title {
     flex: none;
   }
 }
+
+// 720-959px (icon rail): the Assignee column is left out (tasks.ts), so the table fits without
+// sideways scrolling and Due date and the row actions stay visible.
+@media (min-width: 720px) and (max-width: 959.98px) {
+  table {
+    min-width: 0;
+  }
+}

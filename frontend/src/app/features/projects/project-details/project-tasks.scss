@@ -180,3 +180,14 @@ td:first-child {
     padding: 16px;
   }
 }
+
+// 720-959px (icon rail): no Assignee column, so the table fits without sideways scrolling.
+@media (min-width: 720px) and (max-width: 959.98px) {
+  .assignee-col {
+    display: none;
+  }
+
+  .table {
+    min-width: 0;
+  }
+}

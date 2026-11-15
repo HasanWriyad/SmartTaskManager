@@ -8,7 +8,7 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRouteSnapshot, NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { filter, map } from 'rxjs';
-import { Role } from '../../core/auth/auth.models';
+import { roleLabels } from '../../core/auth/auth.models';
 import { AuthService } from '../../core/auth/auth.service';
 import { Avatar } from '../../shared/avatar/avatar';
 import { Logo } from '../../shared/logo/logo';
@@ -32,12 +32,6 @@ type Layout = 'wide' | 'rail' | 'drawer';
 const wideQuery = '(min-width: 1200px)';
 const railQuery = '(min-width: 720px)';
 const collapsedKey = 'stm-sidebar-collapsed';
-
-const roleLabels: Record<Role, string> = {
-  Admin: 'Admin',
-  ProjectManager: 'Project Manager',
-  TeamMember: 'Team Member',
-};
 
 /** Layout for signed-in pages: left sidebar navigation and a header with the page title. */
 @Component({

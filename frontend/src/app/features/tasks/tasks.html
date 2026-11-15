@@ -235,8 +235,8 @@
               </td>
             </ng-container>
 
-            <tr mat-header-row *matHeaderRowDef="columns"></tr>
-            <tr mat-row *matRowDef="let task; columns: columns" class="row" (click)="open(task)"></tr>
+            <tr mat-header-row *matHeaderRowDef="columns()"></tr>
+            <tr mat-row *matRowDef="let task; columns: columns()" class="row" (click)="open(task)"></tr>
           </table>
         </div>
       }

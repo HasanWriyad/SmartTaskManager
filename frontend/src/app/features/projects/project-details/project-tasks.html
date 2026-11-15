@@ -70,7 +70,7 @@
               <th scope="col">Title</th>
               <th scope="col">Status</th>
               <th scope="col">Priority</th>
-              <th scope="col">Assignee</th>
+              <th scope="col" class="assignee-col">Assignee</th>
               <th scope="col">Due date</th>
             </tr>
           </thead>
@@ -82,7 +82,7 @@
                 </td>
                 <td><app-status-badge [status]="task.status" /></td>
                 <td><app-priority-badge [priority]="task.priority" /></td>
-                <td>
+                <td class="assignee-col">
                   @if (task.assigneeName; as name) {
                     <span class="person">
                       <app-avatar [name]="name" [size]="28" [self]="task.assigneeId === currentUserId()" />

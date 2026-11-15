@@ -1,0 +1,227 @@
+// Users (Admin): filter bar, table (cards below 720px) and pagination, like the project list.
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+}
+
+.search {
+  flex: 2 1 260px;
+
+  mat-icon[matPrefix] {
+    margin: 0 4px 0 12px;
+    color: var(--text-muted);
+  }
+}
+
+.select {
+  flex: 1 1 170px;
+}
+
+.summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 20px;
+  margin: -4px 4px -8px;
+}
+
+.count {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.sort-arrow {
+  width: 16px;
+  height: 16px;
+  font-size: 16px;
+
+  &.desc {
+    transform: rotate(180deg);
+  }
+}
+
+.list-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.loading-bar {
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 1;
+}
+
+.table-scroll {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  min-width: 480px;
+}
+
+th.mat-mdc-header-cell {
+  height: 48px;
+  background: var(--surface-2);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+td.mat-mdc-cell {
+  height: 64px;
+}
+
+th:first-child,
+td:first-child {
+  padding-left: 20px;
+}
+
+td.mat-column-user {
+  width: 45%;
+  max-width: 0;
+}
+
+.inactive-row .person {
+  opacity: 0.7;
+}
+
+.person {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.person-text,
+.card-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.name {
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+
+.email {
+  overflow: hidden;
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 16px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.nowrap {
+  white-space: nowrap;
+}
+
+.actions {
+  width: 56px;
+  text-align: right;
+}
+
+// ---------- Role and status badges (badge anatomy, spec §3)
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 24px;
+  padding: 0 8px;
+  border-radius: var(--radius-badge);
+  background: var(--surface-2);
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+
+  &.admin {
+    background: var(--accent-soft);
+    color: var(--accent-text);
+  }
+
+  &.active {
+    background: var(--status-completed-bg);
+    color: var(--status-completed-text);
+  }
+
+  &.inactive {
+    border: 1px solid var(--status-cancelled-border);
+    background: transparent;
+    color: var(--status-cancelled-text);
+  }
+}
+
+.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+
+  .inactive & {
+    box-sizing: border-box;
+    border: 1.5px solid currentColor;
+    background: transparent;
+  }
+}
+
+// ---------- Phone cards
+.cards {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.user-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 8px 14px 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.card-text {
+  flex: 1;
+}
+
+.badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+// ---------- Skeleton
+.skeleton-list {
+  padding: 8px 20px;
+}
+
+.skeleton-row {
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border);
+
+  &:last-child {
+    border-bottom: 0;
+  }
+}
+
+.skeleton.line {
+  width: 30%;
+  height: 12px;
+  margin: 4px 0;
+
+  &.wide {
+    width: 55%;
+  }
+}

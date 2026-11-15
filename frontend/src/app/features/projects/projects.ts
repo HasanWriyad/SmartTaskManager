@@ -35,6 +35,7 @@ import { ProjectService } from './project.service';
 import { fromIsoDate, parseProjectListState, projectListQueryParams, toIsoDate } from './project-list.state';
 
 const phoneQuery = '(max-width: 719.98px)';
+const mediumQuery = '(min-width: 720px) and (max-width: 959.98px)';
 
 /**
  * Project list: search, owner filter, created date range, sorting and paging, all kept in the URL.
@@ -106,8 +107,12 @@ export class Projects {
   });
 
   /** The actions column only when the user can manage a project on this page (canManage from the API). */
+  /** 720-959px (icon rail): Members and Created are left out so the row actions stay on screen. */
+  protected readonly isMedium = toSignal(inject(BreakpointObserver).observe(mediumQuery).pipe(map((r) => r.matches)), {
+    initialValue: inject(BreakpointObserver).isMatched(mediumQuery),
+  });
   protected readonly columns = computed(() => {
-    const columns = ['name', 'owner', 'members', 'taskCount', 'createdAt'];
+    const columns = this.isMedium() ? ['name', 'owner', 'taskCount'] : ['name', 'owner', 'members', 'taskCount', 'createdAt'];
     return this.result()?.items.some((p) => p.canManage) ? [...columns, 'actions'] : columns;
   });
   protected readonly pageSizes = projectPageSizes;
